@@ -1,0 +1,11 @@
+name: tangles
+channels:
+  - defaults
+dependencies:
+  - python=3.7
+  - scikit-learn
+  - numpy
+  - matplotlib
+  - seaborn
+prefix: /home/dfioravanti/anaconda3/envs/tangles
+
