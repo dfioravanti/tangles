@@ -1,22 +1,28 @@
 import numpy as np
 from scipy.linalg import hadamard
-from src.misc import count_difference
 
 
 def make_centers(n_features=20, n_mindsets=2):
 
     """
-    Generates n_mindsets centers that are have more or less half of their features different
+    Generates n_mindsets centers that are have hamming distance bigger than
+    n_features // 2 - 2. This statement should be correct but I did not prove it.
 
-    TODO: Check out if we can use some other type of code that have a guaranteed Hemming distance.
+    For now we generate those point by cropping a hadamarn matrix.
+    TODO: Check out if we can use some other type of code that have a guaranteed hamming distance.
+    TODO: It does not really scale up too much so better fix that to do soon
 
     Parameters
     ----------
-    n_features
-    n_mindsets
+    n_features : int, optional (default=20)
+        The number of features.
+    n_mindsets : int, optional (default=2)
+        The number of classes, we call them "mindsets", that we should generate.
 
     Returns
     -------
+    c : array of shape [n_mindsets, n_features]
+        The coordinates of the centers of the mindsets
 
     """
 
@@ -26,8 +32,9 @@ def make_centers(n_features=20, n_mindsets=2):
 
     idxs = np.arange(next_power_two)
     idxs = np.random.choice(idxs, n_mindsets, replace=False)
+    c = h_matrix[idxs, :n_features]
 
-    return h_matrix[idxs, :n_features]
+    return c
 
 
 def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tolerance=0.2,
