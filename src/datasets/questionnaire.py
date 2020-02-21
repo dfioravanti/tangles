@@ -38,12 +38,14 @@ def make_centers(n_features=20, n_mindsets=2):
 
 
 def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tolerance=0.2,
-                                 centers=False):
+                                 centers=True):
     """
 
     This function simulates a synthetic questionnaire.
 
     The center of the mindsets will always disagree among each other in n_features / n_mindsets features.
+    TODO: This is false, think how to fix it. I am not even sure it is possible to fix, it might be NP complete
+          since it is equivalent to some reformulation of the clique problem.
 
     Parameters
     ----------
@@ -63,11 +65,11 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
     Returns
     -------
 
-    X : array of shape [n_samples, n_features]
+    xs : array of shape [n_samples, n_features]
         The generated samples.
-    y : array of shape [n_samples]
+    ys : array of shape [n_samples]
         The integer labels for mindset membership of each sample.
-    c : array of shape [n_mindsets, n_features]
+    cs : array of shape [n_mindsets, n_features]
         The coordinates of the centers of the mindsets
 
     """
@@ -78,25 +80,24 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
     if not 0 < tolerance < 1:
         raise ValueError("tolerance must be in [0,1]")
 
-    c = make_centers(n_features, n_mindsets)
-
     max_n_errors = np.floor(n_features * tolerance).astype(int)
-    id_errors = np.random.choice(n_features, size=(n_samples, max_n_errors))
 
-    x, y = np.empty((n_samples, n_features), dtype=np.bool), np.empty(n_samples)
-    id_mindsets = np.split(np.arange(n_samples), n_mindsets)
+    cs = make_centers(n_features, n_mindsets)
+    xs, ys = np.empty((n_samples, n_features), dtype=np.bool), np.empty(n_samples, dtype=np.int)
+    id_mindsets = np.array_split(np.arange(n_samples), n_mindsets)
 
     for (mindset, ids) in enumerate(id_mindsets):
+        xs[ids, :] = cs[mindset]
+        ys[ids] = mindset
 
-        x[ids] = c[mindset]
-        x[id_errors] = np.flip(x[id_errors])
-
-        y[ids] = mindset
+    id_errors = np.random.choice(n_features, size=(n_samples, max_n_errors))
+    xs_to_flip = xs[np.arange(len(id_errors)), id_errors.T]
+    xs[np.arange(len(id_errors)), id_errors.T] = np.flip(xs_to_flip)
 
     if centers:
-        return x, y, c
+        return xs, ys, cs
     else:
-        return x, y
+        return xs, ys
 
 
 if __name__ == '__main__':
