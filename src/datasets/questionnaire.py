@@ -72,15 +72,24 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
         raise ValueError("tolerance must be in [0,1]")
 
     c = make_centers(n_features, n_mindsets)
+
     max_n_errors = np.floor(n_features * tolerance).astype(int)
+    id_errors = np.random.choice(n_features, size=(n_samples, max_n_errors))
 
-    idx_errors = np.random.choice(n_features, size=(n_samples, max_n_errors))
-    errors = np.zeros((n_samples, n_features))
-    errors[idx_errors] = 1
-    # TODO: FInish loop stuff
-    x = c + errors
+    x, y = np.empty((n_samples, n_features), dtype=np.bool), np.empty(n_samples)
+    id_mindsets = np.split(np.arange(n_samples), n_mindsets)
 
-    return c
+    for (mindset, ids) in enumerate(id_mindsets):
+
+        x[ids] = c[mindset]
+        x[id_errors] = np.flip(x[id_errors])
+
+        y[ids] = mindset
+
+    if centers:
+        return x, y, c
+    else:
+        return x, y
 
 
 if __name__ == '__main__':
