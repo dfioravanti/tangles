@@ -1,0 +1,1 @@
+python3 main.py --dat_path ./datasets/questionnaire/synthetic_s_3000_f_200_m_20_t_70.0% --pre_name no --dat_type q_syn
