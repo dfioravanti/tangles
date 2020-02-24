@@ -20,14 +20,13 @@ VALID_PREPROCESSING = [
     PREPROCESSING_NO
 ]
 
-# Preprocessing
+# Algorithm
 
 ALGORITHM_EXPONENTIAL = "exp"
 
 VALID_ALGORITHM = [
     ALGORITHM_EXPONENTIAL
 ]
-
 
 def make_parser():
     """
@@ -49,7 +48,28 @@ def make_parser():
     # Preprocessing
     parser.add_argument('--pre_name', dest='preprocessing.name', action='store', default='no')
 
+    # Algorithm
+    parser.add_argument('--alg_name', dest='algorithm.name', action='store')
+
     return parser
+
+
+def validate_args(parser):
+    """
+    TODO: To this function
+
+    Given a parser we validate the parameters of the program
+
+    Parameters
+    ----------
+     parser: ArgumentParser
+        The parser
+
+    Returns
+    -------
+    args: SimpleNamespace
+        The parameters of the program parsed and validated into a SimpleNamespace
+    """
 
 
 def get(namespace, key):
