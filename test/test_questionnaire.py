@@ -1,6 +1,6 @@
 import unittest
 
-from src.datasets.questionnaire import make_synthetic_questionnaire, make_centers
+from src.datasets.generation.questionnaire import make_centers
 from src.misc.distances import min_center_distance
 
 

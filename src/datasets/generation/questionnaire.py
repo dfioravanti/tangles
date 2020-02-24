@@ -1,3 +1,6 @@
+import pathlib
+from datetime import datetime
+
 import numpy as np
 from scipy.linalg import hadamard
 
@@ -38,7 +41,7 @@ def make_centers(n_features=20, n_mindsets=2):
 
 
 def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tolerance=0.2,
-                                 centers=True):
+                                 seed=None, centers=True):
     """
 
     This function simulates a synthetic questionnaire.
@@ -58,6 +61,8 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
     tolerance: float, optional (default=0.2)
         The percentage of deviation, computed respected to the 0-1 loss, that we allow
          inside a mindset. Must be in [0,1].
+    seed: Int, optional (default=None)
+        If provided it sets the seed of the random generator
     centers : bool, optional (default=False)
         If True the function will return an additional array that contains the
         coordinates of the center of the mindset.
@@ -80,6 +85,9 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
     if not 0 < tolerance < 1:
         raise ValueError("tolerance must be in [0,1]")
 
+    if seed is not None:
+        np.random.seed(seed)
+
     max_n_errors = np.floor(n_features * tolerance).astype(int)
 
     cs = make_centers(n_features, n_mindsets)
@@ -101,4 +109,29 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
 
 
 if __name__ == '__main__':
-    make_synthetic_questionnaire()
+    n_samples = 3000
+    n_features = 200
+    n_mindsets = 20
+    tolerance = 0.7
+    seed = 42
+
+    name = f'synthetic_s_{n_samples}_f_{n_features}_m_{n_mindsets}_t_{tolerance * 100}%'
+    path = pathlib.Path('../../../datasets/questionnaire') / name
+    path.mkdir(parents=True, exist_ok=True)
+
+    README = f'Informations for the dataset: {name} \n \n' \
+             f'samples: {n_samples} \n' \
+             f'features: {n_features} \n' \
+             f'mindsets: {n_mindsets} \n' \
+             f'tolerance: {tolerance} \n' \
+             f'seed: {seed} \n \n' \
+             f'created on {datetime.now().isoformat()} \n'
+
+    xs, ys, cs = make_synthetic_questionnaire(n_samples, n_features, n_mindsets, tolerance, seed)
+
+    np.savetxt(path / "xs.txt", xs, fmt="%d")
+    np.savetxt(path / "ys.txt", ys, fmt="%d")
+    np.savetxt(path / "cs.txt", cs, fmt="%d")
+
+    with open(path / "README", "w+") as f:
+        f.write(README)

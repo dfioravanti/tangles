@@ -60,7 +60,7 @@ def plot_questionnaire(xs, ys, cs=None):
 
 if __name__ == '__main__':
 
-    from src.datasets.questionnaire import make_synthetic_questionnaire
+    from src.datasets.generation.questionnaire import make_synthetic_questionnaire
 
     xs, ys, cs = make_synthetic_questionnaire(n_samples=500, n_features=32, n_mindsets=10, tolerance=0.65)
     plot_questionnaire(xs, ys, cs)

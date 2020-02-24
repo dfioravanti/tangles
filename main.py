@@ -1,19 +1,13 @@
-import argparse
-
+from src.config import make_parser, to_SimpleNamespace
 from src.loading import get_dataset
 from src.tangles import compute_cuts, compute_tangles, compute_clusters
 
 
-def make_parser():
-    parser = argparse.ArgumentParser(description='Program to compute tangles')
+def main(args):
 
-    return parser
-
-
-def main():
-
-    xs, ys, cs = get_dataset()
-    cuts = compute_cuts(xs)
+    xs, ys, cs = get_dataset(args.dataset)
+    cuts = compute_cuts(xs, args.preprocessing)
+    print(cuts)
     tangles = compute_tangles(cuts)
     ys_predicted = compute_clusters(xs, tangles)
 
@@ -21,6 +15,6 @@ def main():
 if __name__ == '__main__':
 
     parser = make_parser()
-    args = parser.parse_args()
+    args = to_SimpleNamespace(parser.parse_args())
 
-    main()
+    main(args)
