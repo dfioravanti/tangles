@@ -41,10 +41,9 @@ def compute_clusters(xs, tangles, tollerance=0.8):
     predicitions = []
 
     for t in tangles:
-        threshold = np.int(np.trunc(len(t) * tollerance))
+        threshold = np.int(np.trunc(len(t.cuts) * tollerance))
 
-        idx, orr = process(t)
-        n_similarities = np.sum(xs[:, idx] == orr, axis=1)
+        n_similarities = np.sum(xs[:, t.cuts] == t.orientations, axis=1)
         predicitions.append(n_similarities >= threshold)
 
     return predicitions

@@ -13,7 +13,9 @@ def main(args):
     tangles = compute_tangles(xs, cuts, args.algorithm)
     ys_predicted = compute_clusters(xs, tangles)
     fig, axs = plt.subplots(1, 2, figsize=(7, 7))
-    plot_questionnaire(xs, ys, cs, ax=axs[0])
+
+    # TODO: Figure out why I get different positions for the same x!
+    plot_questionnaire(xs, ys, ax=axs[0])
     plot_questionnaire(xs, ys_predicted[0], ax=axs[1])
     plt.show()
 

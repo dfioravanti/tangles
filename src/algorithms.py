@@ -2,10 +2,11 @@ from copy import deepcopy
 
 import numpy as np
 
+from src.tangles import OrientedCut
 
-def size(orientations, cuts):
+def size(oriented_cuts, S):
     """
-    Compute the size of a collection of oriented cuts
+    Compute the size of a collection of oriented S
 
     Parameters
     ----------
@@ -16,10 +17,10 @@ def size(orientations, cuts):
     size: Int
     """
 
-    _, n = cuts.shape
+    _, n = S.shape
     intersection = np.ones((1, n), dtype=bool)
-    for i in orientations:
-        current = cuts[i-1] if i >= 0 else ~cuts[-i-1]
+    for cut, orientation in oriented_cuts:
+        current = S[cut] if orientation else ~S[cut]
         intersection = intersection * current
 
     size = np.sum(intersection)
@@ -33,9 +34,10 @@ def exponential_algorithm(xs, cuts):
     n_cuts = len(cuts)
 
     T_0 = []
-    for orientation in [[1], [-1]]:
-        if size(orientation, cuts) >= threshold:
-            T_0.append(orientation)
+    for orientation in [True, False]:
+        oriented_cuts = OrientedCut(cuts=[0], orientations=[orientation])
+        if size(oriented_cuts, cuts) >= threshold:
+            T_0.append(oriented_cuts)
 
     T.append(deepcopy(T_0))
 
@@ -43,10 +45,10 @@ def exponential_algorithm(xs, cuts):
         T_i = []
 
         for tau in T[i-1]:
-            for s_i in [[i+1], [-(i+1)]]:
-                orientation = tau + s_i
-                if size(orientation, cuts) >= threshold:
-                    T_i.append(orientation)
+            for orientation in [True, False]:
+                oriented_cuts = tau + OrientedCut(cuts=[i], orientations=[orientation])
+                if size(oriented_cuts, cuts) >= threshold:
+                    T_i.append(oriented_cuts)
 
         if len(T_i) == 0:
             break
