@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics.pairwise import manhattan_distances
 
 from src.algorithms import exponential_algorithm
 from src.config import PREPROCESSING_NO
@@ -19,31 +20,23 @@ def compute_tangles(xs, cuts, algorithm):
     return tangles
 
 
-def process(tangle):
+def mask_points_in_tangle(xs, tangle, threshold):
 
-    d = len(tangle)
-    idx = np.zeros(d, dtype=int)
-    orr = np.zeros(d, dtype=bool)
-
-    for i, s in enumerate(tangle):
-        if s > 0:
-            idx[i] = s - 1
-            orr[i] = True
-        else:
-            idx[i] = -s - 1
-            orr[i] = False
-
-    return idx, orr
+    distances = manhattan_distances(xs[:, tangle.cuts], tangle.orientations.reshape(1, -1))
+    mask = distances <= threshold
+    return mask
 
 
-def compute_clusters(xs, tangles, tollerance=0.8):
+def compute_clusters(xs, tangles, tolerance=0.8):
 
-    predicitions = []
+    predictions = []
 
-    for t in tangles:
-        threshold = np.int(np.trunc(len(t.cuts) * tollerance))
+    for tangle in tangles:
+        p = []
+        for t in tangle:
+            threshold = np.int(np.trunc(t.size * (1-tolerance)))
+            mask = mask_points_in_tangle(xs, t, threshold)
+            p.append(mask)
+        predictions.append(p)
 
-        n_similarities = np.sum(xs[:, t.cuts] == t.orientations, axis=1)
-        predicitions.append(n_similarities >= threshold)
-
-    return predicitions
+    return predictions

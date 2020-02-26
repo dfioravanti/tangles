@@ -4,6 +4,7 @@ import numpy as np
 
 from src.tangles import OrientedCut
 
+
 def size(oriented_cuts, S):
     """
     Compute the size of a collection of oriented S
@@ -35,7 +36,7 @@ def exponential_algorithm(xs, cuts):
 
     T_0 = []
     for orientation in [True, False]:
-        oriented_cuts = OrientedCut(cuts=[0], orientations=[orientation])
+        oriented_cuts = OrientedCut(cuts=0, orientations=orientation)
         if size(oriented_cuts, cuts) >= threshold:
             T_0.append(oriented_cuts)
 
@@ -43,16 +44,28 @@ def exponential_algorithm(xs, cuts):
 
     for i in range(1, n_cuts+1):
         T_i = []
+        non_maximal = []
 
-        for tau in T[i-1]:
+        for j, tau in enumerate(T[i-1]):
+
+            tau_extended = False
+
             for orientation in [True, False]:
-                oriented_cuts = tau + OrientedCut(cuts=[i], orientations=[orientation])
+                oriented_cuts = tau.add_oriented_cut(i, orientation)
                 if size(oriented_cuts, cuts) >= threshold:
                     T_i.append(oriented_cuts)
+                    tau_extended = True
+
+            if tau_extended:
+                non_maximal.append(j)
 
         if len(T_i) == 0:
             break
 
+        for j in sorted(non_maximal, reverse=True):
+            del T[i-1][j]
+
         T.append(deepcopy(T_i))
 
-    return T[-1]
+    T = list(filter(None, T))
+    return T
