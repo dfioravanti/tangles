@@ -13,6 +13,22 @@ def compute_cuts(xs, preprocessing):
     return cuts
 
 
+def order_cuts(cuts, order_function):
+
+    cost_cuts = {}
+
+    for i_cut, cut in enumerate(cuts):
+        order = np.int(np.ceil(order_function(cut)))
+
+        previous_cuts = cost_cuts.get(order)
+        if previous_cuts is None:
+            cost_cuts[order] = [i_cut]
+        else:
+            previous_cuts.append(i_cut)
+
+    return cost_cuts
+
+
 def compute_tangles(xs, cuts, algorithm):
     if algorithm.name == ALGORITHM_EXPONENTIAL:
         tangles = exponential_algorithm(xs, cuts)

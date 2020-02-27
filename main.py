@@ -2,14 +2,15 @@ from matplotlib import pyplot as plt
 
 from src.config import make_parser, to_SimpleNamespace
 from src.loading import get_dataset
-from src.execution import compute_cuts, compute_tangles, compute_clusters
+from src.execution import compute_cuts, compute_tangles, compute_clusters, order_cuts
 from src.plotting.questionnaire import plot_tangles_on_questionnaire
 
 
 def main(args):
 
-    xs, ys, cs = get_dataset(args.dataset)
+    xs, ys, order_function = get_dataset(args.dataset)
     cuts = compute_cuts(xs, args.preprocessing)
+    orders = order_cuts(cuts, order_function)
     tangles = compute_tangles(xs, cuts, args.algorithm)
     masks_tangles = compute_clusters(xs, tangles)
 

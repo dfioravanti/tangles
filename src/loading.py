@@ -1,16 +1,19 @@
 import pathlib
+from functools import partial
 
 import numpy as np
 
 from src.config import DATASET_QUESTIONNAIRE_SYNTHETIC
+from src.order_functions import order_questionnaire
 
 
 def get_dataset(dataset):
 
     if dataset.type == DATASET_QUESTIONNAIRE_SYNTHETIC:
         xs, ys, cs = load_synthetic_datataset(dataset.path)
+        order_function = partial(order_questionnaire, xs, 20)
 
-    return xs, ys, cs
+    return xs, ys, order_function
 
 
 def load_synthetic_datataset(path):
