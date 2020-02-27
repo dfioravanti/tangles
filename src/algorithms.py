@@ -22,7 +22,7 @@ def size(oriented_cuts, S):
     intersection = np.ones((1, n), dtype=bool)
     for cut, orientation in oriented_cuts:
         current = S[cut] if orientation else ~S[cut]
-        intersection = intersection * current
+        intersection = np.logical_and(intersection, current)
 
     size = np.sum(intersection)
     return size
