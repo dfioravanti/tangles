@@ -4,14 +4,14 @@ from sklearn.metrics.pairwise import manhattan_distances
 from src.algorithms import exponential_algorithm
 from src.config import PREPROCESSING_NO, PREPROCESSING_MAKE_SUBMODULAR
 from src.config import ALGORITHM_EXPONENTIAL
-from src.datasets import make_submodular
+from src.preprocessing import make_submodular
 
 
 def compute_cuts(xs, preprocessing):
     if preprocessing.name == PREPROCESSING_NO:
         cuts = (xs == True).T
     elif preprocessing.name == PREPROCESSING_MAKE_SUBMODULAR:
-        cuts = (xs == True).T
+        cuts = (xs == True).T.astype('B')
         cuts = make_submodular(cuts)
 
     return cuts
