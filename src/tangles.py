@@ -28,10 +28,12 @@ class OrientedCut:
             return self.cuts[self.current], self.orientations[self.current]
         raise StopIteration
 
-    def __add__(self, other):
-        cuts = np.concatenate([self.cuts, other.cuts])
-        orientations = np.concatenate([self.orientations, other.orientations])
-        return OrientedCut(cuts, orientations)
 
-    def add_oriented_cut(self, cut, orientation):
-        return self + OrientedCut(cut, orientation)
+def add_to_oriented_cut(oriented_cut, cut, orientation):
+        i = np.searchsorted(oriented_cut.cuts, cut)
+        if i < oriented_cut.size and oriented_cut.cuts[i] == cut and oriented_cut.orientations[i] == orientation:
+            return oriented_cut, False
+        else:
+            new_cuts = np.insert(oriented_cut.cuts, i, cut)
+            new_orientations = np.insert(oriented_cut.orientations, i, orientation)
+            return OrientedCut(new_cuts, new_orientations), True

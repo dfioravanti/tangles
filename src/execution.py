@@ -27,7 +27,7 @@ def mask_points_in_tangle(xs, tangle, threshold):
     return mask
 
 
-def compute_clusters(xs, tangles, tolerance=0.8):
+def compute_clusters(xs, tangles, tolerance=0.7):
 
     predictions = []
 

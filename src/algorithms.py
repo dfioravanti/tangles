@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from src.tangles import OrientedCut
+from src.tangles import OrientedCut, add_to_oriented_cut
 
 
 def size(oriented_cuts, S):
@@ -35,37 +35,40 @@ def exponential_algorithm(xs, cuts):
     n_cuts = len(cuts)
 
     T_0 = []
-    for orientation in [True, False]:
-        oriented_cuts = OrientedCut(cuts=0, orientations=orientation)
-        if size(oriented_cuts, cuts) >= threshold:
-            T_0.append(oriented_cuts)
+
+    for cut in np.arange(n_cuts):
+        for orientation in [True, False]:
+            oriented_cuts = OrientedCut(cuts=cut, orientations=orientation)
+            if size(oriented_cuts, cuts) >= threshold:
+                T_0.append(oriented_cuts)
 
     T.append(deepcopy(T_0))
+    i = 1
 
-    for i in range(1, n_cuts+1):
+    while len(T[i-1]) != 0:
         T_i = []
         non_maximal = []
 
-        for j, tau in enumerate(T[i-1]):
-
+        for i_tau, tau in enumerate(T[i-1]):
             tau_extended = False
 
-            for orientation in [True, False]:
-                oriented_cuts = tau.add_oriented_cut(i, orientation)
-                if size(oriented_cuts, cuts) >= threshold:
-                    T_i.append(oriented_cuts)
-                    tau_extended = True
+            for cut in np.arange(n_cuts):
+                for orientation in [True, False]:
+                    oriented_cuts, changed = add_to_oriented_cut(tau, cut, orientation)
+                    if changed and size(oriented_cuts, cuts) >= threshold:
+                        T_i.append(oriented_cuts)
+                        tau_extended = True
 
             if tau_extended:
-                non_maximal.append(j)
-
-        if len(T_i) == 0:
-            break
+                non_maximal.append(i_tau)
 
         for j in sorted(non_maximal, reverse=True):
-            del T[i-1][j]
+            del T[i - 1][j]
 
         T.append(deepcopy(T_i))
 
+        i += 1
+
     T = list(filter(None, T))
+
     return T
