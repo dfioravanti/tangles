@@ -52,7 +52,15 @@ def make_submodular(cuts):
         unions.update(current_unions)
         intersections.update(current_intersections)
 
-    unions.update(intersections)
-    new_cuts = np.array(list(unions.values()), dtype='bool')
+    # Merge unions and intersections
+    intersections.update(unions)
+
+    # Remove empty cut and all cut
+    empty, all = np.zeros_like(current_cut, dtype=bool), np.ones_like(current_cut, dtype=bool)
+    hash_empty, hash_all = hash(empty.tostring()), hash(all.tostring())
+    intersections.pop(hash_empty, None)
+    intersections.pop(hash_all, None)
+
+    new_cuts = np.array(list(intersections.values()), dtype='bool')
 
     return new_cuts

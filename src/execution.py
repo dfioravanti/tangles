@@ -11,7 +11,7 @@ def compute_cuts(xs, preprocessing):
     if preprocessing.name == PREPROCESSING_NO:
         cuts = (xs == True).T
     elif preprocessing.name == PREPROCESSING_MAKE_SUBMODULAR:
-        cuts = (xs == True).T.astype('B')
+        cuts = (xs == True).T
         cuts = make_submodular(cuts)
 
     return cuts

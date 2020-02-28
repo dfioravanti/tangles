@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import numpy as np
 
 from src.config import make_parser, to_SimpleNamespace
 from src.loading import get_dataset
@@ -11,10 +12,9 @@ def main(args):
     xs, ys, order_function = get_dataset(args.dataset)
     cuts = compute_cuts(xs, args.preprocessing)
     orders = order_cuts(cuts, order_function)
-    tangles = compute_tangles(xs, cuts, args.algorithm)
+    tangles = compute_tangles(xs, cuts[orders[2]], args.algorithm)
     masks_tangles = compute_clusters(xs, tangles)
 
-    # TODO: Figure out why I get different positions for the same x!
     plot_tangles_on_questionnaire(xs, ys, masks_tangles)
 
 

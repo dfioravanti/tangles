@@ -20,8 +20,8 @@ def load_synthetic_datataset(path):
 
     path = pathlib.Path(path)
 
-    xs = np.loadtxt(path / "xs.txt", dtype="B")
+    xs = np.loadtxt(path / "xs.txt", dtype="bool")
     ys = np.loadtxt(path / "ys.txt", dtype="int")
-    cs = np.loadtxt(path / "cs.txt", dtype="B")
+    cs = np.loadtxt(path / "cs.txt", dtype="bool")
 
     return xs, ys, cs
