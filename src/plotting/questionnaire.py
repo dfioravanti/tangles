@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 
 
-def plot_tangles_on_questionnaire(xs, ys, masks_tangles, path=None):
+def plot_tangles_on_questionnaire(xs, ys, masks_tangles, orders, path=None):
 
     tsne = TSNE(metric='manhattan')
     xs_embedded = tsne.fit_transform(xs)
@@ -25,15 +25,17 @@ def plot_tangles_on_questionnaire(xs, ys, masks_tangles, path=None):
     sns.scatterplot(xs_embedded[:, 0], xs_embedded[:, 1], ax=axs[0],
                     hue=ys, legend='full', palette=palette)
 
-    for i, tangles in enumerate(masks_tangles):
-
+    print(len(masks_tangles))
+    for i, mask in enumerate(masks_tangles):
         hue = np.zeros_like(ys)
-        n_classes = len(tangles) + 1
+        n_classes = len(mask)
         palette = sns.color_palette("colorblind", n_classes)
-        for j, t in enumerate(tangles):
-            hue[t.reshape(-1)] = j + 1
+        for j, tangle in enumerate(mask):
+            hue[tangle.reshape(-1)] = j
 
-        sns.scatterplot(xs_embedded[:, 0], xs_embedded[:, 1], ax=axs[i+1],
+        ax = axs[i + 1]
+        ax.set(title=f"Tangle of order {orders[i]}")
+        sns.scatterplot(xs_embedded[:, 0], xs_embedded[:, 1], ax=ax,
                         hue=hue, legend='full', palette=palette)
 
     if path is None:

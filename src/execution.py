@@ -40,23 +40,26 @@ def compute_tangles(xs, cuts, algorithm):
     return tangles
 
 
-def mask_points_in_tangle(xs, tangle, threshold):
+def mask_points_in_tangle(xs, tangle, cuts, threshold):
 
-    distances = manhattan_distances(xs[:, tangle.cuts], tangle.orientations.reshape(1, -1))
+    distances = manhattan_distances(cuts[tangle.cuts].T, tangle.orientations.reshape(1, -1))
     mask = distances <= threshold
     return mask
 
 
-def compute_clusters(xs, tangles, tolerance=0.7):
+def compute_clusters(xs, tangles, cuts, tolerance=0.8):
 
     predictions = []
 
     for tangle in tangles:
-        p = []
-        for t in tangle:
-            threshold = np.int(np.trunc(t.size * (1-tolerance)))
-            mask = mask_points_in_tangle(xs, t, threshold)
-            p.append(mask)
-        predictions.append(p)
+        threshold = np.int(np.trunc(tangle.size * (1-tolerance)))
+        mask = mask_points_in_tangle(xs, tangle, cuts, threshold)
+        predictions.append(mask)
 
     return predictions
+
+
+def fix_indexes(tangles, indexes):
+    indexes = np.array(indexes)
+    for tangle in tangles:
+        tangle.cuts = indexes[tangle.cuts]

@@ -1,11 +1,30 @@
 import pathlib
 from datetime import datetime
+import itertools
 
 import numpy as np
 from scipy.linalg import hadamard
 
 
 def make_centers(n_features=20, n_mindsets=2):
+
+    output = np.zeros((n_mindsets, n_features), dtype=bool)
+
+    k = np.int(np.ceil(np.log2(n_features)))
+    n_blocks, len_final_block = divmod(n_features, n_mindsets)
+
+    block = np.array([list(i) for i in itertools.product([0, 1], repeat=k)])
+    block = block[:n_mindsets]
+    output[:, :-len_final_block] = np.tile(block, n_blocks)
+
+    final_block = np.array([list(i) for i in itertools.product([0, 1], repeat=len_final_block)])
+    final_block = final_block[:n_mindsets]
+    output[:, -len_final_block:] = final_block
+
+    return output
+
+
+def make_centers2(n_features=20, n_mindsets=2):
 
     """
     Generates n_mindsets centers that are have hamming distance bigger than
@@ -109,13 +128,13 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
 
 
 if __name__ == '__main__':
-    n_samples = 100
-    n_features = 15
-    n_mindsets = 2
-    tolerance = 0.6
+    n_samples = 50
+    n_features = 8
+    n_mindsets = 3
+    tolerance = 0.30
     seed = 42
 
-    name = f'synthetic_s_{n_samples}_f_{n_features}_m_{n_mindsets}_t_{tolerance * 100}%'
+    name = f'synthetic_s_{n_samples}_f_{n_features}_m_{n_mindsets}_t_{tolerance * 100:.1f}%'
     path = pathlib.Path('../../../datasets/questionnaire') / name
     path.mkdir(parents=True, exist_ok=True)
 

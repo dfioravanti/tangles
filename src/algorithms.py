@@ -34,19 +34,19 @@ def exponential_algorithm(xs, cuts):
     threshold = np.trunc(len(xs) * 0.2)
     n_cuts = len(cuts)
 
-    T_0 = []
+    T_0 = {}
 
     for cut in np.arange(n_cuts):
         for orientation in [True, False]:
             oriented_cuts = OrientedCut(cuts=cut, orientations=orientation)
             if size(oriented_cuts, cuts) >= threshold:
-                T_0.append(oriented_cuts)
+                T_0[hash(oriented_cuts)] = oriented_cuts
 
-    T.append(deepcopy(T_0))
+    T.append(list(T_0.values()))
     i = 1
 
     while len(T[i-1]) != 0:
-        T_i = []
+        T_i = {}
         non_maximal = []
 
         for i_tau, tau in enumerate(T[i-1]):
@@ -56,7 +56,7 @@ def exponential_algorithm(xs, cuts):
                 for orientation in [True, False]:
                     oriented_cuts, changed = add_to_oriented_cut(tau, cut, orientation)
                     if changed and size(oriented_cuts, cuts) >= threshold:
-                        T_i.append(oriented_cuts)
+                        T_i.setdefault(hash(oriented_cuts), oriented_cuts)
                         tau_extended = True
 
             if tau_extended:
@@ -65,10 +65,10 @@ def exponential_algorithm(xs, cuts):
         for j in sorted(non_maximal, reverse=True):
             del T[i - 1][j]
 
-        T.append(deepcopy(T_i))
+        T.append(list(T_i.values()))
 
         i += 1
 
-    T = list(filter(None, T))
+    T = [i for sub in T for i in sub]
 
     return T

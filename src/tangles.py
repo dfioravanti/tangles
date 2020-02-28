@@ -19,6 +19,9 @@ class OrientedCut:
         self.orientations = np.array(orientations, dtype=bool)
         self.size = len(self.cuts)
 
+    def __hash__(self):
+        return hash(self.cuts.tostring() + self.orientations.tostring())
+
     def __iter__(self):
         return self
 
