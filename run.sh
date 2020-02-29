@@ -1,1 +1,1 @@
-python3 main.py --dat_path ./datasets/questionnaire/synthetic_s_3000_f_200_m_20_t_70.0% --pre_name no --alg_name exp --dat_type q_syn
+python3 main.py --dat_path ./datasets/questionnaire/synthetic_s_3000_f_10_m_3_t_10.0% --pre_name sub --alg_name basic --dat_type q_syn

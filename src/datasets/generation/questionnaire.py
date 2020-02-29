@@ -11,15 +11,18 @@ def make_centers(n_features=20, n_mindsets=2):
     output = np.zeros((n_mindsets, n_features), dtype=bool)
 
     k = np.int(np.ceil(np.log2(n_features)))
-    n_blocks, len_final_block = divmod(n_features, n_mindsets)
+    n_blocks, len_final_block = divmod(n_features, k)
 
     block = np.array([list(i) for i in itertools.product([0, 1], repeat=k)])
     block = block[:n_mindsets]
-    output[:, :-len_final_block] = np.tile(block, n_blocks)
 
-    final_block = np.array([list(i) for i in itertools.product([0, 1], repeat=len_final_block)])
-    final_block = final_block[:n_mindsets]
-    output[:, -len_final_block:] = final_block
+    if len_final_block > 0:
+        output[:, :-len_final_block] = np.tile(block, n_blocks)
+        final_block = np.array([list(i) for i in itertools.product([0, 1], repeat=k)])
+        final_block = final_block[:n_mindsets, :len_final_block]
+        output[:, -len_final_block:] = final_block
+    else:
+        output = np.tile(block, n_blocks)
 
     return output
 
@@ -128,10 +131,10 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
 
 
 if __name__ == '__main__':
-    n_samples = 50
-    n_features = 8
-    n_mindsets = 3
-    tolerance = 0.30
+    n_samples = 3000
+    n_features = 10
+    n_mindsets = 2
+    tolerance = 0.1
     seed = 42
 
     name = f'synthetic_s_{n_samples}_f_{n_features}_m_{n_mindsets}_t_{tolerance * 100:.1f}%'

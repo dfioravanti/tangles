@@ -21,6 +21,8 @@ def main(args):
 
     existing_orders = list(orders.keys())
     existing_orders.sort()
+    print(f"Max order: {existing_orders[-1]}")
+
     masks = []
 
     for i in range(len(existing_orders)):

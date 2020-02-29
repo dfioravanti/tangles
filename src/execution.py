@@ -1,9 +1,9 @@
 import numpy as np
 from sklearn.metrics.pairwise import manhattan_distances
 
-from src.algorithms import exponential_algorithm
+from src.algorithms import basic_algorithm
 from src.config import PREPROCESSING_NO, PREPROCESSING_MAKE_SUBMODULAR
-from src.config import ALGORITHM_EXPONENTIAL
+from src.config import ALGORITHM_BASIC
 from src.preprocessing import make_submodular
 
 
@@ -34,8 +34,8 @@ def order_cuts(cuts, order_function):
 
 
 def compute_tangles(xs, cuts, algorithm):
-    if algorithm.name == ALGORITHM_EXPONENTIAL:
-        tangles = exponential_algorithm(xs, cuts)
+    if algorithm.name == ALGORITHM_BASIC:
+        tangles = basic_algorithm(xs, cuts)
 
     return tangles
 

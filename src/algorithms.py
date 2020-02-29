@@ -28,10 +28,51 @@ def size(oriented_cuts, S):
     return size
 
 
-def exponential_algorithm(xs, cuts):
+def basic_algorithm(xs, cuts):
 
     T = []
     threshold = np.trunc(len(xs) * 0.2)
+
+    T_0 = {}
+
+    for orientation in [True, False]:
+        oriented_cuts = OrientedCut(cuts=0, orientations=orientation)
+        if size(oriented_cuts, cuts) >= threshold:
+            T_0[hash(oriented_cuts)] = oriented_cuts
+
+    T += list(T_0.values())
+
+    for i in range(1, len(cuts)):
+        T_i = {}
+        non_maximal = []
+
+        for i_tau, tau in enumerate(T):
+            tau_extended = False
+
+            for orientation in [True, False]:
+                oriented_cuts, changed = add_to_oriented_cut(tau, i, orientation)
+                if changed and size(oriented_cuts, cuts) >= threshold:
+                    T_i.setdefault(hash(oriented_cuts), oriented_cuts)
+                    tau_extended = True
+
+            if tau_extended:
+                non_maximal.append(i_tau)
+
+        if len(T_i) == 0:
+            break
+
+        for j in sorted(non_maximal, reverse=True):
+            del T[j]
+
+        T += list(T_i.values())
+
+    return T
+
+
+def exponential_algorithm(xs, cuts):
+
+    T = []
+    threshold = np.trunc(len(xs) * .2)
     n_cuts = len(cuts)
 
     T_0 = {}
