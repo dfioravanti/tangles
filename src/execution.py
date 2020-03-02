@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.metrics.pairwise import manhattan_distances
 
+import src.acceptance_functions
 from src.algorithms import basic_algorithm
 from src.config import PREPROCESSING_NO, PREPROCESSING_MAKE_SUBMODULAR
 from src.config import ALGORITHM_BASIC
@@ -33,33 +34,32 @@ def order_cuts(cuts, order_function):
     return cost_cuts
 
 
-def compute_tangles(xs, cuts, algorithm):
+def compute_tangles(algorithm, xs, cuts, previous_tangles, acceptance_function):
     if algorithm.name == ALGORITHM_BASIC:
-        tangles = basic_algorithm(xs, cuts)
+        tangles = basic_algorithm(xs=xs, cuts=cuts, previous_tangles=previous_tangles,
+                                  acceptance_function=acceptance_function)
 
     return tangles
 
 
-def mask_points_in_tangle(xs, tangle, cuts, threshold):
+def mask_points_in_tangle(tangle, all_cuts, threshold):
 
-    distances = manhattan_distances(cuts[tangle.cuts].T, tangle.orientations.reshape(1, -1))
+    points = all_cuts[tangle.get_cuts()].T
+    center = np.array(tangle.get_orientations())
+    center = center.reshape(1, -1)
+
+    distances = manhattan_distances(points, center)
     mask = distances <= threshold
     return mask
 
 
-def compute_clusters(xs, tangles, cuts, tolerance=0.8):
+def compute_clusters(tangles, cuts, tolerance=0.6):
 
     predictions = []
 
     for tangle in tangles:
         threshold = np.int(np.trunc(tangle.size * (1-tolerance)))
-        mask = mask_points_in_tangle(xs, tangle, cuts, threshold)
+        mask = mask_points_in_tangle(tangle, cuts, threshold)
         predictions.append(mask)
 
     return predictions
-
-
-def fix_indexes(tangles, indexes):
-    indexes = np.array(indexes)
-    for tangle in tangles:
-        tangle.cuts = indexes[tangle.cuts]

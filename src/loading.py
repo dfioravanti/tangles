@@ -4,14 +4,14 @@ from functools import partial
 import numpy as np
 
 from src.config import DATASET_QUESTIONNAIRE_SYNTHETIC
-from src.order_functions import order_questionnaire
+from src.order_functions import implicit_order
 
 
 def get_dataset(dataset):
 
     if dataset.type == DATASET_QUESTIONNAIRE_SYNTHETIC:
         xs, ys, cs = load_synthetic_datataset(dataset.path)
-        order_function = partial(order_questionnaire, xs, 20)
+        order_function = partial(implicit_order, xs)
 
     return xs, ys, order_function
 
