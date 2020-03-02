@@ -27,15 +27,6 @@ def implicit_order(xs, cut, n_samples=None):
         The average order for the cut
     """
 
-    """
-        idx = np.arange(len(xs))
-        idx_in = np.random.choice(idx[cut], size=n_samples, replace=False)
-        idx_out = np.random.choice(idx[~cut], size=n_samples, replace=False)
-
-        in_cut = xs[idx_in, :]
-        out_cut = xs[idx_out, :]
-    """
-
     if np.all(cut) or np.all(~cut):
         return 0
 

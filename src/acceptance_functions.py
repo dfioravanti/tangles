@@ -1,17 +1,19 @@
 import numpy as np
 
 
-def size_too_small(all_cuts, min_size, oriented_cuts):
+def size_big_enough(all_cuts, min_size, oriented_cuts):
 
     if size(oriented_cuts, all_cuts) >= min_size:
-        return False
-    else:
         return True
+    else:
+        return False
 
 
 def size(oriented_cuts, all_cuts):
     """
     Compute the size of a collection of oriented all_cuts
+
+    TODO: This is wrong. I need to check triplets not all of it
 
     Parameters
     ----------
