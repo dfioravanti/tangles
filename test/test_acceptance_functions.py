@@ -27,9 +27,9 @@ def test_size_too_small():
     oriented_cuts = OrientedCut(cuts=[0, 1], orientations=[True, True])
     assert not size_too_small(all_cuts, min_size=2, oriented_cuts=oriented_cuts)
 
-    oriented_cuts = OrientedCut(cuts=[0, 0], orientations=[True, False])
+    oriented_cuts = OrientedCut(cuts=[0, 1], orientations=[True, False])
     assert not size_too_small(all_cuts, min_size=0, oriented_cuts=oriented_cuts)
-    oriented_cuts = OrientedCut(cuts=[0, 0], orientations=[True, False])
+    oriented_cuts = OrientedCut(cuts=[0, 1], orientations=[True, False])
     assert size_too_small(all_cuts, min_size=1, oriented_cuts=oriented_cuts)
 
     c1 = OrientedCut(cuts=[0], orientations=[True, False])
