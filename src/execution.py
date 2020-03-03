@@ -34,9 +34,10 @@ def order_cuts(cuts, order_function):
     return cost_cuts
 
 
-def compute_tangles(algorithm, xs, cuts, previous_tangles, acceptance_function):
+def compute_tangles(previous_tangles, current_cuts, acceptance_function, algorithm):
     if algorithm.name == ALGORITHM_BASIC:
-        tangles = basic_algorithm(xs=xs, cuts=cuts, previous_tangles=previous_tangles,
+        tangles = basic_algorithm(previous_tangles=previous_tangles,
+                                  current_cuts=current_cuts,
                                   acceptance_function=acceptance_function)
 
     return tangles
@@ -44,7 +45,7 @@ def compute_tangles(algorithm, xs, cuts, previous_tangles, acceptance_function):
 
 def mask_points_in_tangle(tangle, all_cuts, threshold):
 
-    points = all_cuts[tangle.get_cuts()].T
+    points = all_cuts[tangle.get_idx_cuts()].T
     center = np.array(tangle.get_orientations())
     center = center.reshape(1, -1)
 
@@ -53,12 +54,12 @@ def mask_points_in_tangle(tangle, all_cuts, threshold):
     return mask
 
 
-def compute_clusters(tangles, cuts, tolerance=0.6):
+def compute_clusters(tangles, cuts, tolerance=0.8):
 
     predictions = []
 
     for tangle in tangles:
-        threshold = np.int(np.trunc(tangle.size * (1-tolerance)))
+        threshold = np.int(np.trunc(len(tangle) * (1-tolerance)))
         mask = mask_points_in_tangle(tangle, cuts, threshold)
         predictions.append(mask)
 
