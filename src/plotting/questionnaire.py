@@ -3,10 +3,10 @@ import numpy as np
 from sklearn.manifold import TSNE
 
 from matplotlib import pyplot as plt
-import matplotlib.cm as cm
+from matplotlib import cm
 
 
-def plot_tangles_on_questionnaire(xs, ys, masks_tangles, orders, path=None):
+def plot_tangles_on_questionnaire(xs, ys, predictions, path=None):
 
     tsne = TSNE(metric='manhattan')
     xs_embedded = tsne.fit_transform(xs)
@@ -14,7 +14,7 @@ def plot_tangles_on_questionnaire(xs, ys, masks_tangles, orders, path=None):
     plt.style.use('ggplot')
     size_markers = 10
 
-    n_columns = len(masks_tangles)
+    n_columns = len(predictions)
     f, axs = plt.subplots(1, n_columns + 1, figsize=(7, 7))
     for ax in axs:
         ax.set_axis_off()
@@ -24,18 +24,25 @@ def plot_tangles_on_questionnaire(xs, ys, masks_tangles, orders, path=None):
     leg = axs[0].legend(*scatter.legend_elements(), title="Classes")
     axs[0].add_artist(leg)
 
-    for i, mask in enumerate(masks_tangles, 1):
+    i_ax = 1
+    for order, prediction in predictions.items():
 
-        ax = axs[i]
-        ax.set(title=f"Tangle of order {orders[i-1]}")
+        ax = axs[i_ax]
+        ax.set(title=f"Tangle of order {order}")
+        nb_clusters = np.max(prediction) + 1
+        colors = [cm.coolwarm(x) for x in np.linspace(0, 1, nb_clusters)]
 
-        ys_pred = np.zeros_like(ys)
-        for j, tangle in enumerate(mask, 1):
-            ys_pred[tangle.reshape(-1)] = j
+        for cluster, color in zip(range(nb_clusters), colors):
+            mask = (prediction == cluster)
+            xs, ys = xs_embedded[mask, 0], xs_embedded[mask, 1]
+            label = "No tangle" if cluster == 0 else f"tangle {cluster}"
 
-        scatter = ax.scatter(xs_embedded[:, 0], xs_embedded[:, 1], c=ys_pred, s=size_markers, cmap='coolwarm')
-        leg = ax.legend(*scatter.legend_elements(), title="Classes")
-        ax.add_artist(leg)
+            ax.scatter(xs, ys, color=color,
+                       s=size_markers, cmap='coolwarm',
+                       label=label)
+
+        ax.legend()
+        i_ax += 1
 
     if path is None:
         plt.show()

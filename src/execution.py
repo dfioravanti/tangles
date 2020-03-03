@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics.pairwise import manhattan_distances
+from sklearn.metrics import homogeneity_completeness_v_measure
 
-import src.acceptance_functions
 from src.algorithms import basic_algorithm
 from src.config import PREPROCESSING_NO, PREPROCESSING_MAKE_SUBMODULAR
 from src.config import ALGORITHM_BASIC
@@ -51,16 +51,37 @@ def mask_points_in_tangle(tangle, all_cuts, threshold):
 
     distances = manhattan_distances(points, center)
     mask = distances <= threshold
-    return mask
+    return mask.reshape(-1)
 
 
-def compute_clusters(tangles, cuts, tolerance=0.8):
+def compute_clusters(tangles, cuts, tolerance=0.80):
 
-    predictions = []
+    _, n_points = cuts.shape
+    predictions = np.zeros(n_points, dtype=int)
 
-    for tangle in tangles:
+    for i, tangle in enumerate(tangles, 1):
         threshold = np.int(np.trunc(len(tangle) * (1-tolerance)))
         mask = mask_points_in_tangle(tangle, cuts, threshold)
-        predictions.append(mask)
+        predictions[mask] = i
 
     return predictions
+
+
+def compute_evaluation(ys, predictions):
+
+    evaluations = {}
+
+    for order, prediction in predictions.items():
+        evaluations[order] = {}
+
+        # Save the number of points that do not belong to a tangle
+        evaluations[order]["unassigned"] = np.sum(prediction == 0)
+
+        mask_assigned = prediction != 0
+        homogeneity, completeness, v_measure_score = \
+            homogeneity_completeness_v_measure(ys[mask_assigned], prediction[mask_assigned])
+        evaluations[order]["homogeneity"] = homogeneity
+        evaluations[order]["completeness"] = completeness
+        evaluations[order]["v_measure_score"] = v_measure_score
+
+    return evaluations
