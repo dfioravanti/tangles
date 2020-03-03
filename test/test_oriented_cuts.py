@@ -1,3 +1,7 @@
+from copy import deepcopy
+
+import pytest
+
 from src.oriented_cuts import OrientedCut
 
 
@@ -5,18 +9,20 @@ def test_oriented_cuts():
 
     # Creation
 
-    cuts, orientations = 0, True
-    c = OrientedCut(idx_cuts=cuts, orientations=orientations)
-    assert c.get_idx_cuts() == [cuts] and c.get_orientations() == [orientations]
+    oriented_cut = {0: True}
+    c = OrientedCut(oriented_cut)
+    assert c.get_idx_cuts() == [0] and c.get_orientations() == [True]
 
     cuts = [0, 1, 2, 3, 4]
     orientations = [True, False, True, True, False]
-    or_cuts = OrientedCut(idx_cuts=cuts, orientations=orientations)
+    oriented_cut = dict(zip(cuts, orientations))
+
+    or_cuts = OrientedCut(oriented_cut)
     for i, (c, o) in enumerate(or_cuts):
         assert c == cuts[i] and o == orientations[i]
 
-    c1 = OrientedCut(idx_cuts=0, orientations=True)
-    c2 = OrientedCut(idx_cuts=0, orientations=False)
+    c1 = OrientedCut({0: True})
+    c2 = OrientedCut({0: False})
     assert c1 == c1
     assert c1 != c2
 
@@ -25,8 +31,11 @@ def test_oriented_cuts():
     cuts = [0, 1, 2, 3, 4]
     o1 = [True, False, True, True, False]
     o2 = [True, False, True, True, True]
-    c1 = OrientedCut(idx_cuts=cuts, orientations=o1)
-    c2 = OrientedCut(idx_cuts=cuts, orientations=o2)
+    oc1 = dict(zip(cuts, o1))
+    oc2 = dict(zip(cuts, o2))
+
+    c1 = OrientedCut(oc1)
+    c2 = OrientedCut(oc2)
     assert c1 != c2
 
     # Get
@@ -44,34 +53,24 @@ def test_oriented_cuts():
 
     # Addition
 
-    cuts, cut = [0, 1, 2], 3
-    orrs, orr = [True, False, True], True
-    c1 = OrientedCut(idx_cuts=cuts, orientations=orrs)
-    c2 = OrientedCut(idx_cuts=cuts, orientations=orrs)
-    ref_cut = OrientedCut(cuts + [cut], orrs + [orr])
-    c3, changed = c1.add(cut, orr)
-    assert c1 == c2
-    assert c1 != c3
-    assert changed and c3 == ref_cut
-    assert c3.size == c1.size + 1
-    assert c1.orientation_of(3) is None
-    assert c3.orientation_of(3)
+    old_cuts, new_cut = [0, 1, 2], 3
+    old_orrs, new_orr = [True, False, True], True
+    ref_cuts, ref_orr = old_cuts + [new_cut], old_orrs + [new_orr]
 
-    cuts, cut = [0, 1, 2], 1
-    orrs, orr = [True, False, True], False
+    old_oriented_cs, new_oriented_c = dict(zip(old_cuts, old_orrs)), {new_cut: new_orr}
+    ref_oriented_cs = dict(zip(ref_cuts, ref_orr))
 
-    c = OrientedCut(idx_cuts=cuts, orientations=orrs)
-    ref_cut = OrientedCut(cuts, orrs)
-    c, changed = c.add(cut, orr)
-    assert not changed and c == ref_cut
+    old_c = OrientedCut(old_oriented_cs)
+    old_c2 = deepcopy(old_c)
+    ref_cut = OrientedCut(ref_oriented_cs)
 
-    cuts, cut = [0, 1, 2], 1
-    orrs, orr = [True, False, True], True
-
-    c = OrientedCut(idx_cuts=cuts, orientations=orrs)
-    ref_cut = OrientedCut(cuts, orrs)
-    c, changed = c.add(cut, orr)
-    assert not changed and c == ref_cut
+    new_c = old_c + OrientedCut(new_oriented_c)
+    assert old_c == old_c2
+    assert old_c != new_c
+    assert new_c == ref_cut
+    assert new_c.size == old_c.size + 1
+    assert old_c.orientation_of(3) is None
+    assert new_c.orientation_of(3)
 
 
 if __name__ == '__main__':
