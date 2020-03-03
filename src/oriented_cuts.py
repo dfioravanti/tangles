@@ -9,18 +9,19 @@ class OrientedCut:
     In idx_cuts it is stored the index of the cut in S, meanwhile in orientation
     we store which orientation we are taking as a bool.
     """
-    def __init__(self, idx_cuts, orientations):
+    def __init__(self, idx_cuts=[], orientations=[]):
 
         self.current = -1
         self._oriented_cuts = {}
-        if not isinstance(idx_cuts, (list, np.ndarray)):
-            self._oriented_cuts[idx_cuts] = orientations
-        else:
-            for c, o in zip(idx_cuts, orientations):
-                if c not in self._oriented_cuts:
-                    self._oriented_cuts[c] = o
-                else:
-                    raise KeyError(f"cut {c} already present in the orientation")
+        if not idx_cuts == []:
+            if not isinstance(idx_cuts, (list, np.ndarray)):
+                self._oriented_cuts[idx_cuts] = orientations
+            else:
+                for c, o in zip(idx_cuts, orientations):
+                    if c not in self._oriented_cuts:
+                        self._oriented_cuts[c] = o
+                    else:
+                        raise KeyError(f"cut {c} already present in the orientation")
 
         self.size = len(self._oriented_cuts)
 

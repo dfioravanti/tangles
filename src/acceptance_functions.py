@@ -1,34 +1,82 @@
+from itertools import combinations
+
 import numpy as np
 
 
-def size_big_enough(all_cuts, min_size, oriented_cuts):
-
-    if size(oriented_cuts, all_cuts) >= min_size:
-        return True
-    else:
-        return False
-
-
-def size(oriented_cuts, all_cuts):
+def triplet_size_big_enough(all_cuts, old_oriented_cuts, new_oriented_cut, min_size):
     """
-    Compute the size of a collection of oriented all_cuts
-
-    TODO: This is wrong. I need to check triplets not all of it
+    This function checks if all triples in old_old_orientations + new_oriented_cut have size
+    at least min_size. We assume that all the triplets in old_orientations have this property
+    so we need to check only the new triplets.
 
     Parameters
     ----------
-    orientations: List of ndarray
+    all_cuts, array of shape [n_cuts, n_users]
+        The matrix that contains the index for all the idx_cuts
+    old_oriented_cuts, OrientedCut
+        The old orientations that we assume already have the property that we want
+    new_oriented_cut, OrientedCut
+        The new orientation that we want to add
+    min_size, int
+        The minimum number of points that we want to have in the intersection of triplets.
 
     Returns
     -------
-    size: Int
+    condition_satisfied, bool
+        True if the property old, False otherwise
+
     """
 
-    _, n = all_cuts.shape
-    intersection = np.ones((1, n), dtype=bool)
-    for cut, orientation in oriented_cuts:
-        current = all_cuts[cut] if orientation else ~all_cuts[cut]
-        intersection = np.logical_and(intersection, current)
+    assert new_oriented_cut.size > 0, "You cannot add an empty cut to an orientation"
 
-    size = np.sum(intersection)
-    return size
+    i, o = next(new_oriented_cut)
+    new_orientation = all_cuts[i] if o else ~all_cuts[i]
+
+    if old_oriented_cuts.size == 0:
+
+        if np.sum(new_orientation) >= min_size:
+            condition_satisfied = True
+        else:
+            condition_satisfied = False
+
+    elif old_oriented_cuts.size == 1:
+
+        i, o = next(old_oriented_cuts)
+        old_orientation = all_cuts[i] if o else ~all_cuts[i]
+        intersection = new_orientation * old_orientation
+
+        if np.sum(intersection) >= min_size:
+            condition_satisfied = True
+        else:
+            condition_satisfied = False
+
+    elif old_oriented_cuts.size == 2:
+
+        i, o = next(old_oriented_cuts)
+        old_orientation1 = all_cuts[i] if o else ~all_cuts[i]
+        i, o = next(old_oriented_cuts)
+        old_orientation2 = all_cuts[i] if o else ~all_cuts[i]
+        intersection = new_orientation * old_orientation1 * old_orientation2
+
+        if np.sum(intersection) >= min_size:
+            condition_satisfied = True
+        else:
+            condition_satisfied = False
+
+    else:
+
+        couples_old_idx = combinations(old_oriented_cuts.get_idx_cuts(), 2)
+        condition_satisfied = True
+
+        for old_i_1, old_i_2 in couples_old_idx:
+            old_o_1 = old_oriented_cuts.orientation_of(old_i_1)
+            old_orientation1 = all_cuts[old_i_1] if old_o_1 else ~all_cuts[old_i_1]
+            old_o_2 = old_oriented_cuts.orientation_of(old_i_2)
+            old_orientation2 = all_cuts[old_i_2] if old_o_2 else ~all_cuts[old_i_2]
+            intersection = new_orientation * old_orientation1 * old_orientation2
+
+            if np.sum(intersection) < min_size:
+                condition_satisfied = False
+                break
+
+    return condition_satisfied
