@@ -27,21 +27,21 @@ def triplet_size_big_enough(all_cuts, old_oriented_cuts, new_oriented_cut, min_s
 
     """
 
-    assert new_oriented_cut.size > 0, "You cannot add an empty cut to an orientation"
+    assert len(new_oriented_cut) > 0, "You cannot add an empty cut to an orientation"
 
-    i, o = next(new_oriented_cut)
+    i, o = next(iter(new_oriented_cut.items()))
     new_orientation = all_cuts[i] if o else ~all_cuts[i]
 
-    if old_oriented_cuts.size == 0:
+    if old_oriented_cuts is None or len(old_oriented_cuts) == 0:
 
         if np.sum(new_orientation) >= min_size:
             condition_satisfied = True
         else:
             condition_satisfied = False
 
-    elif old_oriented_cuts.size == 1:
+    elif len(old_oriented_cuts) == 1:
 
-        i, o = next(old_oriented_cuts)
+        i, o = next(iter(old_oriented_cuts.items()))
         old_orientation = all_cuts[i] if o else ~all_cuts[i]
         intersection = new_orientation * old_orientation
 
@@ -50,11 +50,12 @@ def triplet_size_big_enough(all_cuts, old_oriented_cuts, new_oriented_cut, min_s
         else:
             condition_satisfied = False
 
-    elif old_oriented_cuts.size == 2:
+    elif len(old_oriented_cuts) == 2:
 
-        i, o = next(old_oriented_cuts)
+        old = iter(old_oriented_cuts.items())
+        i, o = next(old)
         old_orientation1 = all_cuts[i] if o else ~all_cuts[i]
-        i, o = next(old_oriented_cuts)
+        i, o = next(old)
         old_orientation2 = all_cuts[i] if o else ~all_cuts[i]
         intersection = new_orientation * old_orientation1 * old_orientation2
 

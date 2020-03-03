@@ -16,12 +16,12 @@ def make_submodular(cuts):
 
     Parameters
     ----------
-    cuts: ndarray
+    cuts: array of shape [n_cuts, n_users]
         The original cuts that we need to make submodular
 
     Returns
     -------
-    new_cuts: ndarray
+    new_cuts: array of shape [?, n_users]
         The submodular cuts
     """
 

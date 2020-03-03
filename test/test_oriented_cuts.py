@@ -18,7 +18,7 @@ def test_oriented_cuts():
     oriented_cut = dict(zip(cuts, orientations))
 
     or_cuts = OrientedCut(oriented_cut)
-    for i, (c, o) in enumerate(or_cuts):
+    for i, (c, o) in enumerate(or_cuts.items()):
         assert c == cuts[i] and o == orientations[i]
 
     c1 = OrientedCut({0: True})
@@ -68,7 +68,7 @@ def test_oriented_cuts():
     assert old_c == old_c2
     assert old_c != new_c
     assert new_c == ref_cut
-    assert new_c.size == old_c.size + 1
+    assert len(new_c) == len(old_c) + 1
     assert old_c.orientation_of(3) is None
     assert new_c.orientation_of(3)
 
