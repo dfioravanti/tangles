@@ -62,7 +62,7 @@ def main(args):
         for k, v in evaluation.items():
             print(f"For order {order} we have {k} = {v}", flush=True)
 
-    plot_tangles_on_questionnaire(xs, ys, predictions, path="./plot.pdf")
+    plot_tangles_on_questionnaire(xs, ys, predictions, path="./plot.svg")
 
 
 if __name__ == '__main__':

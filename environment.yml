@@ -6,9 +6,9 @@ dependencies:
   - scikit-learn
   - numpy
   - matplotlib
-  - seaborn
   - pytest
   - pip
   - pip:
       - anytree
 prefix: /home/dfioravanti/anaconda3/envs/tangles
+
