@@ -46,3 +46,5 @@ def plot_tangles_on_questionnaire(xs, ys, predictions, path=None):
 
     if path is None:
         plt.show()
+    else:
+        plt.savefig(path)
