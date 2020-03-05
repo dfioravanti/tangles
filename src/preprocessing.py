@@ -1,3 +1,5 @@
+from collections import deque
+
 import numpy as np
 
 
@@ -63,3 +65,34 @@ def make_submodular(cuts):
     new_cuts = np.array(list(unions.values()), dtype='bool')
 
     return new_cuts
+
+
+def find_comparable_components(cuts):
+
+    _, n = cuts.shape
+    idx = np.arange(n)
+    components = []
+
+    for cut in cuts:
+
+        is_new_component = True
+        for component in components:
+            idx_biggest = set(idx[component[0]])
+            idx_cut, idx_comp_cut = set(idx[cut]), set(idx[~cut])
+
+            if idx_cut.issubset(idx_biggest):
+                idx_smallest = set(idx[component[-1]])
+                if idx_smallest.issubset(idx_cut):
+                    component.append(cut)
+                else:
+                    for cut_component in component[1:-2]:
+                        pass
+
+            elif idx_biggest.issubset(idx_comp_cut):
+                cut = ~cut
+                component.appendleft(cut)
+
+        if is_new_component:
+            components.append(deque([cut]))
+
+    return components

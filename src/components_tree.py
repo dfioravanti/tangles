@@ -16,13 +16,13 @@ class Node:
     incomps = None
     leaf = True
 
-    def __init__(self, cut):
+    def __init__(self, cut, i_cut):
 
-        self.cut = cut
+        self.i_cut = i_cut
         n = len(cut)
         self.idx = set(np.arange(n)[cut])
 
-    def insert(self, new_cut):
+    def insert(self, new_cut, i_new_cut):
         """
         Add a new cut to a node
 
@@ -30,6 +30,8 @@ class Node:
         ----------
         new_cut: array of shape [n_points]
             the new cut to add
+        i_new_cut: int
+            the index of the new cut in the set of all cuts
 
         Returns
         -------
@@ -62,15 +64,15 @@ class Node:
 
         if is_new_subset:
             if self.subsets is None:
-                self.subsets = Node(new_cut)
+                self.subsets = Node(new_cut, i_new_cut)
             else:
-                self.subsets, _ = self.subsets.insert(new_cut)
+                self.subsets, _ = self.subsets.insert(new_cut, i_new_cut)
             self.leaf = False
             return self, flip_cut
 
         elif is_new_superset:
 
-            new_node = Node(new_cut)
+            new_node = Node(new_cut, i_new_cut)
             new_node.subsets = self
             new_node.leaf = False
 
@@ -95,12 +97,13 @@ class Node:
 
                 else:
                     previous_child = previous_child.incomps
+                    node = node.incomps
 
             return new_node, flip_cut
         else:
             self.leaf = False
             if self.incomps is None:
-                self.incomps = Node(new_cut)
+                self.incomps = Node(new_cut, i_new_cut)
             else:
-                self.incomps, _ = self.incomps.insert(new_cut)
+                self.incomps, _ = self.incomps.insert(new_cut, i_new_cut)
             return self, flip_cut

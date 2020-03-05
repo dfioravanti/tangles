@@ -2,9 +2,9 @@ import numpy as np
 from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-from src.algorithms import basic_algorithm
 from src.config import PREPROCESSING_NO, PREPROCESSING_MAKE_SUBMODULAR
-from src.config import ALGORITHM_BASIC
+from src.config import ALGORITHM_BASIC, ALGORITHM_TREE
+from src.algorithms import basic_algorithm, tree_components_algorithm
 from src.preprocessing import make_submodular
 
 
@@ -34,11 +34,16 @@ def order_cuts(cuts, order_function):
     return cost_cuts
 
 
-def compute_tangles(previous_tangles, current_cuts, acceptance_function, algorithm):
+def compute_tangles(idx_cuts, all_cuts, acceptance_function, algorithm):
     if algorithm.name == ALGORITHM_BASIC:
-        tangles = basic_algorithm(previous_tangles=previous_tangles,
-                                  current_cuts=current_cuts,
-                                  acceptance_function=acceptance_function)
+        # tangles = basic_algorithm(previous_tangles=previous_tangles,
+        #                          current_cuts=current_cuts,
+        #                         acceptance_function=acceptance_function)
+        pass
+    if algorithm.name == ALGORITHM_TREE:
+            tangles = tree_components_algorithm(idx_cuts=idx_cuts,
+                                                all_cuts=all_cuts,
+                                                acceptance_function=acceptance_function)
 
     return tangles
 

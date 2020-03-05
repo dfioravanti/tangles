@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.metrics.pairwise import manhattan_distances
 
 
-def implicit_order(xs, cut, n_samples=None):
+def implicit_order(xs, cut, n_samples=50):
     """
     This function computes the implicit order of a cut.
     Which is defined as the floor of the average Hemming distance between one orientation of the cut and its

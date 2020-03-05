@@ -10,6 +10,7 @@ from src.execution import compute_cuts, compute_tangles, \
     compute_clusters, order_cuts, compute_evaluation
 from src.plotting.questionnaire import plot_tangles_on_questionnaire
 from src.acceptance_functions import triplet_size_big_enough
+from src.components_tree import Node
 
 
 def main(args):
@@ -27,12 +28,11 @@ def main(args):
     existing_orders.sort()
     print(f"\tMax order: {existing_orders[-1]} \n", flush=True)
 
-    min_size = np.int(np.floor(0.1 * len(xs)))
+    min_size = 500
     acceptance_function = partial(triplet_size_big_enough, all_cuts=all_cuts, min_size=min_size)
     print(f"Using min_size = {min_size} \n", flush=True)
 
     predictions = {}
-    tangles = []
 
     print("Start tangle computation", flush=True)
     t_start = datetime.now()
@@ -43,7 +43,7 @@ def main(args):
 
         cuts_order_i = [orders[j] for j in existing_orders[:idx_order+1]]
         cuts_order_i = [i for sub in cuts_order_i for i in sub]
-        tangles = compute_tangles(previous_tangles=tangles, current_cuts=cuts_order_i,
+        tangles = compute_tangles(idx_cuts=cuts_order_i, all_cuts=all_cuts,
                                   acceptance_function=acceptance_function, algorithm=args.algorithm)
 
         print(f"\t\tI found {len(tangles)} tangles of order {order}", flush=True)

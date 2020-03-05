@@ -131,10 +131,10 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
 
 
 if __name__ == '__main__':
-    n_samples = 300
-    n_features = 6
-    n_mindsets = 3
-    tolerance = 0.2
+    n_samples = 5000
+    n_features = 200
+    n_mindsets = 10
+    tolerance = 0.10
     seed = 42
 
     name = f'synthetic_s_{n_samples}_f_{n_features}_m_{n_mindsets}_t_{tolerance * 100:.1f}%'

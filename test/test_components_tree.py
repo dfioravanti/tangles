@@ -9,9 +9,9 @@ def test_add():
                      [0, 0, 1, 1],
                      [0, 0, 0, 1]], dtype=bool)
 
-    tree = Node(cuts[0])
-    for cut in cuts[1:]:
-        tree, cut = tree.insert(cut)
+    tree = Node(cuts[0], 0)
+    for i_cut in np.arange(1, len(cuts)):
+        tree, flip_cut = tree.insert(cuts[i_cut], i_cut)
 
     assert tree.idx == {0, 1, 2, 3}
     assert not tree.leaf
@@ -33,9 +33,9 @@ def test_add():
                          [0, 0, 1, 1],
                          [1, 1, 1, 0]], dtype=bool)
 
-    tree = Node(cuts[0])
+    tree = Node(cuts[0], 0)
     for i_cut in np.arange(1, len(cuts)):
-        tree, flip_cut = tree.insert(cuts[i_cut])
+        tree, flip_cut = tree.insert(cuts[i_cut], i_cut)
         if flip_cut:
             cuts[i_cut] = ~cuts[i_cut]
 
@@ -56,9 +56,9 @@ def test_add():
                      [1, 1, 1, 0, 0, 0],
                      [1, 0, 1, 0, 0, 0]], dtype=bool)
 
-    tree = Node(cuts[0])
+    tree = Node(cuts[0], 0)
     for i_cut in np.arange(1, len(cuts)):
-        tree, flip_cut = tree.insert(cuts[i_cut])
+        tree, flip_cut = tree.insert(cuts[i_cut], i_cut)
         if flip_cut:
             cuts[i_cut] = ~cuts[i_cut]
 
