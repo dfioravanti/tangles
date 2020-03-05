@@ -16,13 +16,14 @@ class OrientedCut(dict):
     def __hash__(self):
         return hash(str(self.get_idx_cuts()) + str(self.get_orientations()))
 
-    def __eq__(self, other):
-        if self.get_idx_cuts() == other.get_idx_cuts() and self.get_orientations() == other.get_orientations():
-            return True
-        else:
-            return False
-
     def __add__(self, other):
+
+        for k, v in self.items():
+            other_v = other.get(k)
+
+            if other_v is not None and v != other_v:
+                return None
+
         return OrientedCut({**self, **other})
 
     def get_idx_cuts(self):

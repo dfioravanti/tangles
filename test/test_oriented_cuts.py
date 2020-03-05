@@ -71,6 +71,12 @@ def test_oriented_cuts():
     assert len(new_c) == len(old_c) + 1
     assert old_c.orientation_of(3) is None
     assert new_c.orientation_of(3)
+    assert (OrientedCut({1: True}) + OrientedCut({1: False})) is None
+    assert (OrientedCut({1: True}) + OrientedCut({1: True})) == OrientedCut({1: True})
+    assert (OrientedCut({1: True, 2: True}) + OrientedCut({1: True, 2: False})) is None
+    assert (OrientedCut({1: True, 2: False}) + OrientedCut({1: True, 2: False})) == OrientedCut({1: True, 2: False})
+    assert (OrientedCut({1: False, 3: True}) + OrientedCut({1: True, 2: False})) is None
+    assert (OrientedCut({1: True, 3: True}) + OrientedCut({1: True, 2: False})) == OrientedCut({1: True, 2: False, 3: True})
 
 
 if __name__ == '__main__':
