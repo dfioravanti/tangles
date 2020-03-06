@@ -1,5 +1,7 @@
 from itertools import combinations
 
+from copy import deepcopy
+
 import numpy as np
 
 
@@ -9,29 +11,16 @@ class OrientedCut(dict):
     In idx_cuts it is stored the index of the cut in S, meanwhile in orientation
     we store which orientation we are taking as a bool.
     """
-    def __init__(self, oriented_cuts={}, min_cuts=[]):
+    def __init__(self, orientations={}, core=[]):
 
-        super(OrientedCut, self).__init__(oriented_cuts)
-        if len(oriented_cuts) == 1 and len(min_cuts) == 0:
-            self.min_cuts = list(oriented_cuts.keys())
+        super(OrientedCut, self).__init__(orientations)
+        if len(orientations) == 1 and len(core) == 0:
+            self.core = list(orientations.keys())
         else:
-            self.min_cuts = min_cuts
+            self.core = core
 
     def __hash__(self):
         return hash(str(self.get_idx_cuts()) + str(self.get_orientations()))
-
-    def __add__(self, other):
-
-        for k, v in self.items():
-            other_v = other.get(k)
-
-            if other_v is not None and v != other_v:
-                return None
-
-        return OrientedCut({**self, **other})
-
-    def get_min_cut(self):
-        return self.min_cuts
 
     def get_idx_cuts(self):
         return list(self.keys())
@@ -42,81 +31,84 @@ class OrientedCut(dict):
     def orientation_of(self, i):
         return self.get(i)
 
-    def get_partition(self, i, all_cuts):
+    def get_partition_mask(self, i, all_cuts):
         o = self.orientation_of(i)
         return all_cuts[i] if o else ~all_cuts[i]
 
-    def add_superset(self, other):
-        return OrientedCut(oriented_cuts={**self, **other}, min_cuts=self.min_cuts)
+    def get_partitions_mask(self, all_cuts):
+        for i, o in self.items():
+            yield all_cuts[i] if o else ~all_cuts[i]
 
-    def add_crossing (self, other):
-        return OrientedCut(oriented_cuts={**self, **other}, min_cuts=self.min_cuts + other.min_cuts)
+    def get_core_partitions_mask(self, all_cuts):
+        for i in self.core:
+            o = self.orientation_of(i)
+            yield all_cuts[i] if o else ~all_cuts[i]
+
+    def get_core_partitions(self, all_cuts):
+        _, n = all_cuts.shape
+        size = len(self.core)
+        partitions = np.zeros((size, n), dtype=bool)
+
+        for pos, i in enumerate(self.core):
+            o = self.orientation_of(i)
+            partitions[pos, :] = all_cuts[i] if o else ~all_cuts[i]
+
+        return partitions
 
     def is_consistent(self, all_cuts, min_size):
 
         if len(self) == 0:
             return True
 
-        if len(self.min_cuts) == 1:
-            partition = self.get_partition(self.min_cuts[0], all_cuts)
-            return False if np.sum(partition) < min_size else True
+        i = self.core[0]
+        o = self.orientation_of(i)
+        partition = all_cuts[i] == o
+        return False if np.sum(partition) < min_size else True
 
-        if len(self.min_cuts) == 2:
-            partition1 = self.get_partition(self.min_cuts[0], all_cuts)
-            partition2 = self.get_partition(self.min_cuts[1], all_cuts)
-            return False if np.sum(partition1 * partition2) < min_size else True
 
-        if len(self) >= 3:
-            for i1, i2, i3 in combinations(self.min_cuts, 3):
-                partition1 = self.get_partition(i1, all_cuts)
-                partition2 = self.get_partition(i2, all_cuts)
-                partition3 = self.get_partition(i3, all_cuts)
+def is_core_consistent_with(core_partitions, new_partition, min_size):
 
-                if np.sum(partition1 * partition2 * partition3) < min_size:
-                    return False
-
-            return True
-
-    def is_consistent_with(self, other, all_cuts, min_size):
-
-        if len(self) == 0:
-            return True
-
-        if len(self.min_cuts) == 1 and len(other.min_cuts) == 1:
-            p_self = self.get_partition(self.min_cuts[0], all_cuts)
-            p_other = other.get_partition(other.min_cuts[0], all_cuts)
-            return False if np.sum(p_self * p_other) < min_size else True
-
-        if len(self.min_cuts) == 2 and len(other.min_cuts) == 1:
-            p1_self = self.get_partition(self.min_cuts[0], all_cuts)
-            p2_self = self.get_partition(self.min_cuts[1], all_cuts)
-            p_other = other.get_partition(other.min_cuts[0], all_cuts)
-            return False if np.sum(p1_self * p2_self * p_other) < min_size else True
-
-        if len(self.min_cuts) == 1 and len(other.min_cuts) == 2:
-            p_self = self.get_partition(self.min_cuts[0], all_cuts)
-            p1_other = other.get_partition(other.min_cuts[0], all_cuts)
-            p2_other = other.get_partition(other.min_cuts[1], all_cuts)
-            return False if np.sum(p_self * p1_other * p2_other) < min_size else True
-
-        for i1_self, i2_self in combinations(self.min_cuts, 2):
-            p1_self = self.get_partition(i1_self, all_cuts)
-            p2_self = self.get_partition(i2_self, all_cuts)
-
-            for i_other in other.min_cuts:
-                p_other = other.get_partition(i_other, all_cuts)
-
-                if np.sum(p1_self * p2_self * p_other) < min_size:
-                    return False
-
-        for i1_other, i2_other in combinations(other.min_cuts, 2):
-            p1_other = self.get_partition(i1_other, all_cuts)
-            p2_other = self.get_partition(i2_other, all_cuts)
-
-            for i_self in self.min_cuts:
-                p_self = other.get_partition(i_self, all_cuts)
-
-                if np.sum(p_self * p1_other * p2_other) < min_size:
-                    return False
-
+    if len(core_partitions) == 0:
         return True
+
+    if len(core_partitions) == 1:
+        return False if np.sum(core_partitions[0] * new_partition) < min_size else True
+
+    if len(core_partitions) == 2:
+        return False if np.sum(core_partitions[0] * core_partitions[1] * new_partition) < min_size else True
+
+    for couple_core_partition in combinations(core_partitions, 2):
+        if np.sum(couple_core_partition[0] * couple_core_partition[1] * new_partition) < min_size:
+            return False
+
+    return True
+
+
+def add_superset(cut1, cut2):
+    return OrientedCut(orientations={**cut1, **cut2}, core=cut1.core)
+
+
+def add_subset(partial_tangle, oriented_cut, core_partitions, new_partition, min_size):
+    if is_core_consistent_with(core_partitions, new_partition, min_size):
+        new_core = deepcopy(partial_tangle.core)
+        new_core += oriented_cut.core
+        return OrientedCut(orientations={**partial_tangle, **oriented_cut}, core=new_core)
+    else:
+        return None
+
+
+def add_cross(partial_tangle, oriented_cut, core_partitions, new_partition, min_size):
+    if is_core_consistent_with(core_partitions, new_partition, min_size):
+        return OrientedCut(orientations={**partial_tangle, **oriented_cut},
+                           core=partial_tangle.core + oriented_cut.core)
+    else:
+        return None
+
+
+def get_partition(i, o, all_cuts):
+    return all_cuts[i] == o
+
+
+def partition_to_set(partition):
+    idx = np.where(partition == True)[0]
+    return set(idx.tolist())

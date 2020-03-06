@@ -5,7 +5,7 @@ from sklearn.cluster import k_means
 from sklearn.preprocessing import OneHotEncoder
 
 
-def get_binarized_iris(k=3):
+def get_binarized_iris(k=10):
 
     """
     Build a binarized version of the iris dataset.
