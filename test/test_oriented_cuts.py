@@ -12,6 +12,7 @@ def test_oriented_cuts():
     oriented_cut = {0: True}
     c = OrientedCut(oriented_cut)
     assert c.get_idx_cuts() == [0] and c.get_orientations() == [True]
+    assert c.min_cuts == [0]
 
     cuts = [0, 1, 2, 3, 4]
     orientations = [True, False, True, True, False]

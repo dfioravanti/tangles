@@ -23,18 +23,15 @@ def triplet_size_big_enough(all_cuts, oriented_cuts, min_size):
 
     """
 
-    cuts = deque(oriented_cuts)
-
     if not isinstance(oriented_cuts, list):
         return oriented_cuts.is_consistent(all_cuts, min_size)
 
+    cuts = deque(oriented_cuts)
     for _ in range(len(cuts)):
         cut = cuts.popleft()
-
-        for cut2 in cuts:
-            for i, o in cut2.items():
-                if not cut.is_consistent_with(i, o, all_cuts, min_size):
-                    return False
+        for other_cut in cuts:
+            if not cut.is_consistent_with(other_cut, all_cuts, min_size):
+                return False
 
         cuts.append(cut)
     return True
