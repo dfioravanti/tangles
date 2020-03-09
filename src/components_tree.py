@@ -5,7 +5,7 @@ class Node:
     """
     Class to represent the nested components of a set of cuts.
     For every node we store the largest subset we found in self.subsets and then we store the
-    first incompatible in self.incomps.
+    first incompatible in self.components.
 
     Note that the structure of the tree is dependent on the order in which we add the cuts
     but it does not matter for the correctness of the computation.
@@ -13,16 +13,15 @@ class Node:
     TODO: Check if there is a way to keep it balanced.
     """
     subsets = None
-    incomps = None
+    components = None
     leaf = True
 
-    def __init__(self, cut, i_cut):
+    def __init__(self, partition, complement_partition):
 
-        self.i_cut = i_cut
-        n = len(cut)
-        self.idx = set(np.arange(n)[cut])
+        self.partition = partition
+        self.complement_partition = complement_partition
 
-    def insert(self, new_cut, i_new_cut):
+    def insert(self, new_partition, new_complement_partition):
         """
         Add a new cut to a node
 
@@ -41,69 +40,73 @@ class Node:
                 True if we had to flip the cut in order to insert it in the tree,
                 False otherwise
         """
-        n = len(new_cut)
-        idx = np.arange(n)
-        new_idx, new_comp_idx = set(idx[new_cut]), set(idx[~new_cut])
 
         is_new_subset = False
         is_new_superset = False
 
         flip_cut = False
-        if new_idx.issubset(self.idx):
+        if new_partition.issubset(self.partition):
             is_new_subset = True
-        elif new_comp_idx.issubset(self.idx):
-            new_cut = ~new_cut
-            flip_cut = True
+            complement = False
+        elif new_partition.issubset(self.partition):
             is_new_subset = True
-        elif new_idx.issuperset(self.idx):
+            complement = True
+        elif self.partition.issubset(new_partition):
             is_new_superset = True
-        elif new_comp_idx.issuperset(self.idx):
-            new_cut = ~new_cut
-            flip_cut = True
+            complement = False
+        elif self.partition.issubset(new_complement_partition):
             is_new_superset = True
+            complement = True
 
         if is_new_subset:
             if self.subsets is None:
-                self.subsets = Node(new_cut, i_new_cut)
+                if not complement:
+                    new_node = Node(new_partition, new_complement_partition)
+                else:
+                    new_node = Node(new_complement_partition, new_partition)
+                self.subsets = new_node
+                self.leaf = False
             else:
-                self.subsets, _ = self.subsets.insert(new_cut, i_new_cut)
-            self.leaf = False
-            return self, flip_cut
+                self.subsets = self.subsets.insert(new_partition, new_complement_partition)
+            return self
 
         elif is_new_superset:
 
-            new_node = Node(new_cut, i_new_cut)
+            if not complement:
+                new_node = Node(new_partition, new_complement_partition)
+            else:
+                new_node = Node(new_complement_partition, new_partition)
             new_node.subsets = self
             new_node.leaf = False
 
             # Check if something in the incompatible must be moved to parent
-            node = self.incomps
+            node = self.components
             previous_child = self
             last_parent = new_node
 
             while node is not None:
-                if not new_node.idx.issuperset(node.idx):
+                if not new_node.partition.issuperset(node.partition):
 
                     # Move the node
-                    last_parent.incomps = node
+                    last_parent.components = node
 
                     # Update pointers
                     last_parent = node
                     node = node.incomps
 
                     # Cut links
-                    previous_child.incomps = node
+                    previous_child.components = node
                     last_parent.incomps = None
 
                 else:
-                    previous_child = previous_child.incomps
+                    previous_child = previous_child.components
                     node = node.incomps
 
-            return new_node, flip_cut
+            return new_node
         else:
             self.leaf = False
-            if self.incomps is None:
-                self.incomps = Node(new_cut, i_new_cut)
+            if self.components is None:
+                self.components = Node(new_partition, new_complement_partition)
             else:
-                self.incomps, _ = self.incomps.insert(new_cut, i_new_cut)
+                self.components, _ = self.components.insert(new_partition, new_complement_partition)
             return self, flip_cut
