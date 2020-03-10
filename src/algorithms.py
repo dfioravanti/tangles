@@ -1,38 +1,51 @@
-from itertools import permutations
-from src.oriented_cuts import Specification, add_cross, add_subset, add_supset, merge_cross
+import numpy as np
+import bitarray as ba
+
+from src.oriented_cuts import Specification
 
 
-def find_tangles(C, k):
-    # Leaf case
-    if len(C.subsets) == 0:
-        if len(C.partition) >= k:
-            sigma_plus = [Specification([C.partition], [C.partition])]
+def core_algorithm(tangles, current_cuts, idx_current_cuts, min_size):
+
+    last_added = len(tangles)
+
+    for i, cut in zip(idx_current_cuts, current_cuts):
+        current_tangles = []
+        non_maximal = []
+
+        if tangles == []:
+            if np.sum(cut) >= min_size:
+                array = ba.bitarray(list(cut))
+                current_tangles.append(Specification([array], [array], {i: True}))
+            if np.sum(~cut) >= min_size:
+                array = ba.bitarray(list(~cut))
+                current_tangles.append(Specification([array], [array], {i: False}))
         else:
-            sigma_plus = []
-        if len(C.complement_partition) >= k:
-            sigma_minus = [Specification([C.complement_partition], [C.complement_partition])]
-        else:
-            sigma_minus = []
-        return sigma_plus, sigma_minus
+            for i_tau, tau in enumerate(tangles[-last_added:]):
+                tau_extended = False
 
-    # Not leaf case
-    sigma_plus_child, sigma_minus_child = [], []
-    node = C.subsets
-    while node is not None:
-        plus, minus = find_tangles(node, k)
-        sigma_plus_child += plus
-        sigma_minus_child += minus
+                new_tangle = tau.add(ba.bitarray(list(cut)), {i: True}, min_size)
+                if new_tangle is not None:
+                    current_tangles.append(new_tangle)
+                    tau_extended = True
 
-        sigma_plus, sigma_minus = [], []
-        for sigmas in permutations(sigma_plus_child):
-            sigma = merge_cross(sigmas, k)
-            if sigma is not None: sigma_plus.append(add_supset(node.partition, sigma))
+                new_tangle = tau.add(ba.bitarray(list(~cut)), {i: False}, min_size)
+                if new_tangle is not None:
+                    current_tangles.append(new_tangle)
+                    tau_extended = True
 
-        for sigmas in permutations(sigma_minus_child):
-            sigma = merge_cross(sigmas, k)
-            if sigma is not None: sigma_plus.append(add_cross(node.partition, sigma, k))
-            if sigma is not None: sigma_plus.append(add_subset(node.partition, sigma, k))
+                if tau_extended:
+                    non_maximal.append(i_tau)
 
-        node = node.components
+            len_tangles = len(tangles)
+            for j in sorted(non_maximal, reverse=True):
+                idx_remove = len_tangles - (last_added - j)
+                del tangles[idx_remove]
 
-    return sigma_plus, sigma_minus
+            # A tangle has to orient every cut. If I cannot orient cut i then there is no tangle
+            if len(current_tangles) == 0:
+                raise Exception("I cannot find a tangle")
+
+        tangles += current_tangles
+        last_added = len(current_tangles)
+
+    return tangles
