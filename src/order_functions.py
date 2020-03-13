@@ -55,8 +55,3 @@ def implicit_order(xs, cut, n_samples=None):
     expected_order = np.average(orders)
 
     return np.int(np.trunc(expected_order))
-
-
-def cut_size(vs, cut):
-
-    

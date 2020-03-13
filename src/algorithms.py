@@ -41,6 +41,10 @@ def core_algorithm(tangles, current_cuts, idx_current_cuts, min_size):
                 idx_remove = len_tangles - (last_added - j)
                 del tangles[idx_remove]
 
+            # A tangle has to orient every cut. If I cannot orient cut i then there is no tangle
+            if len(current_tangles) == 0:
+                raise Exception("I cannot find a tangle")
+
         tangles += current_tangles
         last_added = len(current_tangles)
 

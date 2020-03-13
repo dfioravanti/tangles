@@ -2,10 +2,10 @@ import numpy as np
 from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-from src.config import PREPROCESSING_NO, PREPROCESSING_MAKE_SUBMODULAR, PREPROCESSING_RANDOM
+from src.config import PREPROCESSING_NO, PREPROCESSING_MAKE_SUBMODULAR
 from src.config import ALGORITHM_CORE
 from src.algorithms import core_algorithm
-from src.preprocessing import make_submodular, make_random_cuts
+from src.preprocessing import make_submodular
 
 
 def compute_cuts(xs, preprocessing):
@@ -14,8 +14,6 @@ def compute_cuts(xs, preprocessing):
     elif preprocessing.name == PREPROCESSING_MAKE_SUBMODULAR:
         cuts = (xs == True).T
         cuts = make_submodular(cuts)
-    elif preprocessing.name == PREPROCESSING_RANDOM:
-        cuts = make_random_cuts(xs)
 
     return cuts
 

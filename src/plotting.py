@@ -3,7 +3,6 @@ import numpy as np
 from sklearn.manifold import TSNE
 
 from matplotlib import pyplot as plt
-from matplotlib import cm
 
 
 def plot_dataset(xs, ys, path=None):

@@ -28,7 +28,7 @@ def main(args):
     existing_orders.sort()
     print(f"\tMax order: {existing_orders[-1]} \n", flush=True)
 
-    min_size = 20
+    min_size = 10
     print(f"Using min_size = {min_size} \n", flush=True)
 
     print("Start tangle computation", flush=True)

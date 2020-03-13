@@ -65,18 +65,3 @@ def make_submodular(cuts):
     new_cuts = np.array(list(unions.values()), dtype='bool')
 
     return new_cuts
-
-
-def make_random_cuts(xs, nb_cuts=10):
-
-    nb_points, _ = xs.shape
-    cuts = np.zeros((nb_cuts, nb_points), dtype=bool)
-    idx = np.arange(nb_points)
-
-    in_cluster = np.random.choice(idx, (nb_cuts, nb_points // 2))
-
-    for i in np.arange(nb_cuts):
-        cuts[i, in_cluster[i]] = True
-
-    return cuts
-
