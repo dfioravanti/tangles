@@ -67,32 +67,16 @@ def make_submodular(cuts):
     return new_cuts
 
 
-def find_comparable_components(cuts):
+def make_random_cuts(xs, nb_cuts=10):
 
-    _, n = cuts.shape
-    idx = np.arange(n)
-    components = []
+    nb_points, _ = xs.shape
+    cuts = np.zeros((nb_cuts, nb_points), dtype=bool)
+    idx = np.arange(nb_points)
 
-    for cut in cuts:
+    in_cluster = np.random.choice(idx, (nb_cuts, nb_points // 2))
 
-        is_new_component = True
-        for component in components:
-            idx_biggest = set(idx[component[0]])
-            idx_cut, idx_comp_cut = set(idx[cut]), set(idx[~cut])
+    for i in np.arange(nb_cuts):
+        cuts[i, in_cluster[i]] = True
 
-            if idx_cut.issubset(idx_biggest):
-                idx_smallest = set(idx[component[-1]])
-                if idx_smallest.issubset(idx_cut):
-                    component.append(cut)
-                else:
-                    for cut_component in component[1:-2]:
-                        pass
+    return cuts
 
-            elif idx_biggest.issubset(idx_comp_cut):
-                cut = ~cut
-                component.appendleft(cut)
-
-        if is_new_component:
-            components.append(deque([cut]))
-
-    return components

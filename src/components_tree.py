@@ -16,10 +16,16 @@ class Node:
     components = None
     leaf = True
 
-    def __init__(self, partition, complement_partition):
+    def __init__(self, partition=None, complement_partition=None):
 
         self.partition = partition
         self.complement_partition = complement_partition
+
+    def to_numpy(self, n_cuts):
+        cut = np.zeros(n_cuts, dtype=bool)
+        cut[list(self.partition)] = True
+
+        return cut
 
     def insert(self, new_partition, new_complement_partition):
         """
@@ -41,14 +47,23 @@ class Node:
                 False otherwise
         """
 
+        # Root case
+        if self.partition is None:
+            if self.subsets is None:
+                new_node = Node(new_partition, new_complement_partition)
+                self.subsets = new_node
+                return self
+            else:
+                self.subsets.insert(new_partition, new_complement_partition)
+                return self
+
         is_new_subset = False
         is_new_superset = False
 
-        flip_cut = False
         if new_partition.issubset(self.partition):
             is_new_subset = True
             complement = False
-        elif new_partition.issubset(self.partition):
+        elif new_complement_partition.issubset(self.partition):
             is_new_subset = True
             complement = True
         elif self.partition.issubset(new_partition):
@@ -67,7 +82,10 @@ class Node:
                 self.subsets = new_node
                 self.leaf = False
             else:
-                self.subsets = self.subsets.insert(new_partition, new_complement_partition)
+                if not complement:
+                    self.subsets = self.subsets.insert(new_partition, new_complement_partition)
+                else:
+                    self.subsets = self.subsets.insert(new_complement_partition, new_partition)
             return self
 
         elif is_new_superset:
@@ -92,15 +110,15 @@ class Node:
 
                     # Update pointers
                     last_parent = node
-                    node = node.incomps
+                    node = node.components
 
                     # Cut links
                     previous_child.components = node
-                    last_parent.incomps = None
+                    last_parent.components = None
 
                 else:
                     previous_child = previous_child.components
-                    node = node.incomps
+                    node = node.components
 
             return new_node
         else:
@@ -108,5 +126,7 @@ class Node:
             if self.components is None:
                 self.components = Node(new_partition, new_complement_partition)
             else:
-                self.components, _ = self.components.insert(new_partition, new_complement_partition)
-            return self, flip_cut
+                self.components = self.components.insert(new_partition, new_complement_partition)
+            return self
+
+

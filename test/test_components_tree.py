@@ -45,8 +45,8 @@ def test_add():
     assert not tree.subsets.leaf
     assert tree.subsets.subsets.idx == {1, 2}
     assert tree.subsets.subsets.leaf
-    assert tree.incomps.idx == {2, 3}
-    assert tree.incomps.leaf
+    assert tree.components.idx == {2, 3}
+    assert tree.components.leaf
     assert np.all(cuts == ref_cuts)
 
     cuts = np.array([[0, 1, 1, 0, 0, 0],
@@ -66,8 +66,8 @@ def test_add():
     assert tree.subsets.idx == {1, 2}
     assert tree.subsets.incomps.idx == {0, 2}
     assert tree.subsets.subsets.idx == {2}
-    assert tree.incomps.idx == {2, 3, 4}
-    assert tree.incomps.subsets.idx == {2, 4}
+    assert tree.components.idx == {2, 3, 4}
+    assert tree.components.subsets.idx == {2, 4}
 
 if __name__ == '__main__':
     test_add()

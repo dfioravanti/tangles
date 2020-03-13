@@ -28,14 +28,11 @@ def main(args):
     existing_orders.sort()
     print(f"\tMax order: {existing_orders[-1]} \n", flush=True)
 
-    min_size = 10
+    min_size = 20
     print(f"Using min_size = {min_size} \n", flush=True)
 
     print("Start tangle computation", flush=True)
     t_start = datetime.now()
-
-    nb_classes = max(ys) + 1
-    nb_cuts = len(all_cuts)
 
     tangles = []
     tangles_of_order = {}
@@ -64,7 +61,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-
 
     parser = make_parser()
     args = to_SimpleNamespace(parser.parse_args())

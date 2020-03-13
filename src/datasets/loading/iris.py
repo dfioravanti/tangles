@@ -1,11 +1,11 @@
 import numpy as np
 
 from sklearn.datasets import load_iris
-from sklearn.cluster import k_means
+from sklearn.cluster import SpectralClustering
 from sklearn.preprocessing import OneHotEncoder
 
 
-def get_binarized_iris(k=10):
+def get_binarized_iris(k=4):
 
     """
     Build a binarized version of the iris dataset.
@@ -32,7 +32,9 @@ def get_binarized_iris(k=10):
     binarized_xs = []
 
     for feature in xs.T:
-        _, clustered_feature, _, = k_means(feature.reshape(-1, 1), k)
+        spectral = SpectralClustering(n_clusters=k, assign_labels="discretize")
+        clustering = spectral.fit(feature.reshape(-1, 1))
+        clustered_feature = clustering.labels_
         enc = OneHotEncoder()
         binarized_feature = enc.fit_transform(clustered_feature.reshape(-1, 1)).toarray()
         binarized_feature = binarized_feature.astype(bool)
