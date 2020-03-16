@@ -62,4 +62,4 @@ def plot_heatmap(all_cuts, ys, tangles_of_order, path=None):
             if path is None:
                 plt.show()
             else:
-                plt.savefig(f"Tangle order {order}.svg")
+                plt.savefig(f"Tangle order {order}.png")

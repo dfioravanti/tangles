@@ -131,8 +131,8 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
 
 
 if __name__ == '__main__':
-    n_samples = 300
-    n_features = 10
+    n_samples = 100
+    n_features = 5
     n_mindsets = 2
     tolerance = 0.10
     seed = 42

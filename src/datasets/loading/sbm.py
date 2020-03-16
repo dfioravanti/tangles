@@ -12,19 +12,20 @@ def load_sbm(block_size, nb_blocks, p_in, p_out):
 
     nb_points = block_size * nb_blocks
 
-    xs = np.zeros((nb_points, nb_points), dtype=bool)
+    A = np.zeros((nb_points, nb_points), dtype=bool)
     ys = np.zeros(nb_points, dtype=int)
     graph = stochastic_block_model(sizes=sizes, p=p)
     for node, ad in graph.adjacency():
 
-        xs[node, list(ad.keys())] = True
+        A[node, list(ad.keys())] = True
 
     for cls, points in enumerate(graph.graph["partition"]):
         ys[list(points)] = cls
 
-    return xs, ys
+    return A, ys
 
 
 if __name__ == '__main__':
 
-    load_sbm(10, 4, .7, .3)
+    a = load_sbm(10, 4, .7, .3)
+    print(a)
