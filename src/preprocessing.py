@@ -1,5 +1,5 @@
 from itertools import combinations
-
+from random import sample
 
 import numpy as np
 from sklearn.cluster import SpectralClustering
@@ -73,7 +73,8 @@ def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
     nb_verteces, _ = A.shape
     cut = np.zeros(nb_verteces, dtype=bool)
 
-    neighbours = A[idx_vertex]
+    cut[idx_vertex] = True
+    neighbours = A[idx_vertex, :].flatten()
     idx_neighbours = np.where(neighbours == True)[0]
     for idx_neighbour in idx_neighbours:
         common_neighbours = np.sum(np.logical_and(neighbours, A[idx_neighbour]))
@@ -83,45 +84,57 @@ def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
     return cut
 
 
-def build_blob_graph(blobs):
+def build_blob_graph(blobs, A):
 
     nb_blobs = len(blobs)
-    A = np.zeros((nb_blobs, nb_blobs), dtype=int)
+    A_blobs = np.zeros((nb_blobs, nb_blobs), dtype=int)
     idxs = np.triu_indices(nb_blobs, 1)
 
     for idx_1, idx_2, blob in zip(idxs[0], idxs[1], combinations(blobs, 2)):
         blob_1, blob_2 = blob
-        common_points = np.sum(np.logical_and(blob_1, blob_2))
-        A[idx_1, idx_2] = A[idx_2, idx_1] = common_points
+        #blob_2 = blob_2 - blob_1
+        #ixgrid = np.ix_(blob_1, blob_2)
 
-    return A
+        #nb_connecting_edges = np.sum(A[ixgrid])
+
+        A_blobs[idx_1, idx_2] = A_blobs[idx_2, idx_1] = len(blob_1.intersection(blob_2))
+
+    return A_blobs
 
 
-def neighbourhood_cuts(A, nb_centers, nb_common_neighbours, max_k):
+def neighbourhood_cover(A, nb_common_neighbours, max_k):
 
     nb_verteces, _ = A.shape
-    idx = np.arange(nb_verteces)
-    center_vertex = np.random.choice(idx, nb_centers, replace=False)
+    idx_to_cover = set(range(nb_verteces))
+    blobs = []
+    cuts = []
 
-    blobs = np.empty(nb_verteces, bool)
-    for idx_vertex in center_vertex:
-        cut = neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours)
-        if not(np.all(cut)) and np.any(cut):
-            blobs = np.vstack([blobs, cut])
+    while len(idx_to_cover) > 0:
 
-    blobs = blobs[1:]
+        vertex = sample(idx_to_cover, 1)
+        cut = neighbours_in_same_cluster(vertex, A, nb_common_neighbours)
 
-    A_blobs = build_blob_graph(blobs)
-    cuts = np.stack(blobs, axis=0)
+        cuts.append(cut)
+        blob = set(np.where(cut == True)[0])
+        blobs.append(blob)
 
-    for k in range(2, max_k+1):
+        idx_to_cover = idx_to_cover - set(vertex)
+
+    initial_cuts = np.stack(cuts, axis=0)
+    A_blobs = build_blob_graph(blobs, A)
+    cuts = initial_cuts.copy()
+    blobs = np.array(blobs)
+    max_k = min(max_k, len(blobs))
+
+    for k in range(2, max_k):
         cls = SpectralClustering(n_clusters=k, affinity='precomputed')
         clusters = cls.fit_predict(X=A_blobs)
 
         for cluster in range(0, k):
-            current = blobs[clusters == cluster]
-            current = np.any(current, axis=0)
-            cuts = np.append(cuts, [current], axis=0)
+            cuts_in_cluster = initial_cuts[clusters == cluster]
+            cut = np.any(cuts_in_cluster, axis=0)
+            if np.any(cut) and not np.all(cut):
+                cuts = np.append(cuts, [cut], axis=0)
 
     return cuts
 

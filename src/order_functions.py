@@ -62,4 +62,4 @@ def cut_order(A, cut):
     partition = np.where(cut == True)[0]
     comp = np.where(cut == False)[0]
 
-    return np.sum(A[np.ix_(partition, comp)]) // len(A)
+    return np.sum(A[np.ix_(partition, comp)])

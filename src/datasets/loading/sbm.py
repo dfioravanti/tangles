@@ -1,6 +1,7 @@
 import numpy as np
 
-from networkx.generators.community import stochastic_block_model
+import matplotlib.pyplot as plt
+import networkx as nx
 
 
 def load_sbm(block_size, nb_blocks, p_in, p_out):
@@ -14,13 +15,18 @@ def load_sbm(block_size, nb_blocks, p_in, p_out):
 
     A = np.zeros((nb_points, nb_points), dtype=bool)
     ys = np.zeros(nb_points, dtype=int)
-    graph = stochastic_block_model(sizes=sizes, p=p)
+    graph = nx.stochastic_block_model(sizes=sizes, p=p)
+
     for node, ad in graph.adjacency():
 
         A[node, list(ad.keys())] = True
 
     for cls, points in enumerate(graph.graph["partition"]):
         ys[list(points)] = cls
+
+    pos = nx.spring_layout(graph, k=2)
+    nx.draw(graph, pos, arrows=False, node_color=ys, vmin=0, vmax=max(ys),  cmap='Set1')
+    plt.savefig('graph.svg')
 
     return A, ys
 

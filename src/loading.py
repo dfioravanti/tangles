@@ -16,7 +16,7 @@ def get_dataset(dataset):
         xs, ys = get_binarized_iris()
         order_function = partial(implicit_order, xs)
     if dataset.type == DATASET_SBM:
-        xs, ys = load_sbm(block_size=30, nb_blocks=4, p_in=1, p_out=.1)
+        xs, ys = load_sbm(block_size=30, nb_blocks=3, p_in=.6, p_out=.1)
         order_function = partial(cut_order, xs)
 
     return xs, ys, order_function

@@ -3,6 +3,8 @@ from copy import deepcopy
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+import numpy as np
+
 from src.config import make_parser, to_SimpleNamespace
 from src.loading import get_dataset
 from src.plotting import plot_heatmap, plot_dataset
@@ -23,12 +25,12 @@ def main(args):
     print(f"\tI found {len(all_cuts)} cuts\n", flush=True)
 
     print("Compute order", flush=True)
-    orders = order_cuts(all_cuts, order_function)
-    existing_orders = list(orders.keys())
-    existing_orders.sort()
-    print(f"\tMax order: {existing_orders[-1]} \n", flush=True)
+    all_cuts, orders = order_cuts(all_cuts, order_function)
+    max_order = np.int(np.ceil(np.max(orders)))
 
-    min_size = int(len(xs) * .15)
+    print(f"\tMax order: {max_order} \n", flush=True)
+
+    min_size = int(len(xs) * .20)
     print(f"Using min_size = {min_size} \n", flush=True)
 
     print("Start tangle computation", flush=True)
@@ -37,20 +39,18 @@ def main(args):
     tangles = []
     tangles_of_order = {}
 
-    for idx_order, order in enumerate(existing_orders):
+    for idx_order, order in enumerate(range(max_order)):
 
-        print(f"\tCompute tangles of order {order}", flush=True)
+        idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order], axis=0))[0]
+        if len(idx_cuts_order_i) > 0:
+            print(f"\tCompute tangles of order {order}", flush=True)
 
-        idx_current_cuts = [orders[j] for j in existing_orders[:idx_order+1]]
-        idx_current_cuts = [i for sub in idx_current_cuts for i in sub]
-        cuts_order_i = all_cuts[idx_current_cuts]
-
-        tangles = compute_tangles(tangles, cuts_order_i, idx_current_cuts, min_size=min_size, algorithm=args.algorithm)
-
-        print(f"\t\tI found {len(tangles)} tangles of order {order}", flush=True)
-
-        print(f"\tCompute clusters for order {order}", flush=True)
-        tangles_of_order[order] = deepcopy(tangles)
+            cuts_order_i = all_cuts[idx_cuts_order_i]
+            tangles = compute_tangles(tangles, cuts_order_i, idx_cuts_order_i,
+                                      min_size=min_size, algorithm=args.algorithm)
+            print(f"\t\tI found {len(tangles)} tangles of order {order}", flush=True)
+            print(f"\tCompute clusters for order {order}", flush=True)
+            tangles_of_order[order] = deepcopy(tangles)
 
     t_finish = datetime.now()
     t_total = relativedelta(t_finish, t_start)

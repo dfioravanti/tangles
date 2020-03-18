@@ -53,7 +53,7 @@ def plot_heatmap(all_cuts, ys, tangles_of_order, path=None):
 
             axs[i].scatter(np.arange(1, nb_points + 1), matching_cuts, c=ys)
             axs[i].axis('off')
-            axs[i].set_title(f"Tangle number {i}")
+            axs[i].set_title(f"Tangle number {i} ({len(idx)} cuts)")
             for j in range(1, nb_classes):
                 nb_in_class = np.sum(ys == j-1)
                 axs[i].vlines(x=j * nb_in_class + 0.5, ymin=0, ymax=max(matching_cuts),
@@ -63,3 +63,5 @@ def plot_heatmap(all_cuts, ys, tangles_of_order, path=None):
                 plt.show()
             else:
                 plt.savefig(f"Tangle order {order}.png")
+
+        plt.close(f)

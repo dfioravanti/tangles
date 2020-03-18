@@ -6,7 +6,7 @@ from src.config import PREPROCESSING_NO, PREPROCESSING_MAKE_SUBMODULAR, \
     PREPROCESSING_NEIGHBOURHOOD_CUTS
 from src.config import ALGORITHM_CORE
 from src.algorithms import core_algorithm
-from src.preprocessing import make_submodular, neighbourhood_cuts
+from src.preprocessing import make_submodular, neighbourhood_cover
 
 
 def compute_cuts(xs, preprocessing):
@@ -16,24 +16,20 @@ def compute_cuts(xs, preprocessing):
         cuts = (xs == True).T
         cuts = make_submodular(cuts)
     elif preprocessing.name == PREPROCESSING_NEIGHBOURHOOD_CUTS:
-        cuts = neighbourhood_cuts(A=xs, nb_centers=10, nb_common_neighbours=6, max_k=8)
+        cuts = neighbourhood_cover(A=xs, nb_common_neighbours=0, max_k=20)
     return cuts
 
 
 def order_cuts(cuts, order_function):
 
-    cost_cuts = {}
+    cost_cuts = np.zeros(len(cuts))
 
     for i_cut, cut in enumerate(cuts):
-        order = np.int(np.ceil(order_function(cut)))
+        cost_cuts[i_cut] = order_function(cut)
 
-        previous_cuts = cost_cuts.get(order)
-        if previous_cuts is None:
-            cost_cuts[order] = [i_cut]
-        else:
-            previous_cuts.append(i_cut)
+    idx = np.argsort(cost_cuts)
 
-    return cost_cuts
+    return cuts[idx], cost_cuts[idx]
 
 
 def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm):
