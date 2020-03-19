@@ -78,7 +78,8 @@ def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
     idx_neighbours = np.where(neighbours == True)[0]
     for idx_neighbour in idx_neighbours:
         common_neighbours = np.sum(np.logical_and(neighbours, A[idx_neighbour]))
-        if common_neighbours >= nb_common_neighbours:
+        is_only_neighbour = (A[idx_neighbour].sum() == 1 and A[idx_vertex, idx_neighbour] == True)
+        if common_neighbours >= nb_common_neighbours or is_only_neighbour:
             cut[idx_neighbour] = True
 
     return cut
@@ -92,12 +93,15 @@ def build_blob_graph(blobs, A):
 
     for idx_1, idx_2, blob in zip(idxs[0], idxs[1], combinations(blobs, 2)):
         blob_1, blob_2 = blob
-        #blob_2 = blob_2 - blob_1
-        #ixgrid = np.ix_(blob_1, blob_2)
+        blob_2 = blob_2 - blob_1
+        ixgrid = np.ix_(np.array(list(blob_1)), np.array(list(blob_2)))
 
-        #nb_connecting_edges = np.sum(A[ixgrid])
+        if len(blob_2) == 0:
+            nb_connecting_edges = len(A)
+        else:
+            nb_connecting_edges = np.sum(A[ixgrid])
 
-        A_blobs[idx_1, idx_2] = A_blobs[idx_2, idx_1] = len(blob_1.intersection(blob_2))
+        A_blobs[idx_1, idx_2] = A_blobs[idx_2, idx_1] = nb_connecting_edges
 
     return A_blobs
 
@@ -118,7 +122,7 @@ def neighbourhood_cover(A, nb_common_neighbours, max_k):
         blob = set(np.where(cut == True)[0])
         blobs.append(blob)
 
-        idx_to_cover = idx_to_cover - set(vertex)
+        idx_to_cover = idx_to_cover - set(blob)
 
     initial_cuts = np.stack(cuts, axis=0)
     A_blobs = build_blob_graph(blobs, A)
@@ -140,7 +144,7 @@ def neighbourhood_cover(A, nb_common_neighbours, max_k):
 
 
 if __name__ == '__main__':
-    from src.datasets.loading.sbm import load_sbm
+    from src.datasets.loading import load_SBM
 
-    A, ys = load_sbm(10, 4, .7, .3)
+    A, ys = load_SBM(10, 4, .7, .3)
     neighbourhood_cuts(A, 10)
