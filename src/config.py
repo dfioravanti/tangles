@@ -1,6 +1,7 @@
 import argparse
 from types import SimpleNamespace
 
+# Global constants for validations of inputs
 # Datasets
 
 DATASET_QUESTIONNAIRE_SYNTHETIC = "q_syn"
@@ -9,22 +10,22 @@ DATASET_SBM = "sbm"
 DATASET_LFR = "lfr"
 DATASET_RING_OF_CLIQUES = "roc"
 
-
-VALID_QUESTIONNAIRES = [
+VALID_DATASETS = [
     DATASET_QUESTIONNAIRE_SYNTHETIC,
-    DATASET_BINARY_IRIS
+    DATASET_BINARY_IRIS,
+    DATASET_SBM,
+    DATASET_LFR,
+    DATASET_RING_OF_CLIQUES
 ]
-
-VALID_DATASETS = VALID_QUESTIONNAIRES
 
 # Preprocessing
 
-PREPROCESSING_NO = "no"
+PREPROCESSING_FEATURES = "fea"
 PREPROCESSING_MAKE_SUBMODULAR = "sub"
 PREPROCESSING_NEIGHBOURHOOD_CUTS = "nei"
 
 VALID_PREPROCESSING = [
-    PREPROCESSING_NO,
+    PREPROCESSING_FEATURES,
     PREPROCESSING_MAKE_SUBMODULAR,
     PREPROCESSING_NEIGHBOURHOOD_CUTS
 ]
@@ -80,6 +81,8 @@ def validate_args(parser):
     args: SimpleNamespace
         The parameters of the program parsed and validated into a SimpleNamespace
     """
+
+    pass
 
 
 def get(namespace, key):
@@ -160,14 +163,12 @@ def to_SimpleNamespace(args):
     namespace = SimpleNamespace()
 
     for key, value in vars(args).items():
-
         namespace = add_value(namespace, key, value)
 
     return namespace
 
 
 def validate_settings(args):
-
     if args.preprocessing.name not in VALID_PREPROCESSING:
         raise ValueError(f'The preprocessing name must be in: {VALID_PREPROCESSING}')
 

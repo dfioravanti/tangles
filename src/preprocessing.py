@@ -2,7 +2,8 @@ from itertools import combinations
 from random import sample
 
 import numpy as np
-from sklearn.cluster import SpectralClustering
+from sklearn.cluster import AgglomerativeClustering
+
 
 def make_submodular(cuts):
 
@@ -70,6 +71,25 @@ def make_submodular(cuts):
 
 def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
 
+    """
+    Compute a local patch for the current vertex v.
+    Give a point we check which of its neighbours u share at least nb_common_neighbours with v.
+    If u has such property then we add it to the same patch as v. Otherwise we do not.
+
+    Parameters
+    ----------
+    idx_vertex: int
+        index of the current vertex in the adjacency matrix
+    A: array of shape [nb_vertices, nb_vertices]
+        The adjacency matrix for the graph
+    nb_common_neighbours: int
+        Minimal number of common neighbours that the neighbours of the current vertex need to share
+
+    Returns
+    -------
+
+    """
+
     nb_verteces, _ = A.shape
     cut = np.zeros(nb_verteces, dtype=bool)
 
@@ -85,13 +105,30 @@ def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
     return cut
 
 
-def build_blob_graph(blobs, A):
+def build_cover_graph(cover, A):
 
-    nb_blobs = len(blobs)
-    A_blobs = np.zeros((nb_blobs, nb_blobs), dtype=int)
-    idxs = np.triu_indices(nb_blobs, 1)
+    """
+    Given a graph and a cover we build a new graph where the the vertex are the elements of the cover and the edges are
+    weighted on the number of points connecting two different elements of the cover.
 
-    for idx_1, idx_2, blob in zip(idxs[0], idxs[1], combinations(blobs, 2)):
+    Parameters
+    ----------
+    cover: list
+        A cover for the graph
+    A: array of shape [nb_vertices, nb_vertices]
+       The adjacency matrix for the original graph
+
+    Returns
+    -------
+    A_cover: array of shape [len_cover, len_cover]
+       The adjacency matrix for the cover graph
+    """
+
+    size_cover = len(cover)
+    A_cover = np.zeros((size_cover, size_cover), dtype=int)
+    idxs = np.triu_indices(size_cover, 1)
+
+    for idx_1, idx_2, blob in zip(idxs[0], idxs[1], combinations(cover, 2)):
         blob_1, blob_2 = blob
         blob_2 = blob_2 - blob_1
         ixgrid = np.ix_(np.array(list(blob_1)), np.array(list(blob_2)))
@@ -101,16 +138,39 @@ def build_blob_graph(blobs, A):
         else:
             nb_connecting_edges = np.sum(A[ixgrid])
 
-        A_blobs[idx_1, idx_2] = A_blobs[idx_2, idx_1] = nb_connecting_edges
+        A_cover[idx_1, idx_2] = A_cover[idx_2, idx_1] = nb_connecting_edges
 
-    return A_blobs
+    return A_cover
 
 
-def neighbourhood_cover(A, nb_common_neighbours, max_k):
+def cuts_from_neighbourhood_cover(A, nb_common_neighbours, max_k):
+
+    """
+    Give a graph we we use a neighbourhood cover to decide which cuts we should use in the tangle algorithm.
+    Such cover is built in two steps
+        1. We sample a random vertex, we compute the neighbours cover of such vertex, we remove the cover from
+           the pool of remaining points and then we keep going until we finish the points
+        2. We use a clustering algorithm to cluster the cover that we found before, for each cluster we join all the vertex
+           in that cluster into one cut and then we add such cut to our selection of cuts
+
+    Parameters
+    ----------
+    A: array of shape [nb_vertices, nb_vertices]
+       The adjacency matrix for the original graph
+    nb_common_neighbours: int
+        Minimal number of common neighbours that we use to build the cover
+    max_k: int
+        Maximum number of clusters that we look for in step 2
+
+    Returns
+    -------
+    new_cuts: array of shape [nb_cuts, nb_users]
+        The cuts
+    """
 
     nb_verteces, _ = A.shape
     idx_to_cover = set(range(nb_verteces))
-    blobs = []
+    cover = []
     cuts = []
 
     while len(idx_to_cover) > 0:
@@ -120,19 +180,19 @@ def neighbourhood_cover(A, nb_common_neighbours, max_k):
 
         cuts.append(cut)
         blob = set(np.where(cut == True)[0])
-        blobs.append(blob)
+        cover.append(blob)
 
         idx_to_cover = idx_to_cover - set(blob)
 
     initial_cuts = np.stack(cuts, axis=0)
-    A_blobs = build_blob_graph(blobs, A)
+    A_cover = build_cover_graph(cover, A)
     cuts = initial_cuts.copy()
-    blobs = np.array(blobs)
-    max_k = min(max_k, len(blobs))
+    cover = np.array(cover)
+    max_k = min(max_k, len(cover))
 
     for k in range(2, max_k):
-        cls = SpectralClustering(n_clusters=k, affinity='precomputed')
-        clusters = cls.fit_predict(X=A_blobs)
+        cls = AgglomerativeClustering(n_clusters=k, affinity='precomputed', linkage='average')
+        clusters = cls.fit_predict(X=A_cover)
 
         for cluster in range(0, k):
             cuts_in_cluster = initial_cuts[clusters == cluster]
@@ -141,10 +201,3 @@ def neighbourhood_cover(A, nb_common_neighbours, max_k):
                 cuts = np.append(cuts, [cut], axis=0)
 
     return cuts
-
-
-if __name__ == '__main__':
-    from src.datasets.loading import load_SBM
-
-    A, ys = load_SBM(10, 4, .7, .3)
-    neighbourhood_cuts(A, 10)

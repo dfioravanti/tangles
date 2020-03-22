@@ -54,12 +54,30 @@ def implicit_order(xs, cut, n_samples=None):
     orders = manhattan_distances(in_cut, out_cut)
     expected_order = np.average(orders)
 
-    return np.int(np.trunc(expected_order))
+    return expected_order
 
 
 def cut_order(A, cut):
 
+    """
+    Compute the value of a graph cut, i.e. the number of vertex that are cutted by the bipartition
+
+    Parameters
+    ----------
+    A: array of shape [nb_vertices, nb_vertices]
+        Adjacency matrix for our graph
+    cut: array of shape [n_points]
+        The cut that we are considering
+
+    Returns
+    -------
+    order: int
+        order of the cut
+    """
+
     partition = np.where(cut == True)[0]
     comp = np.where(cut == False)[0]
 
-    return np.sum(A[np.ix_(partition, comp)])
+    order = np.int(np.sum(A[np.ix_(partition, comp)]))
+
+    return order

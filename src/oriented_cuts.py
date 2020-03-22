@@ -6,43 +6,81 @@ from bitarray.util import subset
 
 class Specification(dict):
     """
-    This class represents an oriented cut as a couple of lists.
-    In idx_cuts it is stored the index of the cut in S, meanwhile in orientation
-    we store which orientation we are taking as a bool.
+    This class represents an oriented cut as a couple of lists and a dictionary.
+        - cuts contains all the biparitions of the specification defined as binary arrays.
+          1 means that that x belongs to the partition and 0 that it does not.
+          It is implemented with bitarrays for max speed
+        - core contains all the biparitions of the core of the specification defined as binary arrays.
+          1 means that that x belongs to the partition and 0 that it does not.
+          It is implemented with bitarrays for max speed
+        - specification is a dictionary there the key is the index of the cut in the list of all the cuts and
+          the value is which orientation of that specification we need to take
     """
-    def __init__(self, values=[], core=[], idx={}):
+    def __init__(self, cuts=[], core=[], specification={}):
 
-        self.values = values
+        """
+        Initialise a new specification
+
+        Parameters
+        ----------
+        cuts: list of bitarray
+            All the biparitions of the specification
+        core: list of bitarray
+            All the biparitions of the core of the specification
+        specification: dict of bool
+            The key is the index of the cut in the list of all the cuts and
+            the value is which orientation of that specification we need to take
+        """
+
+        self.cuts = cuts
         self.core = core
-        self.idx = idx
+        self.specification = specification
 
-    def add(self, cut, new_idx, min_size):
+    def add(self, new_cut, new_specification, min_size):
 
-        values = deepcopy(self.values)
+        """
+        Check if new_cut can be added to the current specification
+
+        Parameters
+        ----------
+        new_cut: bitarray
+            The bipartition that we need to add as bitarray
+        new_specification: dict of bool
+            The orientation of new_cut
+        min_size:
+            Minimum triplet size that we accept for it to be a tangle
+
+        Returns
+        -------
+        new_specification: Specification or None
+            If it is possible to add we return the new specification otherwise we return None
+        """
+
+        cuts = deepcopy(self.cuts)
         core = deepcopy(self.core)
-        idx = deepcopy(self.idx)
+        specification = deepcopy(self.specification)
 
         for i, core_cut in enumerate(core):
-            if subset(core_cut, cut):
-                values.append(cut)
-                idx.update(new_idx)
-                return Specification(values, core, idx)
-            if subset(cut, core_cut):
+            if subset(core_cut, new_cut):
+                cuts.append(new_cut)
+                specification.update(new_specification)
+                return Specification(cuts, core, specification)
+            if subset(new_cut, core_cut):
                 del core[i]
 
         if len(core) == 0:
-            if cut.count() < min_size:
+            if new_cut.count() < min_size:
                 return None
         elif len(core) == 1:
-            if (core[0] & cut).count() < min_size:
+            if (core[0] & new_cut).count() < min_size:
                 return None
         else:
             for core1, core2 in combinations(core, 2):
-                if (core1 & core2 & cut).count() < min_size:
+                if (core1 & core2 & new_cut).count() < min_size:
                     return None
 
-        values.append(cut)
-        core.append(cut)
-        idx.update(new_idx)
+        cuts.append(new_cut)
+        core.append(new_cut)
+        specification.update(new_specification)
 
-        return Specification(values, core, idx)
+        return Specification(cuts, core, specification)

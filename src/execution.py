@@ -2,25 +2,67 @@ import numpy as np
 from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-from src.config import PREPROCESSING_NO, PREPROCESSING_MAKE_SUBMODULAR, \
+from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
     PREPROCESSING_NEIGHBOURHOOD_CUTS
 from src.config import ALGORITHM_CORE
 from src.algorithms import core_algorithm
-from src.preprocessing import make_submodular, neighbourhood_cover
+from src.preprocessing import make_submodular, cuts_from_neighbourhood_cover
 
 
 def compute_cuts(xs, preprocessing):
-    if preprocessing.name == PREPROCESSING_NO:
+
+    """
+    Given a set of points or an adjacency matrix this function returns the set of cuts that we will use
+    to compute tangles.
+    This different types of preprocessing are available
+
+     1. PREPROCESSING_FEATURES: consider the features as cuts
+     2. PREPROCESSING_MAKE_SUBMODULAR: consider the features as cuts and then make them submodular
+     3. PREPROCESSING_NEIGHBOURHOOD_CUTS: Given an adjacency matrix build a cover of the graph and use that as starting
+                                          point for creating the cuts
+
+    Parameters
+    ----------
+    xs: array of shape [n_points, n_features] or array of shape [n_points, n_points]
+        The points in our space or an adjacency matrix
+    preprocessing: SimpleNamespace
+        The parameters of the preprocessing
+
+    Returns
+    -------
+    cuts: array of shape [n_cuts, n_points]
+        The bipartitions that we will use to compute tangles
+    """
+
+    if preprocessing.name == PREPROCESSING_FEATURES:
         cuts = (xs == True).T
     elif preprocessing.name == PREPROCESSING_MAKE_SUBMODULAR:
         cuts = (xs == True).T
         cuts = make_submodular(cuts)
     elif preprocessing.name == PREPROCESSING_NEIGHBOURHOOD_CUTS:
-        cuts = neighbourhood_cover(A=xs, nb_common_neighbours=9, max_k=50)
+        cuts = cuts_from_neighbourhood_cover(A=xs, nb_common_neighbours=5, max_k=20)
+
     return cuts
 
 
 def order_cuts(cuts, order_function):
+    """
+    Compute the order of a series of bipartitions
+
+    Parameters
+    ----------
+    cuts: array of shape [n_points, n_cuts]
+        The bipartitions that we want to know the order of
+    order_function: function
+        The order function
+
+    Returns
+    -------
+    cuts: array of shape [n_cuts, n_points]
+        The cuts reodered according to their cost
+    cost_cuts: array of shape [n_cuts]
+        The cost of the corresponding cut
+    """
 
     cost_cuts = np.zeros(len(cuts))
 
@@ -33,11 +75,35 @@ def order_cuts(cuts, order_function):
 
 
 def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm):
+
+    """
+    Select with tangle algorithm to use. For now only one algorithm is supported.
+
+    Parameters
+    ----------
+    tangles: list
+        The list of all FULL tangles computed up until now
+    current_cuts: list
+        The list of cuts that we need to try to add to the tangles. They are ordered by order
+    idx_current_cuts: list
+        The list of indexes of the current cuts in the list of all cuts
+    min_size: int
+        Minimum triplet size for a tangle to be a tangle.
+    algorithm: SimpleNamespace
+        The parameters of the algorithm
+
+    Returns
+    -------
+
+    """
+
     if algorithm.name == ALGORITHM_CORE:
             tangles = core_algorithm(tangles, current_cuts, idx_current_cuts, min_size)
 
     return tangles
 
+
+# Old code. But it might be useful later
 
 def mask_points_in_tangle(tangle, all_cuts, threshold):
 

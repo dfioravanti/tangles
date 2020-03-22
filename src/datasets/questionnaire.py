@@ -5,6 +5,17 @@ import numpy as np
 
 def load_synthetic_questionnaire(path):
 
+    """
+    Load questionnaire from disk. This is a bit stupid. I will change it to generate the dataset on demand
+    Parameters
+    ----------
+    path
+
+    Returns
+    -------
+
+    """
+
     path = pathlib.Path(path)
 
     xs = np.loadtxt(path / "xs.txt", dtype="bool")
