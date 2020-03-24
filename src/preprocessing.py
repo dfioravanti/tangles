@@ -176,6 +176,8 @@ def find_approximate_mincuts(A):
         cut = np.zeros(nb_vertices, dtype=bool)
         _, l = karger(A)
         cut[l[0]] = True
+        # at the moment sme hard coding to avoid super unbalanced cuts
+        # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
         if nb_vertices/5 < sum(cut) < 4*nb_vertices/5:
             cuts.append(np.array(cut))
 
