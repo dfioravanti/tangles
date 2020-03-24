@@ -8,7 +8,7 @@ import numpy as np
 from src.algorithms import remove_incomplete_tangles
 from src.config import make_parser, to_SimpleNamespace
 from src.loading import get_dataset_and_order_function
-from src.plotting import plot_heatmap, plot_dataset
+from src.plotting import plot_heatmap, plot_dataset, plot_heatmap_graph
 from src.execution import compute_cuts, compute_tangles, order_cuts
 
 
@@ -42,7 +42,7 @@ def main(args):
     path_plot.mkdir(exist_ok=True)
 
     print("Load data\n", flush=True)
-    xs, ys, order_function = get_dataset_and_order_function(args.dataset)
+    xs, ys, G, order_function = get_dataset_and_order_function(args.dataset)
 
     print("Find cuts", flush=True)
     all_cuts = compute_cuts(xs, args.preprocessing)
@@ -51,10 +51,11 @@ def main(args):
     print("Compute order", flush=True)
     all_cuts, orders = order_cuts(all_cuts, order_function)
     max_order = np.int(np.ceil(np.max(orders)))
+    min_order = np.int(np.floor(np.min(orders)))
 
     print(f"\tMax order: {max_order} \n", flush=True)
 
-    min_size = int(len(xs) * .20)
+    min_size = int(len(xs) * .15)
     print(f"Using min_size = {min_size} \n", flush=True)
 
     print("Start tangle computation", flush=True)
@@ -63,8 +64,12 @@ def main(args):
     tangles = []
     tangles_of_order = {}
     nb_cuts_considered = 0
+    nb_cuts = len(all_cuts)
 
-    for idx_order, order in enumerate(range(max_order)):
+    for idx_order, order in enumerate(range(min_order, max_order+1)):
+
+        if nb_cuts_considered >= nb_cuts * 0.2:
+            break
 
         idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order],
                                            axis=0))[0]
@@ -78,9 +83,10 @@ def main(args):
                                       min_size=min_size, algorithm=args.algorithm)
             print(f"\t\tI found {len(tangles)} tangles of order {order}", flush=True)
             print(f"\tCompute clusters for order {order}", flush=True)
-            tangles_of_order[order] = deepcopy(tangles)
 
+            tangles_of_order[order] = deepcopy(tangles)
             tangles = remove_incomplete_tangles(tangles, nb_cuts_considered)
+
             if tangles == []:
                 print(f'Stopped computation at order {order} instead of {max_order}',
                       flush=True)
@@ -91,7 +97,7 @@ def main(args):
     print(f"\nThe computation took {t_total.days} days, {t_total.hours} hours,"
           f" {t_total.minutes} minutes and {t_total.seconds} seconds\n")
 
-    plot_heatmap(all_cuts, ys, tangles_of_order, path=path_plot)
+    plot_heatmap_graph(G=G, all_cuts=all_cuts, tangles_by_orders=tangles_of_order, path=path_plot)
 
 
 if __name__ == '__main__':

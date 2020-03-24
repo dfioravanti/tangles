@@ -1,8 +1,9 @@
 from functools import partial
 
 from src.config import DATASET_QUESTIONNAIRE_SYNTHETIC, DATASET_BINARY_IRIS, DATASET_SBM, \
-    DATASET_LFR, DATASET_RING_OF_CLIQUES
-from src.datasets.graphs import load_RPG, load_LFR, load_ROC
+    DATASET_LFR, DATASET_RING_OF_CLIQUES, DATASET_FLORENCE, DATASET_BIG5
+from src.datasets.big5 import load_BIG5
+from src.datasets.graphs import load_RPG, load_LFR, load_ROC, load_FLORENCE
 from src.datasets.iris import get_binarized_iris
 from src.datasets.questionnaire import load_synthetic_questionnaire
 from src.order_functions import implicit_order, cut_order
@@ -32,25 +33,33 @@ def get_dataset_and_order_function(dataset):
         The points in our space or an adjacency matrix
     ys: array of shape [n_points]
         The array of class labels
+    G: Graph or None
+        The graph associated with the adjacency matrix
     order_function: function
         The partially evaluated order function
     """
-
+    G = None
     if dataset.type == DATASET_QUESTIONNAIRE_SYNTHETIC:
         xs, ys, cs = load_synthetic_questionnaire(dataset.path)
-        order_function = partial(implicit_order, xs)
+        order_function = partial(implicit_order, xs, None)
     elif dataset.type == DATASET_BINARY_IRIS:
         xs, ys = get_binarized_iris()
-        order_function = partial(implicit_order, xs)
+        order_function = partial(implicit_order, xs, None)
     elif dataset.type == DATASET_SBM:
-        xs, ys = load_RPG(block_size=10, nb_blocks=5, p_in=.9, p_out=.3)
+        xs, ys, G = load_RPG(block_size=5, nb_blocks=5, p_in=.7, p_out=.05)
         order_function = partial(cut_order, xs)
     elif dataset.type == DATASET_LFR:
-        xs, ys = load_LFR(nb_nodes=50, tau1=3, tau2=1.5, mu=0.1,
+        xs, ys, G = load_LFR(nb_nodes=50, tau1=3, tau2=1.5, mu=0.1,
                           min_community=10, average_degree=3, seed=10)
         order_function = partial(cut_order, xs)
     elif dataset.type == DATASET_RING_OF_CLIQUES:
-        xs, ys = load_ROC(nb_cliques=20, clique_size=10)
+        xs, ys, G = load_ROC(nb_cliques=20, clique_size=10)
         order_function = partial(cut_order, xs)
+    elif dataset.type == DATASET_FLORENCE:
+        xs, ys, G = load_FLORENCE()
+        order_function = partial(cut_order, xs)
+    elif dataset.type == DATASET_BIG5:
+        xs, ys = load_BIG5(dataset.path)
+        order_function = partial(implicit_order, xs, 100)
 
-    return xs, ys, order_function
+    return xs, ys, G, order_function

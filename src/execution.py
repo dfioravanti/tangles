@@ -40,7 +40,7 @@ def compute_cuts(xs, preprocessing):
         cuts = (xs == True).T
         cuts = make_submodular(cuts)
     elif preprocessing.name == PREPROCESSING_NEIGHBOURHOOD_CUTS:
-        cuts = cuts_from_neighbourhood_cover(A=xs, nb_common_neighbours=5, max_k=20)
+        cuts = cuts_from_neighbourhood_cover(A=xs, nb_common_neighbours=2, max_k=6)
 
     return cuts
 

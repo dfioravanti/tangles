@@ -2,7 +2,7 @@ from itertools import combinations
 from random import sample
 
 import numpy as np
-from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import SpectralClustering
 
 
 def make_submodular(cuts):
@@ -176,13 +176,15 @@ def cuts_from_neighbourhood_cover(A, nb_common_neighbours, max_k):
     while len(idx_to_cover) > 0:
 
         vertex = sample(idx_to_cover, 1)
-        cut = neighbours_in_same_cluster(vertex, A, nb_common_neighbours)
+        cut = A[vertex].astype(bool)
+        cut = np.asarray(cut).flatten()
+        cut[vertex] = True
 
         cuts.append(cut)
         blob = set(np.where(cut == True)[0])
         cover.append(blob)
 
-        idx_to_cover = idx_to_cover - set(blob)
+        idx_to_cover = idx_to_cover - blob
 
     initial_cuts = np.stack(cuts, axis=0)
     A_cover = build_cover_graph(cover, A)
@@ -191,7 +193,7 @@ def cuts_from_neighbourhood_cover(A, nb_common_neighbours, max_k):
     max_k = min(max_k, len(cover))
 
     for k in range(2, max_k):
-        cls = AgglomerativeClustering(n_clusters=k, affinity='precomputed', linkage='average')
+        cls = SpectralClustering(n_clusters=k, affinity='precomputed')
         clusters = cls.fit_predict(X=A_cover)
 
         for cluster in range(0, k):
