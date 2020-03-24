@@ -1,0 +1,14 @@
+seed: 42
+
+output:
+  root_dir: output
+
+dataset:
+  name: sbm
+  path: None
+
+preprocessing:
+  name: nei
+
+algorithm:
+  name: core

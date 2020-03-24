@@ -6,7 +6,8 @@ from dateutil.relativedelta import relativedelta
 import numpy as np
 
 from src.algorithms import remove_incomplete_tangles
-from src.config import make_parser, to_SimpleNamespace
+from src.config import load_validate_settings, set_up_dirs
+from src.parser import make_parser, to_SimpleNamespace
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_heatmap, plot_dataset, plot_heatmap_graph
 from src.execution import compute_cuts, compute_tangles, order_cuts
@@ -35,11 +36,6 @@ def main(args):
     -------
 
     """
-
-    # Making output folder
-    # TODO: move this in the validation
-    path_plot = Path("./plots")
-    path_plot.mkdir(exist_ok=True)
 
     print("Load data\n", flush=True)
     xs, ys, G, order_function = get_dataset_and_order_function(args.dataset)
@@ -97,15 +93,14 @@ def main(args):
     print(f"\nThe computation took {t_total.days} days, {t_total.hours} hours,"
           f" {t_total.minutes} minutes and {t_total.seconds} seconds\n")
 
-    plot_heatmap_graph(G=G, all_cuts=all_cuts, tangles_by_orders=tangles_of_order, path=path_plot)
+    plot_heatmap_graph(G=G, all_cuts=all_cuts, tangles_by_orders=tangles_of_order, path=args.output.root_dir)
 
 
 if __name__ == '__main__':
 
     # Make parser, read inputs from command line and resolve paths
-    parser = make_parser()
-    args = to_SimpleNamespace(parser.parse_args())
-    if args.dataset.path is not None:
-        args.dataset.path = Path(__file__).resolve().parent / args.dataset.path
+    args = load_validate_settings('./')
+    root_dir = Path(__file__).resolve().parent
+    args = set_up_dirs(args, root_dir=root_dir)
 
     main(args)

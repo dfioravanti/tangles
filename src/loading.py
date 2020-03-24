@@ -39,26 +39,26 @@ def get_dataset_and_order_function(dataset):
         The partially evaluated order function
     """
     G = None
-    if dataset.type == DATASET_QUESTIONNAIRE_SYNTHETIC:
+    if dataset.name == DATASET_QUESTIONNAIRE_SYNTHETIC:
         xs, ys, cs = load_synthetic_questionnaire(dataset.path)
         order_function = partial(implicit_order, xs, None)
-    elif dataset.type == DATASET_BINARY_IRIS:
+    elif dataset.name == DATASET_BINARY_IRIS:
         xs, ys = get_binarized_iris()
         order_function = partial(implicit_order, xs, None)
-    elif dataset.type == DATASET_SBM:
+    elif dataset.name == DATASET_SBM:
         xs, ys, G = load_RPG(block_size=5, nb_blocks=5, p_in=.7, p_out=.05)
         order_function = partial(cut_order, xs)
-    elif dataset.type == DATASET_LFR:
+    elif dataset.name == DATASET_LFR:
         xs, ys, G = load_LFR(nb_nodes=50, tau1=3, tau2=1.5, mu=0.1,
                           min_community=10, average_degree=3, seed=10)
         order_function = partial(cut_order, xs)
-    elif dataset.type == DATASET_RING_OF_CLIQUES:
+    elif dataset.name == DATASET_RING_OF_CLIQUES:
         xs, ys, G = load_ROC(nb_cliques=20, clique_size=10)
         order_function = partial(cut_order, xs)
-    elif dataset.type == DATASET_FLORENCE:
+    elif dataset.name == DATASET_FLORENCE:
         xs, ys, G = load_FLORENCE()
         order_function = partial(cut_order, xs)
-    elif dataset.type == DATASET_BIG5:
+    elif dataset.name == DATASET_BIG5:
         xs, ys = load_BIG5(dataset.path)
         order_function = partial(implicit_order, xs, 100)
 
