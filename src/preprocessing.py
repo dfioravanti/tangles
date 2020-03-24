@@ -69,6 +69,12 @@ def make_submodular(cuts):
     return new_cuts
 
 
+def find_approximate_mincuts(A):
+
+
+    pass
+
+
 def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
 
     """

@@ -5,10 +5,10 @@ output:
 
 dataset:
   name: sbm
-  block_size: 5
-  nb_blocks: 5
-  p: 0.7
-  q: 0.3
+  block_size: 10
+  nb_blocks: 2
+  p: 0.9
+  q: 0.1
   path: None
 
 preprocessing:
