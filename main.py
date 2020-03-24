@@ -51,9 +51,9 @@ def main(args):
     print(f"\tMax order: {max_order} \n", flush=True)
 
     if args.plot.cuts:
-        plot_cuts(G, all_cuts, orders, 'graph', args.output.root_dir)
+        plot_cuts(G, all_cuts[:args.plot.nb_cuts], orders, 'graph', args.output.root_dir)
 
-    min_size = 1 #int(len(xs) * .01)
+    min_size = int(len(xs) * 0.2)
     print(f"Using min_size = {min_size} \n", flush=True)
 
     print("Start tangle computation", flush=True)

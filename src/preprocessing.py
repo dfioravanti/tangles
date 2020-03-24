@@ -86,7 +86,6 @@ def merge(A, i, j):
         :return: matrix        adjaceny matrix of new graph
     """
 
-
     if max(i, j) > A.shape[0]:
         raise Exception("Graph already shrinked too much.")
 
@@ -142,7 +141,9 @@ def karger(B):
     Returns
     -------
 
-        :return: int, [int]    value of the resulting cut in this case the number of edges, list of list of indices giving the two separations, each index represents one vertex
+        :return: int, [int]    value of the resulting cut in this case the number of edges,
+                               list of list of indices giving the two separations,
+                               each index represents one vertex
     """
 
 
@@ -178,7 +179,7 @@ def find_approximate_mincuts(A):
         cut[l[0]] = True
         # at the moment sme hard coding to avoid super unbalanced cuts
         # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
-        if nb_vertices/5 < sum(cut) < 4*nb_vertices/5:
+        if nb_vertices / 5 < sum(cut) < 4 * nb_vertices / 5:
             cuts.append(np.array(cut))
 
     return np.array(cuts)
@@ -289,17 +290,14 @@ def cuts_from_neighbourhood_cover(A, nb_common_neighbours, max_k):
     cuts = []
 
     while len(idx_to_cover) > 0:
-
         vertex = sample(idx_to_cover, 1)
-        cut = A[vertex].astype(bool)
-        cut = np.asarray(cut).flatten()
-        cut[vertex] = True
+        cut = neighbours_in_same_cluster(vertex, A, nb_common_neighbours)
 
         cuts.append(cut)
         blob = set(np.where(cut == True)[0])
         cover.append(blob)
 
-        idx_to_cover = idx_to_cover - blob
+        idx_to_cover = idx_to_cover - set(blob)
 
     initial_cuts = np.stack(cuts, axis=0)
     A_cover = build_cover_graph(cover, A)

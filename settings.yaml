@@ -4,18 +4,20 @@ output:
   root_dir: output
 
 dataset:
-  name: sbm
-  block_size: 50
+  name: flo
+  block_size: 10
   nb_blocks: 2
   p: 0.5
   q: 0.05
   path: None
 
 preprocessing:
-  name: karger
+  name: nei
 
 algorithm:
   name: core
 
+# -1 in nb_cuts means all
 plot:
   cuts: True
+  nb_cuts: 10

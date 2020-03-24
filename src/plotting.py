@@ -83,14 +83,14 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
     """
 
     plt.style.use('ggplot')
+    plt.ioff()
 
     A = nx.to_numpy_array(G)
     nb_vertex = len(A)
-    #pos = nx.spring_layout(G, k=.5, iterations=100)
+    pos = nx.spring_layout(G, k=.5, iterations=100)
 
-    pos = np.random.rand(nb_vertex, 2)
-
-    pos[round(nb_vertex/2):, :] += 1
+    #pos = np.random.rand(nb_vertex, 2)
+    #pos[round(nb_vertex/2):, :] += 1
 
     for order, tangles in tangles_by_orders.items():
 
@@ -128,6 +128,7 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
 
 def plot_cuts(xs, cuts, orders, type, path):
     plt.style.use('ggplot')
+    plt.ioff()
 
     _, nb_points = cuts.shape
 
