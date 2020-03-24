@@ -6,7 +6,7 @@ from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
     PREPROCESSING_NEIGHBOURHOOD_CUTS, PREPROCESSING_KARGERS_ALGORITHM
 from src.config import ALGORITHM_CORE
 from src.algorithms import core_algorithm
-from src.preprocessing import make_submodular, cuts_from_neighbourhood_cover
+from src.preprocessing import make_submodular, cuts_from_neighbourhood_cover, find_approximate_mincuts
 
 
 def compute_cuts(xs, preprocessing):
