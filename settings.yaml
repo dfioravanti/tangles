@@ -1,10 +1,14 @@
-seed: 42
+seed: 21
 
 output:
   root_dir: output
 
 dataset:
   name: sbm
+  block_size: 5
+  nb_blocks: 5
+  p: 0.7
+  q: 0.3
   path: None
 
 preprocessing:

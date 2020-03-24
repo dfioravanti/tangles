@@ -46,7 +46,8 @@ def get_dataset_and_order_function(dataset):
         xs, ys = get_binarized_iris()
         order_function = partial(implicit_order, xs, None)
     elif dataset.name == DATASET_SBM:
-        xs, ys, G = load_RPG(block_size=5, nb_blocks=5, p_in=.7, p_out=.05)
+        xs, ys, G = load_RPG(block_size=dataset.block_size, nb_blocks=dataset.nb_blocks,
+                             p_in=dataset.p, p_out=dataset.q)
         order_function = partial(cut_order, xs)
     elif dataset.name == DATASET_LFR:
         xs, ys, G = load_LFR(nb_nodes=50, tau1=3, tau2=1.5, mu=0.1,
