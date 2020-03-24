@@ -53,7 +53,7 @@ def main(args):
 
     print(f"\tMax order: {max_order} \n", flush=True)
 
-    min_size = int(len(xs) * .20)
+    min_size = 1 #int(len(xs) * .01)
     print(f"Using min_size = {min_size} \n", flush=True)
 
     print("Start tangle computation", flush=True)

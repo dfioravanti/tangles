@@ -48,6 +48,7 @@ def core_algorithm(tangles, current_cuts, idx_current_cuts, min_size):
                                                  core=[array],
                                                  specification={i: False})
                                    )
+            old_tangles = new_tangles
         else:
             while old_tangles != []:
                 tau = old_tangles.pop(0)
