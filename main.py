@@ -37,6 +37,8 @@ def main(args):
 
     """
 
+    np.random.seed(args.seed)
+
     print("Load data\n", flush=True)
     xs, ys, G, order_function = get_dataset_and_order_function(args.dataset)
 
