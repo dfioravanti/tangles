@@ -121,6 +121,31 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
 
         plt.close(f)
 
+
+def plot_cuts(xs, cuts, orders, type, path):
+    plt.style.use('ggplot')
+
+    _, nb_points = cuts.shape
+
+    if type == 'graph':
+        pos = nx.spring_layout(xs, k=.5, iterations=100)
+
+    for i, cut in enumerate(cuts):
+        fig, ax = plt.subplots(1, 1)
+
+        ax.set_title(f"cut of order {orders[i]}")
+
+        colors = np.zeros(nb_points)
+        colors[cut] = (i % 9) + 1
+
+        if type == 'graph':
+            nx.draw_networkx(xs, pos=pos, ax=ax, node_color=colors, cmap='tab10')
+
+        if path is not None:
+            plt.savefig(path / f"cut number {i}.png")
+
+        plt.close(fig)
+
 # Old code
 
 def plot_dataset(xs, ys, path=None):
@@ -145,3 +170,5 @@ def plot_dataset(xs, ys, path=None):
         plt.show()
     else:
         plt.savefig(path)
+
+

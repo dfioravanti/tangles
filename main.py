@@ -5,11 +5,9 @@ from dateutil.relativedelta import relativedelta
 
 import numpy as np
 
-from src.algorithms import remove_incomplete_tangles
 from src.config import load_validate_settings, set_up_dirs
-from src.parser import make_parser, to_SimpleNamespace
 from src.loading import get_dataset_and_order_function
-from src.plotting import plot_heatmap, plot_dataset, plot_heatmap_graph
+from src.plotting import plot_heatmap_graph, plot_cuts
 from src.execution import compute_cuts, compute_tangles, order_cuts
 
 
@@ -50,8 +48,10 @@ def main(args):
     all_cuts, orders = order_cuts(all_cuts, order_function)
     max_order = np.int(np.ceil(np.max(orders)))
     min_order = np.int(np.floor(np.min(orders)))
-
     print(f"\tMax order: {max_order} \n", flush=True)
+
+    if args.plot.cuts:
+        plot_cuts(G, all_cuts, orders, 'graph', args.output.root_dir)
 
     min_size = 1 #int(len(xs) * .01)
     print(f"Using min_size = {min_size} \n", flush=True)
