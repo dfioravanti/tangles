@@ -53,7 +53,7 @@ def main(args):
 
     print(f"\tMax order: {max_order} \n", flush=True)
 
-    min_size = int(len(xs) * .15)
+    min_size = int(len(xs) * .20)
     print(f"Using min_size = {min_size} \n", flush=True)
 
     print("Start tangle computation", flush=True)
@@ -83,7 +83,6 @@ def main(args):
             print(f"\tCompute clusters for order {order}", flush=True)
 
             tangles_of_order[order] = deepcopy(tangles)
-            tangles = remove_incomplete_tangles(tangles, nb_cuts_considered)
 
             if tangles == []:
                 print(f'Stopped computation at order {order} instead of {max_order}',
