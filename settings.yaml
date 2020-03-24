@@ -5,14 +5,14 @@ output:
 
 dataset:
   name: sbm
-  block_size: 10
+  block_size: 50
   nb_blocks: 2
-  p: 0.9
-  q: 0.1
+  p: 0.5
+  q: 0.05
   path: None
 
 preprocessing:
-  name: nei
+  name: karger
 
 algorithm:
   name: core

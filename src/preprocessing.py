@@ -69,6 +69,121 @@ def make_submodular(cuts):
     return new_cuts
 
 
+def merge(A, i, j):
+    """
+    merge - merges two given vertices into one new vertex with all the neighbours.
+
+    Parameters
+    ----------
+
+        :param A: matrix        adjacency matrix of the graph
+        :param i: int           index of first vertex to merge
+        :param j: int           index of second vertex to merge
+
+    Returns
+    -------
+
+        :return: matrix        adjaceny matrix of new graph
+    """
+
+
+    if max(i, j) > A.shape[0]:
+        raise Exception("Graph already shrinked too much.")
+
+    tmp = A[i] + A[j]
+
+    A[i] = tmp
+    A[:, i] = tmp
+
+    A = np.delete(A, j, 0)
+    A = np.delete(A, j, 1)
+
+    np.fill_diagonal(A, 0)
+
+    return A
+
+
+def choosefrom(A):
+    """
+    choosefrom - choose an edge to shrink and return indices of its adjacent vertices
+
+    Parameters
+    ----------
+
+        :param A: matrix      adjacency matrix
+
+
+    Returns
+    -------
+
+        :return: int, int     indices of the first and the second adjacent vertices
+    """
+
+    idx = np.nonzero(A)
+
+    choice = np.random.randint(np.shape(idx)[1])
+
+    return idx[0][choice], idx[1][choice]
+
+
+def karger(B):
+
+    """
+    implementation of karger's randomized algorithm:
+                Randomly choose an edge from the graph and shrink it to merge its adjacent vertices.
+                Repeat until only 2 vertices are left. The two vertices represent the two sets of the separation.
+                The algorithm finds a mincut with a probability of 1/n**2.
+
+    Parameters
+    ----------
+
+        :param B: matrix       adjacency matrix of the graph
+
+    Returns
+    -------
+
+        :return: int, [int]    value of the resulting cut in this case the number of edges, list of list of indices giving the two separations, each index represents one vertex
+    """
+
+
+    A = B.copy()
+    l = []
+
+    size = A.shape[0]
+
+    for i in range(size):
+        l.append([i])
+
+    while size > 2:
+        i, j = choosefrom(A)
+
+        A = merge(A, i, j)
+        tmp = l[j]
+        l[i] = l[i] + tmp
+        l.remove(tmp)
+
+        size -= 1;
+
+    return A[0, 1], l
+
+
+def find_approximate_mincuts(A):
+
+    cuts = []
+    nb_vertices, _ = A.shape
+
+    for i in range(nb_vertices):
+        cut = np.zeros(nb_vertices, dtype=bool)
+        _, l = karger(A)
+        cut[l[0]] = True
+        # at the moment sme hard coding to avoid super unbalanced cuts
+        # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
+        if nb_vertices/5 < sum(cut) < 4*nb_vertices/5:
+            cuts.append(np.array(cut))
+
+    return np.array(cuts)
+
+
 def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
 
     """
