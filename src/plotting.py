@@ -112,8 +112,8 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
             cmap = plt.cm.get_cmap('tab10')
             my_cmap = cmap(i)
             my_cmap = np.array([my_cmap])
-            my_cmap = np.tile(my_cmap, (nb_vertex, 1))
-            my_cmap[:, -1] = np.linspace(0.1, 1, nb_vertex)
+            my_cmap = np.tile(my_cmap, (max(matching_cuts), 1))
+            my_cmap[:, -1] = np.linspace(0.1, 1, max(matching_cuts))
             my_cmap = ListedColormap(my_cmap)
 
             nx.draw_networkx(G, pos=pos, ax=axs[i], node_color=matching_cuts, cmap=my_cmap)
