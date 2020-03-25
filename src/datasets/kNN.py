@@ -1,11 +1,10 @@
 import numpy as np
-import networkx as nx
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.neighbors import kneighbors_graph
 
 # build knn from Gaussian
 def gaussiankNN(mus, vars, sizes, k):
-    locations, _ = gaussian(mus, vars, sizes)
+    locations, labels = gaussian(mus, vars, sizes)
 
     W = kneighbors_graph(locations, k)
 
