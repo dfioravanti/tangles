@@ -9,9 +9,9 @@ def gaussiankNN(mus, vars, sizes, k):
 
     W = kneighbors_graph(locations, k)
 
-    G = nx.from_scipy_sparse_matrix(W)
+    A = np.array(W)
 
-    return G
+    return A
 
 
 # sample locations
