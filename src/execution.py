@@ -5,8 +5,8 @@ from sklearn.metrics import homogeneity_completeness_v_measure
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
     PREPROCESSING_NEIGHBOURHOOD_CUTS, PREPROCESSING_KARGERS_ALGORITHM
 from src.config import ALGORITHM_CORE
-from src.algorithms import core_algorithm
-from src.preprocessing import make_submodular, cuts_from_neighbourhood_cover, find_approximate_mincuts
+from src.tangles import core_algorithm
+from src.cuts import make_submodular, cuts_from_neighbourhood_cover, find_approximate_mincuts
 
 
 def compute_cuts(xs, preprocessing):
@@ -40,7 +40,7 @@ def compute_cuts(xs, preprocessing):
         cuts = (xs == True).T
         cuts = make_submodular(cuts)
     elif preprocessing.name == PREPROCESSING_NEIGHBOURHOOD_CUTS:
-        cuts = cuts_from_neighbourhood_cover(A=xs, nb_common_neighbours=2, max_k=6)
+        cuts = cuts_from_neighbourhood_cover(A=xs, nb_common_neighbours=1, max_k=6)
     elif preprocessing.name == PREPROCESSING_KARGERS_ALGORITHM:
         cuts = find_approximate_mincuts(A=xs)
 
