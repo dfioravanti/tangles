@@ -42,7 +42,7 @@ def compute_cuts(xs, preprocessing):
     elif preprocessing.name == PREPROCESSING_NEIGHBOURHOOD_CUTS:
         cuts = cuts_from_neighbourhood_cover(A=xs, nb_common_neighbours=1, max_k=6)
     elif preprocessing.name == PREPROCESSING_KARGERS_ALGORITHM:
-        cuts = find_approximate_mincuts(A=xs)
+        cuts = find_approximate_mincuts(A=xs, nb_cuts=100)
 
     return cuts
 

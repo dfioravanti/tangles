@@ -71,118 +71,145 @@ def make_submodular(cuts):
 
 def merge(A, i, j):
     """
-    merge - merges two given vertices into one new vertex with all the neighbours.
+    Merges two vertices i and j into one new vertex.
+    The new vertex has as neighbours the union of the old  all the neighbours of the old.
 
     Parameters
     ----------
-
-        :param A: matrix        adjacency matrix of the graph
-        :param i: int           index of first vertex to merge
-        :param j: int           index of second vertex to merge
+    A: array of shape [nb_vertex, nb_vertex]
+        The adjacency matrix of the graph
+    i: int
+        The index of first vertex to merge
+    j: int
+        The index of second vertex to merge
 
     Returns
     -------
-
-        :return: matrix        adjaceny matrix of new graph
+    A_merged: array of shape [nb_vertex - 1, nb_vertex - 1]
+        The adjacency matrix of the shrunk graph
     """
 
     if max(i, j) > A.shape[0]:
-        raise Exception("Graph already shrinked too much.")
+        raise Exception("Graph already shrunk too much.")
 
-    tmp = A[i] + A[j]
+    merged_vertex = A[i] + A[j]
+    A[i] = merged_vertex
+    A[:, i] = merged_vertex
 
-    A[i] = tmp
-    A[:, i] = tmp
-
-    A = np.delete(A, j, 0)
-    A = np.delete(A, j, 1)
-
-    np.fill_diagonal(A, 0)
+    A[i, i] = 0
+    A = np.delete(A, j, axis=0)
+    A = np.delete(A, j, axis=1)
 
     return A
 
 
 def choosefrom(A):
+
     """
-    choosefrom - choose an edge to shrink and return indices of its adjacent vertices
+    Pick a random edge from a graph and return the index of the adjacent vertices to this edge
 
     Parameters
     ----------
-
-        :param A: matrix      adjacency matrix
-
+    A: array of shape [nb_vertex, nb_vertex]
+        The adjacency matrix of the graph
 
     Returns
     -------
-
-        :return: int, int     indices of the first and the second adjacent vertices
+    i: int
+        The index of first vertex to merge
+    j: int
+        The index of second vertex to merge
     """
 
-    idx = np.nonzero(A)
+    endpoints_1, endpoints_2 = np.nonzero(A)
+    nb_edges = len(endpoints_1)
+    edge = np.random.randint(nb_edges)
 
-    choice = np.random.randint(np.shape(idx)[1])
+    i = endpoints_1[edge]
+    j = endpoints_2[edge]
 
-    return idx[0][choice], idx[1][choice]
+    return i, j
 
 
-def karger(B):
-
+def karger(A):
     """
-    implementation of karger's randomized algorithm:
-                Randomly choose an edge from the graph and shrink it to merge its adjacent vertices.
-                Repeat until only 2 vertices are left. The two vertices represent the two sets of the separation.
-                The algorithm finds a mincut with a probability of 1/n**2.
+    
+    Karger's randomized algorithm (https://en.wikipedia.org/wiki/Karger%27s_algorithm)
+    Randomly choose an edge from the graph and shrink it by merging its adjacent vertices.
+    Repeat until only 2 vertices are left. The two vertices represent the two sets of the separation.
+    The algorithm finds a mincut with a probability of (1/n)^2.
 
     Parameters
     ----------
-
-        :param B: matrix       adjacency matrix of the graph
+    A: array of shape [nb_vertex, nb_vertex]
+        The adjacency matrix of the graph
 
     Returns
     -------
+    separation_1: list of int
+        list of indices representing the first separation
+    separation_2: list of int
+        list of indices representing the second separation
+    weight_cut: int
+        The weight of the merged cut
 
-        :return: int, [int]    value of the resulting cut in this case the number of edges,
-                               list of list of indices giving the two separations,
-                               each index represents one vertex
     """
 
+    nb_vertices = len(A)
+    A_shrunk = A.copy()
 
-    A = B.copy()
-    l = []
+    merged = []
+    for i in range(nb_vertices):
+        merged.append([i])
 
-    size = A.shape[0]
+    while len(merged) > 2:
+        i, j = choosefrom(A_shrunk)
 
-    for i in range(size):
-        l.append([i])
+        A_shrunk = merge(A_shrunk, i, j)
+        merged[i] += merged[j]
+        del merged[j]
 
-    while size > 2:
-        i, j = choosefrom(A)
+    weight_cut = A_shrunk[0, 1]
+    separation_1 = merged[0]
+    separation_2 = merged[1]
 
-        A = merge(A, i, j)
-        tmp = l[j]
-        l[i] = l[i] + tmp
-        l.remove(tmp)
-
-        size -= 1;
-
-    return A[0, 1], l
+    return separation_1, separation_2, weight_cut
 
 
-def find_approximate_mincuts(A):
+def find_approximate_mincuts(A, nb_cuts):
+    """
+
+    Generates a list of cuts by finding cheap approximations of min-cuts in a graph.
+
+    Parameters
+    ----------
+     A: array of shape [nb_vertex, nb_vertex]
+        The adjacency matrix of the graph
+    nb_cuts: int
+        The number of cuts to generate
+
+    Returns
+    -------
+    cuts: array of shape [nb_cuts, nb_vertex]
+        The cuts generated
+    """
 
     cuts = []
     nb_vertices, _ = A.shape
 
-    for i in range(nb_vertices):
+    while len(cuts) < nb_cuts:
         cut = np.zeros(nb_vertices, dtype=bool)
-        _, l = karger(A)
-        cut[l[0]] = True
+        idx_cuts, _, _ = karger(A)
+        cut[idx_cuts] = True
+
         # at the moment sme hard coding to avoid super unbalanced cuts
         # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
-        if nb_vertices / 5 < sum(cut) < 4 * nb_vertices / 5:
-            cuts.append(np.array(cut))
+        if nb_vertices * 0.15 < sum(cut) < nb_vertices * 0.85:
+            cuts.append(cut)
 
-    return np.array(cuts)
+    cuts = np.array(cuts)
+
+    return cuts
 
 
 def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
