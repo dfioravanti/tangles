@@ -69,6 +69,135 @@ def make_submodular(cuts):
     return new_cuts
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Graph approach
+# ----------------------------------------------------------------------------------------------------------------------
+
+def find_approximate_mincuts(A, nb_cuts, algorthm):
+    """
+
+    Generates a list of cuts by finding cheap approximations of min-cuts in a graph.
+
+    Parameters
+    ----------
+     A: array of shape [nb_vertex, nb_vertex]
+        The adjacency matrix of the graph
+    nb_cuts: int
+        The number of cuts to generate
+
+    Returns
+    -------
+    cuts: array of shape [nb_cuts, nb_vertex]
+        The cuts generated
+    """
+
+    cuts = []
+    nb_vertices, _ = A.shape
+    if algorthm == 'karger':
+        function = karger
+    elif algorthm == 'fast':
+        function = fast_min_cut
+    else:
+        raise Exception("Wrong algorithm name")
+
+    while len(cuts) < nb_cuts:
+        cut = np.zeros(nb_vertices, dtype=bool)
+        idx_cuts, _, _ = function(A.astype(int))
+        cut[idx_cuts] = True
+
+        # at the moment sme hard coding to avoid super unbalanced cuts
+        # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
+        if nb_vertices * 0.15 < sum(cut) < nb_vertices * 0.85:
+            cuts.append(cut)
+
+    cuts = np.array(cuts)
+
+    return cuts
+
+
+def karger(A):
+    """
+
+    Karger's randomized algorithm (https://en.wikipedia.org/wiki/Karger%27s_algorithm)
+    Randomly choose an edge from the graph and shrink it by merging its adjacent vertices.
+    Repeat until only 2 vertices are left. The two vertices represent the two sets of the separation.
+    The algorithm finds a mincut with a probability of (1/n)^2.
+
+    Parameters
+    ----------
+    A: array of shape [nb_vertex, nb_vertex]
+        The adjacency matrix of the graph
+
+    Returns
+    -------
+    separation_1: list of int
+        list of indices representing the first separation
+    separation_2: list of int
+        list of indices representing the second separation
+    weight_cut: int
+        The weight of the merged cut
+
+    """
+
+    merged_nodes = []
+    for i in range(len(A)):
+        merged_nodes.append([i])
+
+    A_shrunk, merged_nodes = contract(A, 2, merged_nodes)
+
+    weight_cut = A_shrunk[0, 1]
+    separation_1 = merged_nodes[0]
+    separation_2 = merged_nodes[1]
+
+    return separation_1, separation_2, weight_cut
+
+
+def fast_min_cut(A, merged_nodes=None):
+    if merged_nodes is None:
+        merged_nodes = []
+        for i in range(len(A)):
+            merged_nodes.append([i])
+
+    if len(A) <= 6:
+        A_contracted, merged_nodes = contract(A, 2, merged_nodes)
+
+        weight_cut = A_contracted[0, 1]
+        separation_1 = merged_nodes[0]
+        separation_2 = merged_nodes[1]
+        return separation_1, separation_2, weight_cut
+    else:
+        min_size = np.int(np.ceil(1 + len(A) / np.sqrt(2)))
+        A_1, merged_nodes1 = contract(A, min_size, merged_nodes)
+        A_2, merged_nodes2 = contract(A, min_size, merged_nodes)
+
+        separation_11, separation_12, cost_cut_1 = fast_min_cut(A_1, merged_nodes1)
+        separation_21, separation_22, cost_cut_2 = fast_min_cut(A_2, merged_nodes2)
+
+        if cost_cut_1 <= cost_cut_2:
+            separation_1, separation_2 = separation_11, separation_12
+            cost_cut = cost_cut_1
+        else:
+            separation_1, separation_2 = separation_21, separation_22
+            cost_cut = cost_cut_2
+
+    return separation_1, separation_2, cost_cut
+
+
+def contract(A, min_size, merged_nodes):
+
+    merged_nodes = deepcopy(merged_nodes)
+    A_contracted = A.copy()
+
+    while len(A_contracted) > min_size:
+        i, j = pick_edge_from(A_contracted)
+        A_contracted = merge(A_contracted, i, j)
+
+        merged_nodes[i] += merged_nodes[j]
+        del merged_nodes[j]
+
+    return A_contracted, merged_nodes
+
+
 def merge(A, i, j):
     """
     Merges two vertices i and j into one new vertex.
@@ -133,137 +262,9 @@ def pick_edge_from(A):
         return j, i
 
 
-def karger(A):
-    """
-
-    Karger's randomized algorithm (https://en.wikipedia.org/wiki/Karger%27s_algorithm)
-    Randomly choose an edge from the graph and shrink it by merging its adjacent vertices.
-    Repeat until only 2 vertices are left. The two vertices represent the two sets of the separation.
-    The algorithm finds a mincut with a probability of (1/n)^2.
-
-    Parameters
-    ----------
-    A: array of shape [nb_vertex, nb_vertex]
-        The adjacency matrix of the graph
-
-    Returns
-    -------
-    separation_1: list of int
-        list of indices representing the first separation
-    separation_2: list of int
-        list of indices representing the second separation
-    weight_cut: int
-        The weight of the merged cut
-
-    """
-
-    nb_vertices = len(A)
-    A_shrunk = A.copy()
-
-    merged = []
-    for i in range(nb_vertices):
-        merged.append([i])
-
-    while len(merged) > 2:
-        i, j = pick_edge_from(A_shrunk)
-
-        A_shrunk = merge(A_shrunk, i, j)
-        merged[i] += merged[j]
-        del merged[j]
-
-    weight_cut = A_shrunk[0, 1]
-    separation_1 = merged[0]
-    separation_2 = merged[1]
-
-    return separation_1, separation_2, weight_cut
-
-
-def find_approximate_mincuts(A, nb_cuts, algorthm):
-    """
-
-    Generates a list of cuts by finding cheap approximations of min-cuts in a graph.
-
-    Parameters
-    ----------
-     A: array of shape [nb_vertex, nb_vertex]
-        The adjacency matrix of the graph
-    nb_cuts: int
-        The number of cuts to generate
-
-    Returns
-    -------
-    cuts: array of shape [nb_cuts, nb_vertex]
-        The cuts generated
-    """
-
-    cuts = []
-    nb_vertices, _ = A.shape
-    if algorthm == 'karger':
-        function = karger
-    elif algorthm == 'fast':
-        function = fast_min_cut
-    else:
-        raise Exception("Wrong algorithm name")
-
-    while len(cuts) < nb_cuts:
-        cut = np.zeros(nb_vertices, dtype=bool)
-        idx_cuts, _, _ = function(A.astype(int))
-        cut[idx_cuts] = True
-
-        # at the moment sme hard coding to avoid super unbalanced cuts
-        # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
-        if nb_vertices * 0.15 < sum(cut) < nb_vertices * 0.85:
-            cuts.append(cut)
-
-    cuts = np.array(cuts)
-
-    return cuts
-
-
-def contract(A, min_size, merged_nodes):
-
-    merged_nodes = deepcopy(merged_nodes)
-    A_contracted = A.copy()
-
-    while len(A_contracted) > min_size:
-        i, j = pick_edge_from(A_contracted)
-        A_contracted = merge(A_contracted, i, j)
-
-        merged_nodes[i] += merged_nodes[j]
-        del merged_nodes[j]
-
-    return A_contracted, merged_nodes
-
-
-def fast_min_cut(A, merged_nodes=None):
-    if merged_nodes is None:
-        merged_nodes = []
-        for i in range(len(A)):
-            merged_nodes.append([i])
-
-    if len(A) <= 6:
-        A_contracted, merged_nodes = contract(A, 2, merged_nodes)
-
-        weight_cut = A_contracted[0, 1]
-        separation_1 = merged_nodes[0]
-        separation_2 = merged_nodes[1]
-        return separation_1, separation_2, weight_cut
-    else:
-        min_size = np.int(np.ceil(1 + len(A) / np.sqrt(2)))
-        A_1, merged_nodes1 = contract(A, min_size, merged_nodes)
-        A_2, merged_nodes2 = contract(A, min_size, merged_nodes)
-
-        separation_11, separation_12, cost_cut_1 = fast_min_cut(A_1, merged_nodes1)
-        separation_21, separation_22, cost_cut_2 = fast_min_cut(A_2, merged_nodes2)
-
-        if cost_cut_1 <= cost_cut_2:
-            separation_1, separation_2 = separation_11, separation_12
-            cost_cut = cost_cut_1
-        else:
-            separation_1, separation_2 = separation_21, separation_22
-            cost_cut = cost_cut_2
-
-    return separation_1, separation_2, cost_cut
+# ----------------------------------------------------------------------------------------------------------------------
+# Local approach
+# ----------------------------------------------------------------------------------------------------------------------
 
 
 def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
