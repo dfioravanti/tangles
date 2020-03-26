@@ -5,7 +5,7 @@ output:
 
 dataset:
   name: q_syn
-  path: None
+  path: datasets/big5.csv
 
   sbm:
     block_size: 10
@@ -18,18 +18,21 @@ dataset:
     clique_size: 10
 
   q_syn:
-    n_samples: 1000
-    n_features: 100
-    n_mindsets: 10
+    n_samples: 100
+    n_features: 30
+    n_mindsets: 5
     tolerance: 0.10
 
 algorithm:
-  min_size: 100
+  min_size: 10
   name: core
 
 preprocessing:
-  name: fea
-  nb_cuts: 10
+  name: kmodes
+  nb_cuts: 100
+
+  kmodes:
+    max_nb_clusters: 10
 
 # -1 in nb_cuts means all
 plot:

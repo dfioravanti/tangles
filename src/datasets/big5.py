@@ -22,6 +22,9 @@ def load_BIG5(path):
             i += 1
         i_compressed += 1
 
-    ys = np.zeros(len(compressed_xs), dtype=int)
+    xs = df.to_numpy()
+    idx = np.random.choice(len(xs), size=2000, replace=False)
+    xs = xs[idx].T
+    ys = np.zeros(len(xs), dtype=int)
 
-    return compressed_xs, ys
+    return xs, ys

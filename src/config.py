@@ -21,12 +21,10 @@ DISCRETE_DATASETS = [
 ]
 
 GRAPH_DATASETS = [
-
     DATASET_SBM,
     DATASET_LFR,
     DATASET_RING_OF_CLIQUES,
     DATASET_FLORENCE,
-
 ]
 
 VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS
@@ -38,13 +36,15 @@ PREPROCESSING_MAKE_SUBMODULAR = "sub"
 PREPROCESSING_NEIGHBOURHOOD_CUTS = "nei"
 PREPROCESSING_KARGER = "karger"
 PREPROCESSING_FAST_MINCUT = "fast"
+PREPROCESSING_KMODES = "kmodes"
 
 VALID_PREPROCESSING = [
     PREPROCESSING_FEATURES,
     PREPROCESSING_MAKE_SUBMODULAR,
     PREPROCESSING_NEIGHBOURHOOD_CUTS,
     PREPROCESSING_KARGER,
-    PREPROCESSING_FAST_MINCUT
+    PREPROCESSING_FAST_MINCUT,
+    PREPROCESSING_KMODES
 ]
 
 # Algorithm
@@ -125,6 +125,7 @@ def validate_settings(args):
         raise ValueError(f'The algorithm name must be in: {VALID_ALGORITHM}')
 
     return args
+
 
 def set_up_dirs(args, root_dir):
     args.output.root_dir = Path(f"{root_dir / args.output.root_dir}")

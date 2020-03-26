@@ -1,9 +1,10 @@
 from copy import deepcopy
-from itertools import combinations, product
+from itertools import combinations
 from random import sample
 
 import numpy as np
 from sklearn.cluster import SpectralClustering
+from kmodes.kmodes import KModes
 
 
 def make_submodular(cuts):
@@ -68,6 +69,29 @@ def make_submodular(cuts):
 
     return new_cuts
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Discrete approach
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def find_kmodes_cuts(xs, max_nb_clusters):
+
+    nb_points = len(xs)
+    cuts = []
+
+    for k in range(2, max_nb_clusters):
+        cls = KModes(n_clusters=k, init='Cao', n_init=1)
+        clusters = cls.fit_predict(xs)
+        print(f'Done with k={k}', flush=True)
+
+        for cluster in range(0, k):
+            cut = np.zeros(nb_points, dtype=bool)
+            cut[clusters == cluster] = True
+            if np.any(cut) and not np.all(cut):
+                cuts.append(cut)
+
+    cuts = np.stack(cuts, axis=0)
+    return cuts
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Graph approach
@@ -184,7 +208,6 @@ def fast_min_cut(A, merged_nodes=None):
 
 
 def contract(A, min_size, merged_nodes):
-
     merged_nodes = deepcopy(merged_nodes)
     A_contracted = A.copy()
 

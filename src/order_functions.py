@@ -1,6 +1,7 @@
 import numpy as np
 
 from sklearn.metrics.pairwise import manhattan_distances
+from sklearn.neighbors._dist_metrics import DistanceMetric
 
 
 def implicit_order(xs, n_samples, cut):
@@ -51,8 +52,10 @@ def implicit_order(xs, n_samples, cut):
         else:
             out_cut = xs[~cut, :]
 
-    orders = manhattan_distances(in_cut, out_cut)
-    expected_order = np.average(orders)
+    dist = DistanceMetric.get_metric('hamming')
+
+    orders = dist.pairwise(in_cut, out_cut)
+    expected_order = np.average(orders) * 100
 
     return expected_order
 
