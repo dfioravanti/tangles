@@ -25,11 +25,12 @@ def plot_heatmap(all_cuts, ys, tangles_by_orders, path=None):
     -------
 
     """
+    plt.style.use('ggplot')
+    plt.ioff()
 
     _, nb_points = all_cuts.shape
     nb_classes = max(ys) + 1
 
-    plt.style.use('ggplot')
     for order, tangles in tangles_by_orders.items():
 
         nb_tangles = len(tangles)
@@ -57,7 +58,7 @@ def plot_heatmap(all_cuts, ys, tangles_by_orders, path=None):
             if path is None:
                 plt.show()
             else:
-                plt.savefig(f"Tangle order {order}.png")
+                plt.savefig(path / f"Tangle order {order}.png")
 
         plt.close(f)
 

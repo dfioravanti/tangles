@@ -4,28 +4,35 @@ output:
   root_dir: output
 
 dataset:
-  name: sbm
-
-  # SBM
-  block_size: 10
-  nb_blocks: 5
-  p: 0.5
-  q: 0.05
-
-  # ROC
-  nb_cliques: 5
-  clique_size: 10
-
+  name: q_syn
   path: None
 
-preprocessing:
-  name: karger
-  nb_cuts: 100
+  sbm:
+    block_size: 10
+    nb_blocks: 5
+    p: 0.5
+    q: 0.05
+
+  roc:
+    nb_cliques: 5
+    clique_size: 10
+
+  q_syn:
+    n_samples: 1000
+    n_features: 100
+    n_mindsets: 10
+    tolerance: 0.10
 
 algorithm:
+  min_size: 100
   name: core
+
+preprocessing:
+  name: fea
+  nb_cuts: 10
 
 # -1 in nb_cuts means all
 plot:
-  cuts: True
+  tangles: True
+  cuts: False
   nb_cuts: 10

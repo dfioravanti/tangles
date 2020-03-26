@@ -14,15 +14,22 @@ DATASET_RING_OF_CLIQUES = "roc"
 DATASET_FLORENCE = "flo"
 DATASET_BIG5 = 'big5'
 
-VALID_DATASETS = [
+DISCRETE_DATASETS = [
     DATASET_QUESTIONNAIRE_SYNTHETIC,
     DATASET_BINARY_IRIS,
+    DATASET_BIG5
+]
+
+GRAPH_DATASETS = [
+
     DATASET_SBM,
     DATASET_LFR,
     DATASET_RING_OF_CLIQUES,
     DATASET_FLORENCE,
-    DATASET_BIG5
+
 ]
+
+VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS
 
 # Preprocessing
 
@@ -55,7 +62,7 @@ def load_validate_settings(root_dir):
     cfg = load_settings(f'{root_dir}/{cfg_file}')
     args = dict_to_namespace(cfg)
 
-    validate_settings(args)
+    args = validate_settings(args)
 
     return args
 
@@ -106,15 +113,20 @@ def validate_settings(args):
     if args.dataset.name not in VALID_DATASETS:
         raise ValueError(f'The dataset name must be in: {VALID_DATASETS}')
 
+    if args.dataset.name in DISCRETE_DATASETS:
+        args.dataset.type = 'discrete'
+    elif args.dataset.name in GRAPH_DATASETS:
+        args.dataset.type = 'graph'
+
     if args.preprocessing.name not in VALID_PREPROCESSING:
         raise ValueError(f'The preprocessing name must be in: {VALID_PREPROCESSING}')
 
     if args.algorithm.name not in VALID_ALGORITHM:
         raise ValueError(f'The algorithm name must be in: {VALID_ALGORITHM}')
 
+    return args
 
 def set_up_dirs(args, root_dir):
-
     args.output.root_dir = Path(f"{root_dir / args.output.root_dir}")
     args.output.root_dir.mkdir(parents=True, exist_ok=True)
 

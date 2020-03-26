@@ -7,7 +7,7 @@ import numpy as np
 
 from src.config import load_validate_settings, set_up_dirs
 from src.loading import get_dataset_and_order_function
-from src.plotting import plot_heatmap_graph, plot_cuts
+from src.plotting import plot_heatmap_graph, plot_heatmap, plot_cuts
 from src.execution import compute_cuts, compute_tangles, order_cuts
 
 
@@ -51,9 +51,12 @@ def main(args):
     print(f"\tMax order: {max_order} \n", flush=True)
 
     if args.plot.cuts:
-        plot_cuts(G, all_cuts[:args.plot.nb_cuts], orders, 'graph', args.output.root_dir)
+        if args.dataset.type == 'graph':
+            plot_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.dataset.type, args.output.root_dir)
+        else:
+            raise NotImplementedError('I still need to implement this')
 
-    min_size = int(len(xs) * 0.2)
+    min_size = args.algorithm.min_size
     print(f"Using min_size = {min_size} \n", flush=True)
 
     print("Start tangle computation", flush=True)
@@ -66,7 +69,7 @@ def main(args):
 
     for idx_order, order in enumerate(range(min_order, max_order+1)):
 
-        if nb_cuts_considered >= nb_cuts * 0.2:
+        if nb_cuts_considered >= nb_cuts * 1:
             break
 
         idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order],
@@ -94,7 +97,12 @@ def main(args):
     print(f"\nThe computation took {t_total.days} days, {t_total.hours} hours,"
           f" {t_total.minutes} minutes and {t_total.seconds} seconds\n")
 
-    plot_heatmap_graph(G=G, all_cuts=all_cuts, tangles_by_orders=tangles_of_order, path=args.output.root_dir)
+    if args.plot.tangles:
+        if args.dataset.type == 'graph':
+            plot_heatmap_graph(G=G, all_cuts=all_cuts, tangles_by_orders=tangles_of_order, path=args.output.root_dir)
+        elif args.dataset.type == 'discrete':
+            plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=tangles_of_order, path=args.output.root_dir)
+
 
 
 if __name__ == '__main__':

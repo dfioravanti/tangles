@@ -198,7 +198,6 @@ def find_approximate_mincuts(A, nb_cuts, algorthm):
 
     cuts = []
     nb_vertices, _ = A.shape
-
     if algorthm == 'karger':
         function = karger
     elif algorthm == 'fast':
@@ -213,7 +212,7 @@ def find_approximate_mincuts(A, nb_cuts, algorthm):
 
         # at the moment sme hard coding to avoid super unbalanced cuts
         # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
-        if 8 < sum(cut) < 11:
+        if nb_vertices * 0.15 < sum(cut) < nb_vertices * 0.85:
             cuts.append(cut)
 
     cuts = np.array(cuts)
