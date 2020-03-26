@@ -3,7 +3,7 @@ from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.metrics import homogeneity_completeness_v_measure
 
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
-    PREPROCESSING_NEIGHBOURHOOD_CUTS, PREPROCESSING_KARGERS_ALGORITHM
+    PREPROCESSING_NEIGHBOURHOOD_CUTS, PREPROCESSING_KARGER, PREPROCESSING_FAST_MINCUT
 from src.config import ALGORITHM_CORE
 from src.tangles import core_algorithm
 from src.cuts import make_submodular, cuts_from_neighbourhood_cover, find_approximate_mincuts
@@ -41,8 +41,10 @@ def compute_cuts(xs, preprocessing):
         cuts = make_submodular(cuts)
     elif preprocessing.name == PREPROCESSING_NEIGHBOURHOOD_CUTS:
         cuts = cuts_from_neighbourhood_cover(A=xs, nb_common_neighbours=1, max_k=6)
-    elif preprocessing.name == PREPROCESSING_KARGERS_ALGORITHM:
-        cuts = find_approximate_mincuts(A=xs, nb_cuts=100)
+    elif preprocessing.name == PREPROCESSING_KARGER:
+        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.nb_cuts, algorthm='karger')
+    elif preprocessing.name == PREPROCESSING_FAST_MINCUT:
+        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.nb_cuts, algorthm='fast')
 
     return cuts
 

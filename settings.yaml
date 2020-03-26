@@ -4,15 +4,23 @@ output:
   root_dir: output
 
 dataset:
-  name: flo
+  name: sbm
+
+  # SBM
   block_size: 10
-  nb_blocks: 2
+  nb_blocks: 5
   p: 0.5
   q: 0.05
+
+  # ROC
+  nb_cliques: 5
+  clique_size: 10
+
   path: None
 
 preprocessing:
-  name: nei
+  name: karger
+  nb_cuts: 100
 
 algorithm:
   name: core

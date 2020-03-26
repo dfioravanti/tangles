@@ -1,4 +1,5 @@
-from itertools import combinations
+from copy import deepcopy
+from itertools import combinations, product
 from random import sample
 
 import numpy as np
@@ -6,7 +7,6 @@ from sklearn.cluster import SpectralClustering
 
 
 def make_submodular(cuts):
-
     """
     Given a set of cuts we make it submodular.
     A set of cuts S is submodular if for any two orientation A,B of cuts in S we have that
@@ -103,8 +103,7 @@ def merge(A, i, j):
     return A
 
 
-def choosefrom(A):
-
+def pick_edge_from(A):
     """
     Pick a random edge from a graph and return the index of the adjacent vertices to this edge
 
@@ -128,12 +127,15 @@ def choosefrom(A):
     i = endpoints_1[edge]
     j = endpoints_2[edge]
 
-    return i, j
+    if i < j:
+        return i, j
+    else:
+        return j, i
 
 
 def karger(A):
     """
-    
+
     Karger's randomized algorithm (https://en.wikipedia.org/wiki/Karger%27s_algorithm)
     Randomly choose an edge from the graph and shrink it by merging its adjacent vertices.
     Repeat until only 2 vertices are left. The two vertices represent the two sets of the separation.
@@ -163,7 +165,7 @@ def karger(A):
         merged.append([i])
 
     while len(merged) > 2:
-        i, j = choosefrom(A_shrunk)
+        i, j = pick_edge_from(A_shrunk)
 
         A_shrunk = merge(A_shrunk, i, j)
         merged[i] += merged[j]
@@ -176,7 +178,7 @@ def karger(A):
     return separation_1, separation_2, weight_cut
 
 
-def find_approximate_mincuts(A, nb_cuts):
+def find_approximate_mincuts(A, nb_cuts, algorthm):
     """
 
     Generates a list of cuts by finding cheap approximations of min-cuts in a graph.
@@ -197,14 +199,21 @@ def find_approximate_mincuts(A, nb_cuts):
     cuts = []
     nb_vertices, _ = A.shape
 
+    if algorthm == 'karger':
+        function = karger
+    elif algorthm == 'fast':
+        function = fast_min_cut
+    else:
+        raise Exception("Wrong algorithm name")
+
     while len(cuts) < nb_cuts:
         cut = np.zeros(nb_vertices, dtype=bool)
-        idx_cuts, _, _ = karger(A)
+        idx_cuts, _, _ = function(A.astype(int))
         cut[idx_cuts] = True
 
         # at the moment sme hard coding to avoid super unbalanced cuts
         # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
-        if nb_vertices * 0.15 < sum(cut) < nb_vertices * 0.85:
+        if 8 < sum(cut) < 11:
             cuts.append(cut)
 
     cuts = np.array(cuts)
@@ -212,8 +221,53 @@ def find_approximate_mincuts(A, nb_cuts):
     return cuts
 
 
-def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
+def contract(A, min_size, merged_nodes):
 
+    merged_nodes = deepcopy(merged_nodes)
+    A_contracted = A.copy()
+
+    while len(A_contracted) > min_size:
+        i, j = pick_edge_from(A_contracted)
+        A_contracted = merge(A_contracted, i, j)
+
+        merged_nodes[i] += merged_nodes[j]
+        del merged_nodes[j]
+
+    return A_contracted, merged_nodes
+
+
+def fast_min_cut(A, merged_nodes=None):
+    if merged_nodes is None:
+        merged_nodes = []
+        for i in range(len(A)):
+            merged_nodes.append([i])
+
+    if len(A) <= 6:
+        A_contracted, merged_nodes = contract(A, 2, merged_nodes)
+
+        weight_cut = A_contracted[0, 1]
+        separation_1 = merged_nodes[0]
+        separation_2 = merged_nodes[1]
+        return separation_1, separation_2, weight_cut
+    else:
+        min_size = np.int(np.ceil(1 + len(A) / np.sqrt(2)))
+        A_1, merged_nodes1 = contract(A, min_size, merged_nodes)
+        A_2, merged_nodes2 = contract(A, min_size, merged_nodes)
+
+        separation_11, separation_12, cost_cut_1 = fast_min_cut(A_1, merged_nodes1)
+        separation_21, separation_22, cost_cut_2 = fast_min_cut(A_2, merged_nodes2)
+
+        if cost_cut_1 <= cost_cut_2:
+            separation_1, separation_2 = separation_11, separation_12
+            cost_cut = cost_cut_1
+        else:
+            separation_1, separation_2 = separation_21, separation_22
+            cost_cut = cost_cut_2
+
+    return separation_1, separation_2, cost_cut
+
+
+def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
     """
     Compute a local patch for the current vertex v.
     Give a point we check which of its neighbours u share at least nb_common_neighbours with v.
@@ -249,7 +303,6 @@ def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):
 
 
 def build_cover_graph(cover, A):
-
     """
     Given a graph and a cover we build a new graph where the the vertex are the elements of the cover and the edges are
     weighted on the number of points connecting two different elements of the cover.
@@ -287,7 +340,6 @@ def build_cover_graph(cover, A):
 
 
 def cuts_from_neighbourhood_cover(A, nb_common_neighbours, max_k):
-
     """
     Give a graph we we use a neighbourhood cover to decide which cuts we should use in the tangle algorithm.
     Such cover is built in two steps

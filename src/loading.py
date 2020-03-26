@@ -54,7 +54,7 @@ def get_dataset_and_order_function(dataset):
                           min_community=10, average_degree=3, seed=10)
         order_function = partial(cut_order, xs)
     elif dataset.name == DATASET_RING_OF_CLIQUES:
-        xs, ys, G = load_ROC(nb_cliques=4, clique_size=10)
+        xs, ys, G = load_ROC(nb_cliques=dataset.nb_cliques, clique_size=dataset.clique_size)
         order_function = partial(cut_order, xs)
     elif dataset.name == DATASET_FLORENCE:
         xs, ys, G = load_FLORENCE()
