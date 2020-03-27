@@ -1,10 +1,12 @@
 from functools import partial
+import numpy as np
 
 from src.config import DATASET_QUESTIONNAIRE_SYNTHETIC, DATASET_BINARY_IRIS, DATASET_SBM, \
     DATASET_LFR, DATASET_RING_OF_CLIQUES, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN
 from src.datasets.big5 import load_BIG5
 from src.datasets.graphs import load_RPG, load_LFR, load_ROC, load_FLORENCE
 from src.datasets.iris import get_binarized_iris
+from src.datasets.kNN import load_KNN
 from src.datasets.questionnaire import load_synthetic_questionnaire
 from src.order_functions import implicit_order, cut_order
 
@@ -62,5 +64,8 @@ def get_dataset_and_order_function(dataset):
     elif dataset.name == DATASET_BIG5:
         xs, ys = load_BIG5(dataset.path)
         order_function = partial(implicit_order, xs, 100)
+    elif dataset.name == DATASET_KNN:
+        xs, _ = load_KNN(dataset.mus, dataset.vars, dataset.block_size, dataset.nb_blocks, dataset.k)
+        order_function = partial(cut_order, xs)
 
     return xs, ys, G, order_function

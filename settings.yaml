@@ -4,15 +4,18 @@ output:
   root_dir: output
 
 dataset:
-  name: flo
-  block_size: 10
+  name: knn
+  block_size: 100
   nb_blocks: 2
-  p: 0.5
-  q: 0.05
+  p: 0.2
+  q: 0.01
+  mus: [[0, 0], [0, 2]]
+  vars: [[1, 1], [1, 1]]
+  k: 5
   path: None
 
 preprocessing:
-  name: nei
+  name: karger
 
 algorithm:
   name: core

@@ -3,8 +3,9 @@ from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.neighbors import kneighbors_graph
 
 # build knn from Gaussian
-def gaussiankNN(mus, vars, sizes, k):
-    locations, labels = gaussian(mus, vars, sizes)
+def load_KNN(mus, vars, size_blocks, nb_blocks, k):
+
+    locations, labels = gaussian(mus, vars, np.array([size_blocks] * nb_blocks))
 
     W = kneighbors_graph(locations, k)
 
@@ -19,7 +20,7 @@ def gaussian(mus, vars, sizes):
     y = np.array([])
     labels = np.array([])
     for i, size in enumerate(sizes):
-        x_tmp, y_tmp = np.random.multivariate_normal(mus[i], vars[i], size).T
+        x_tmp, y_tmp = np.random.multivariate_normal(mus[i], np.diag(vars[i]), size).T
         x = np.concatenate([x, x_tmp])
         y = np.concatenate([y, y_tmp])
         labels = np.concatenate([labels, [i] * size])
