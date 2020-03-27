@@ -42,14 +42,23 @@ def plot_heatmap(all_cuts, ys, tangles_by_orders, path=None):
             axs = np.array(axs)
         axs = axs.flatten()
 
+        idx_in_all = cuts_in_all_tangles(tangles)
+
         for i, tangle in enumerate(tangles):
-            idx = list(tangle.specification.keys())
-            orientations = np.array(list(tangle.specification.values()), dtype=bool)
-            matching_cuts = np.sum((all_cuts[idx, :].T == orientations), axis=1)
+
+            cs, os = [], []
+
+            for c, o in tangle.specification.items():
+                if c not in idx_in_all:
+                    cs.append(c)
+                    os.append(o)
+
+            os = np.array(os, dtype=bool)
+            matching_cuts = np.sum((all_cuts[cs, :].T == os), axis=1)
 
             axs[i].scatter(np.arange(1, nb_points + 1), matching_cuts, c=ys)
             axs[i].axis('off')
-            axs[i].set_title(f"Tangle number {i} ({len(idx)} cuts)")
+            axs[i].set_title(f"Tangle number {i}")
             for j in range(1, nb_classes):
                 nb_in_class = np.sum(ys == j-1)
                 axs[i].vlines(x=j * nb_in_class + 0.5, ymin=0, ymax=max(matching_cuts),
@@ -61,6 +70,38 @@ def plot_heatmap(all_cuts, ys, tangles_by_orders, path=None):
                 plt.savefig(path / f"Tangle order {order}.png")
 
         plt.close(f)
+
+
+def cuts_in_all_tangles(tangles):
+
+    idx_cuts = set()
+    for tangle in tangles:
+        idx_cuts = idx_cuts.union(set(tangle.specification.keys()))
+
+    idx_in_all = []
+    for idx_cut in idx_cuts:
+        current_o = None
+
+        in_all = True
+        for tangle in tangles:
+            idx = list(tangle.specification.keys())
+            orr = list(tangle.specification.values())
+            try:
+                i = idx.index(idx_cut)
+                o = orr[i]
+                if current_o is None:
+                    current_o = o
+                elif o != current_o:
+                    in_all = False
+                    break
+            except ValueError:
+                in_all = False
+                break
+
+        if in_all:
+            idx_in_all.append(idx_cut)
+
+    return idx_in_all
 
 
 def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
@@ -87,11 +128,7 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
     plt.ioff()
 
     A = nx.to_numpy_array(G)
-    nb_vertex = len(A)
     pos = nx.spring_layout(G, k=.5, iterations=100)
-
-    #pos = np.random.rand(nb_vertex, 2)
-    #pos[round(nb_vertex/2):, :] += 1
 
     for order, tangles in tangles_by_orders.items():
 
@@ -105,10 +142,19 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
             axs = np.array(axs)
         axs = axs.flatten()
 
+        idx_in_all = cuts_in_all_tangles(tangles)
+
         for i, tangle in enumerate(tangles):
-            idx = list(tangle.specification.keys())
-            orientations = np.array(list(tangle.specification.values()), dtype=bool)
-            matching_cuts = np.sum((all_cuts[idx, :].T == orientations), axis=1)
+
+            cs, os = [], []
+
+            for c, o in tangle.specification.items():
+                if c not in idx_in_all:
+                    cs.append(c)
+                    os.append(o)
+
+            os = np.array(os, dtype=bool)
+            matching_cuts = np.sum((all_cuts[cs, :].T == os), axis=1)
 
             cmap = plt.cm.get_cmap('tab10')
             my_cmap = cmap(i)

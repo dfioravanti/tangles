@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.neighbors._dist_metrics import DistanceMetric
 
 
-def implicit_order(xs, n_samples, seed, cut):
+def implicit_order(xs, n_samples, cut):
     """
     This function computes the implicit order of a cut.
     Which is defined as the floor of the average Hemming distance between one orientation of the cut and its
