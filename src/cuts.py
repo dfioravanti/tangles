@@ -248,7 +248,7 @@ def merge(A, i, j):
 
     merged_vertex = A[i] + A[j]
     A[i] = merged_vertex
-    A[:, i] = merged_vertex
+    A[:, i] = merged_vertex.T
 
     A[i, i] = 0
     A = np.delete(A, j, axis=0)
@@ -257,7 +257,7 @@ def merge(A, i, j):
     return A
 
 
-def pick_edge_from(A):
+def choosefrom(A, merged):
     """
     Pick a random edge from a graph and return the index of the adjacent vertices to this edge
 
@@ -265,6 +265,8 @@ def pick_edge_from(A):
     ----------
     A: array of shape [nb_vertex, nb_vertex]
         The adjacency matrix of the graph
+    merges: list of lists
+        the already merged vertices to avoid single vertices and get some kind of balancing
 
     Returns
     -------
@@ -276,6 +278,10 @@ def pick_edge_from(A):
 
     endpoints_1, endpoints_2 = np.nonzero(A)
     nb_edges = len(endpoints_1)
+
+    #p = get_weights(merged, endpoints_1, endpoints_2)
+    #edge = np.random.choice(np.arange(nb_edges), None, True, p)
+
     edge = np.random.randint(nb_edges)
 
     i = endpoints_1[edge]
@@ -290,6 +296,20 @@ def pick_edge_from(A):
 # ----------------------------------------------------------------------------------------------------------------------
 # Local approach
 # ----------------------------------------------------------------------------------------------------------------------
+def get_weights(merged, endpoints_1, endpoints_2):
+
+    count = np.array([len(node) for node in merged])
+    weight = (1 / count)**10
+    nb_edges = len(endpoints_1)
+    nb_vertex = len(merged)
+
+
+    p = np.zeros(nb_edges)
+
+    for i in range(nb_vertex):
+        p[np.logical_or(endpoints_1 == i, endpoints_2 == i)] += weight[i]
+    return p/sum(p)
+
 
 
 def get_random_cover(A, min_size_cover):

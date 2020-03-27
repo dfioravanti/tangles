@@ -4,8 +4,11 @@ output:
   root_dir: output
 
 dataset:
-  name: sbm
   path: datasets/big5.csv
+  name: knn
+  mus: [[0, 0], [0, 2]]
+  vars: [[1, 1], [1, 1]]
+  k: 5
 
   sbm:
     block_size: 10
