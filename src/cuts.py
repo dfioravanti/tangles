@@ -94,7 +94,7 @@ def merge(A, i, j):
 
     merged_vertex = A[i] + A[j]
     A[i] = merged_vertex
-    A[:, i] = merged_vertex
+    A[:, i] = merged_vertex.T
 
     A[i, i] = 0
     A = np.delete(A, j, axis=0)
@@ -103,7 +103,7 @@ def merge(A, i, j):
     return A
 
 
-def choosefrom(A):
+def choosefrom(A, merged):
 
     """
     Pick a random edge from a graph and return the index of the adjacent vertices to this edge
@@ -112,6 +112,8 @@ def choosefrom(A):
     ----------
     A: array of shape [nb_vertex, nb_vertex]
         The adjacency matrix of the graph
+    merges: list of lists
+        the already merged vertices to avoid single vertices and get some kind of balancing
 
     Returns
     -------
@@ -123,12 +125,32 @@ def choosefrom(A):
 
     endpoints_1, endpoints_2 = np.nonzero(A)
     nb_edges = len(endpoints_1)
+
+    #p = get_weights(merged, endpoints_1, endpoints_2)
+    #edge = np.random.choice(np.arange(nb_edges), None, True, p)
+
     edge = np.random.randint(nb_edges)
 
     i = endpoints_1[edge]
     j = endpoints_2[edge]
 
     return i, j
+
+
+def get_weights(merged, endpoints_1, endpoints_2):
+
+    count = np.array([len(node) for node in merged])
+    weight = (1 / count)**10
+
+    nb_edges = len(endpoints_1)
+    nb_vertex = len(merged)
+
+    p = np.zeros(nb_edges)
+
+    for i in range(nb_vertex):
+        p[np.logical_or(endpoints_1 == i, endpoints_2 == i)] += weight[i]
+
+    return p/sum(p)
 
 
 def karger(A):
@@ -163,7 +185,7 @@ def karger(A):
         merged.append([i])
 
     while len(merged) > 2:
-        i, j = choosefrom(A_shrunk)
+        i, j = choosefrom(A_shrunk, merged)
 
         A_shrunk = merge(A_shrunk, i, j)
         merged[i] += merged[j]
@@ -196,6 +218,7 @@ def find_approximate_mincuts(A, nb_cuts):
 
     cuts = []
     nb_vertices, _ = A.shape
+    mean = 0
 
     while len(cuts) < nb_cuts:
         cut = np.zeros(nb_vertices, dtype=bool)
@@ -204,9 +227,12 @@ def find_approximate_mincuts(A, nb_cuts):
 
         # at the moment sme hard coding to avoid super unbalanced cuts
         # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
-        if nb_vertices * 0.15 < sum(cut) < nb_vertices * 0.85:
+        if 0.25*nb_vertices < sum(cut) < 0.75*nb_vertices:
             cuts.append(cut)
+            cutval = min(sum(cut), nb_vertices - sum(cut))
+            mean += cutval
 
+    print(mean / nb_cuts)
     cuts = np.array(cuts)
 
     return cuts

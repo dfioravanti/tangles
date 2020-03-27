@@ -87,10 +87,10 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
 
     A = nx.to_numpy_array(G)
     nb_vertex = len(A)
-    pos = nx.spring_layout(G, k=.5, iterations=100)
+    # pos = nx.spring_layout(G, k=.5, iterations=100)
 
-    #pos = np.random.rand(nb_vertex, 2)
-    #pos[round(nb_vertex/2):, :] += 1
+    pos = np.random.rand(nb_vertex, 2)
+    pos[round(nb_vertex/2):, :] += 1
 
     for order, tangles in tangles_by_orders.items():
 
@@ -107,7 +107,20 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
         for i, tangle in enumerate(tangles):
             idx = list(tangle.specification.keys())
             orientations = np.array(list(tangle.specification.values()), dtype=bool)
+
+            # standart heat map approach, counting the amount of cuts a point is on the right side of
             matching_cuts = np.sum((all_cuts[idx, :].T == orientations), axis=1)
+
+            '''
+            # max' idea:
+            # weigh orientations by the amount of vertices they point towards
+            # orientations pointing towards many points are less informative and get lower weights
+            # cuts pointing to a smaller set of points are more informative and get a higher weight
+            oriented_cuts = (all_cuts[idx, :].T == orientations)
+            fraction = np.sum(oriented_cuts, axis=0)
+            weight = (max(fraction)/fraction)**2
+            matching_cuts = weight @ oriented_cuts.T
+            '''
 
             cmap = plt.cm.get_cmap('tab10')
             my_cmap = cmap(i)
