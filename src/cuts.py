@@ -5,6 +5,7 @@ from random import sample
 import numpy as np
 from sklearn.cluster import SpectralClustering
 from kmodes.kmodes import KModes
+from sklearn.neighbors._dist_metrics import DistanceMetric
 
 
 def make_submodular(cuts):
@@ -96,6 +97,7 @@ def find_kmodes_cuts(xs, max_nb_clusters):
 # ----------------------------------------------------------------------------------------------------------------------
 # Graph approach
 # ----------------------------------------------------------------------------------------------------------------------
+
 
 def find_approximate_mincuts(A, nb_cuts, algorthm):
     """
@@ -288,6 +290,66 @@ def pick_edge_from(A):
 # ----------------------------------------------------------------------------------------------------------------------
 # Local approach
 # ----------------------------------------------------------------------------------------------------------------------
+
+
+def get_random_cover(A, min_size_cover):
+
+    nb_verteces, _ = A.shape
+    idx_to_cover = set(range(nb_verteces))
+    possible_centers = set(range(nb_verteces))
+    cover = []
+    hashes = set()
+    size_cover = 0
+
+    while len(possible_centers) != 0 and (size_cover < min_size_cover or len(idx_to_cover) > 0):
+        idx_vertex = sample(possible_centers, 1)
+        possible_centers -= set(idx_vertex)
+
+        patch = A[idx_vertex].flatten()
+        patch[idx_vertex] = True
+
+        idx_patch = frozenset(np.where(patch == True)[0])
+        hash_patch = hash(idx_patch)
+        if hash_patch not in hashes:
+            size_cover += 1
+            hashes.add(hash_patch)
+            cover.append(patch)
+            idx_to_cover -= set(idx_patch)
+
+    cover = np.stack(cover, axis=0)
+    return cover
+
+
+def random_cover_cuts(A, min_size_cover, dim_linspace):
+
+    cover = get_random_cover(A, min_size_cover)
+    dist = lambda xs, ys: np.sum(xs * ys)
+    dist = DistanceMetric.get_metric(dist)
+    nb_common_points = dist.pairwise(cover)
+
+    max_nb_common_points = np.max(nb_common_points, axis=0)
+    len_cover = len(cover)
+
+    cuts = []
+    hashes = set()
+
+    fractions = np.linspace(start=0.1, stop=1, num=dim_linspace)
+    for fraction in fractions:
+        for idx_patch in np.arange(len_cover):
+            close_patches = (nb_common_points[idx_patch] >= max_nb_common_points[idx_patch] * fraction)
+            close_patches[idx_patch] = True
+            patches = cover[close_patches, :]
+            cut = np.sum(patches, axis=0).astype(bool)
+
+            if np.sum(cut) >= 8 and np.sum(cut) <= 15:
+                idx_cut = frozenset(np.where(cut == True)[0])
+                hash_cut = hash(idx_cut)
+                if hash_cut not in hashes:
+                    hashes.add(hash_cut)
+                    cuts.append(cut)
+
+    cuts = np.stack(cuts, axis=0)
+    return cuts
 
 
 def neighbours_in_same_cluster(idx_vertex, A, nb_common_neighbours):

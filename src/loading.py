@@ -9,7 +9,7 @@ from src.datasets.questionnaire import make_synthetic_questionnaire
 from src.order_functions import implicit_order, cut_order
 
 
-def get_dataset_and_order_function(dataset):
+def get_dataset_and_order_function(dataset, seed):
 
     """
     TODO: MOVE A LOT OF THESE PARAMETERS OUT AND GET THEM VIA COMMAND LINE
@@ -26,6 +26,8 @@ def get_dataset_and_order_function(dataset):
     ----------
     dataset: SimpleNamespace
         The parameters of the dataset to load
+    seed: int
+        The seed for the RNG
 
     Returns
     -------
@@ -44,6 +46,7 @@ def get_dataset_and_order_function(dataset):
                                                   n_features=dataset.q_syn.n_features,
                                                   n_mindsets=dataset.q_syn.n_mindsets,
                                                   tolerance=dataset.q_syn.tolerance,
+                                                  seed=seed,
                                                   centers=True)
         order_function = partial(implicit_order, xs, None)
     elif dataset.name == DATASET_BINARY_IRIS:

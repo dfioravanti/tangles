@@ -35,10 +35,8 @@ def main(args):
 
     """
 
-    np.random.seed(args.seed)
-
     print("Load data\n", flush=True)
-    xs, ys, G, order_function = get_dataset_and_order_function(args.dataset)
+    xs, ys, G, order_function = get_dataset_and_order_function(args.dataset, args.seed)
 
     print("Find cuts", flush=True)
     all_cuts = compute_cuts(xs, args.preprocessing)

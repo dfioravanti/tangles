@@ -3,10 +3,10 @@ from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.metrics import homogeneity_completeness_v_measure
 
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
-    PREPROCESSING_NEIGHBOURHOOD_CUTS, PREPROCESSING_KARGER, PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES
+    PREPROCESSING_RANDOM_COVER, PREPROCESSING_KARGER, PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES
 from src.config import ALGORITHM_CORE
 from src.tangles import core_algorithm
-from src.cuts import make_submodular, cuts_from_neighbourhood_cover, find_approximate_mincuts, find_kmodes_cuts
+from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, find_kmodes_cuts
 
 
 def compute_cuts(xs, preprocessing):
@@ -18,7 +18,7 @@ def compute_cuts(xs, preprocessing):
 
      1. PREPROCESSING_FEATURES: consider the features as cuts
      2. PREPROCESSING_MAKE_SUBMODULAR: consider the features as cuts and then make them submodular
-     3. PREPROCESSING_NEIGHBOURHOOD_CUTS: Given an adjacency matrix build a cover of the graph and use that as starting
+     3. PREPROCESSING_RANDOM_COVER: Given an adjacency matrix build a cover of the graph and use that as starting
                                           point for creating the cuts
 
     Parameters
@@ -39,8 +39,10 @@ def compute_cuts(xs, preprocessing):
     elif preprocessing.name == PREPROCESSING_MAKE_SUBMODULAR:
         cuts = (xs == True).T
         cuts = make_submodular(cuts)
-    elif preprocessing.name == PREPROCESSING_NEIGHBOURHOOD_CUTS:
-        cuts = cuts_from_neighbourhood_cover(A=xs, nb_common_neighbours=1, max_k=6)
+    elif preprocessing.name == PREPROCESSING_RANDOM_COVER:
+        cuts = random_cover_cuts(A=xs,
+                                 min_size_cover=preprocessing.random.min_size_cover,
+                                 dim_linspace=preprocessing.random.dim_linspace)
     elif preprocessing.name == PREPROCESSING_KARGER:
         cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.nb_cuts, algorthm='karger')
     elif preprocessing.name == PREPROCESSING_FAST_MINCUT:
