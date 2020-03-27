@@ -2,16 +2,18 @@ import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.neighbors import kneighbors_graph
 
+import networkx as nx
+
+
 # build knn from Gaussian
 def load_KNN(mus, vars, size_blocks, nb_blocks, k):
-
     locations, labels = gaussian(mus, vars, np.array([size_blocks] * nb_blocks))
 
     W = kneighbors_graph(locations, k)
 
-    A = np.array(W)
-
-    return A
+    A = np.array(W.todense())
+    G = nx.from_numpy_matrix(A)
+    return A, labels, G
 
 
 # sample locations

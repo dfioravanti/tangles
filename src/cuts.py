@@ -3,8 +3,8 @@ from itertools import combinations
 from random import sample
 
 import numpy as np
-from sklearn.cluster import SpectralClustering
 from kmodes.kmodes import KModes
+from sklearn.cluster import SpectralClustering
 from sklearn.neighbors._dist_metrics import DistanceMetric
 
 
@@ -70,13 +70,13 @@ def make_submodular(cuts):
 
     return new_cuts
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Discrete approach
 # ----------------------------------------------------------------------------------------------------------------------
 
 
 def find_kmodes_cuts(xs, max_nb_clusters):
-
     nb_points = len(xs)
     cuts = []
 
@@ -93,6 +93,7 @@ def find_kmodes_cuts(xs, max_nb_clusters):
 
     cuts = np.stack(cuts, axis=0)
     return cuts
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Graph approach
@@ -257,7 +258,7 @@ def merge(A, i, j):
     return A
 
 
-def choosefrom(A, merged):
+def pick_edge_from(A):
     """
     Pick a random edge from a graph and return the index of the adjacent vertices to this edge
 
@@ -265,8 +266,6 @@ def choosefrom(A, merged):
     ----------
     A: array of shape [nb_vertex, nb_vertex]
         The adjacency matrix of the graph
-    merges: list of lists
-        the already merged vertices to avoid single vertices and get some kind of balancing
 
     Returns
     -------
@@ -278,10 +277,6 @@ def choosefrom(A, merged):
 
     endpoints_1, endpoints_2 = np.nonzero(A)
     nb_edges = len(endpoints_1)
-
-    #p = get_weights(merged, endpoints_1, endpoints_2)
-    #edge = np.random.choice(np.arange(nb_edges), None, True, p)
-
     edge = np.random.randint(nb_edges)
 
     i = endpoints_1[edge]
@@ -296,24 +291,9 @@ def choosefrom(A, merged):
 # ----------------------------------------------------------------------------------------------------------------------
 # Local approach
 # ----------------------------------------------------------------------------------------------------------------------
-def get_weights(merged, endpoints_1, endpoints_2):
-
-    count = np.array([len(node) for node in merged])
-    weight = (1 / count)**10
-    nb_edges = len(endpoints_1)
-    nb_vertex = len(merged)
-
-
-    p = np.zeros(nb_edges)
-
-    for i in range(nb_vertex):
-        p[np.logical_or(endpoints_1 == i, endpoints_2 == i)] += weight[i]
-    return p/sum(p)
-
 
 
 def get_random_cover(A, min_size_cover):
-
     nb_verteces, _ = A.shape
     idx_to_cover = set(range(nb_verteces))
     possible_centers = set(range(nb_verteces))
@@ -341,7 +321,6 @@ def get_random_cover(A, min_size_cover):
 
 
 def random_cover_cuts(A, min_size_cover, dim_linspace):
-
     cover = get_random_cover(A, min_size_cover)
     dist = lambda xs, ys: np.sum(xs * ys)
     dist = DistanceMetric.get_metric(dist)

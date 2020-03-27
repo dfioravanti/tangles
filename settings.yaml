@@ -6,9 +6,13 @@ output:
 dataset:
   path: datasets/big5.csv
   name: knn
-  mus: [[0, 0], [0, 2]]
-  vars: [[1, 1], [1, 1]]
-  k: 5
+
+  knn:
+    block_size: 10
+    nb_blocks: 2
+    mus: [[0, 0], [0, 2]]
+    vars: [[1, 1], [1, 1]]
+    k: 5
 
   sbm:
     block_size: 10
@@ -31,7 +35,7 @@ algorithm:
   name: core
 
 preprocessing:
-  name: random
+  name: karger
   nb_cuts: 10
 
   random:

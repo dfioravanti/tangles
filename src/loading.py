@@ -72,6 +72,7 @@ def get_dataset_and_order_function(dataset, seed):
         xs, ys, G = load_FLORENCE()
         order_function = partial(cut_order, xs)
     elif dataset.name == DATASET_KNN:
-        xs, _ = load_KNN(dataset.mus, dataset.vars, dataset.block_size, dataset.nb_blocks, dataset.k)
+        xs, ys, G = load_KNN(dataset.knn.mus, dataset.knn.vars, dataset.knn.block_size, dataset.knn.nb_blocks, dataset.knn.k)
+        order_function = partial(cut_order, xs)
 
     return xs, ys, G, order_function
