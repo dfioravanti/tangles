@@ -72,6 +72,143 @@ def make_submodular(cuts):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Kernighan-Lin algorithm
+# ----------------------------------------------------------------------------------------------------------------------
+
+def initial_partition(xs, fraction=0.5):
+    nb_vertices, _ = xs.shape
+
+    partition = round(fraction * nb_vertices)
+
+    A = np.random.choice(np.arange(nb_vertices), partition, False)
+
+    B = np.delete(np.arange(nb_vertices), A)
+
+    return A, B
+
+
+def compute_D_values(xs, A, B):
+    nb_vertices, _ = xs.shape
+
+    D = np.zeros(nb_vertices)
+
+    A_xs = xs[A, :]
+    B_xs = xs[B, :]
+
+    D[A] = sum(A_xs[:, B]) - sum(A_xs[:, A])
+    D[B] = sum(B_xs[:, A]) - sum(B_xs[:, B])
+
+    return D
+
+
+def update_D_values(xs, A, B, D):
+    nb_vertices, _ = xs.shape
+
+    A_xs = xs[A, :]
+    B_xs = xs[B, :]
+
+    D[A] = sum(A_xs[:, B]) - sum(A_xs[:, A])
+    D[B] = sum(B_xs[:, A]) - sum(B_xs[:, B])
+
+    return D
+
+
+def maximize(xs, A, B, D):
+
+    g_max = -np.inf
+    a_res = -1
+    b_res = -1
+
+    for a in A:
+        for b in B:
+            g = D[a] + D[b] - 2 * xs[a, b]
+            if g > g_max:
+                g_max = g
+                a_res = a
+                b_res = b
+
+    return g_max, a_res, b_res
+
+
+def find_k(gv):
+
+    g_max = -np.inf
+    g = 0
+    index = -1
+
+    for i in range(len(gv)):
+        g += gv[i]
+
+        if g > g_max:
+            g_max = g
+            index = i
+
+    return index, g_max
+
+def kernighan_lin(A, nb_cuts):
+    cuts = []
+
+    while len(cuts) < nb_cuts:
+        cut = kernighan_lin_algorithm(A, 0.5)
+        cuts.append(cut)
+
+        print("appended cut")
+
+    cuts = np.array(cuts)
+
+    return cuts
+
+def kernighan_lin_algorithm(xs, fraction):
+    nb_vertices, _ = xs.shape
+
+    A, B = initial_partition(xs, fraction)
+
+    for counter in np.arange(10):
+
+        A_copy = A.copy()
+        B_copy = B.copy()
+        xs_copy = xs.copy()
+        D = compute_D_values(xs, A_copy, B_copy)
+        gv = []
+        av = []
+        bv = []
+
+        while min(len(A_copy), len(B_copy)) > 2:
+            g, a, b = maximize(xs_copy, A_copy, B_copy, D)
+
+            gv.append(g)
+            av.append(list(np.argwhere(A == a)[0]))
+            bv.append(list(np.argwhere(B == b)[0]))
+
+            xs_copy[a, :] = 0
+            xs_copy[:, a] = 0
+            xs_copy[b, :] = 0
+            xs_copy[:, b] = 0
+            A_copy = np.setdiff1d(A_copy, a)
+            B_copy = np.setdiff1d(B_copy, b)
+            D = update_D_values(xs_copy, A_copy, B_copy, D)
+
+        k, g_max = find_k(gv)
+
+        if g_max > 0:
+
+            av_k = np.array(av[0:k+1])
+            bv_k = np.array(bv[0:k+1])
+
+            tmp = A[av_k]
+            A[av_k] = B[bv_k]
+            B[bv_k] = tmp
+
+        else:
+            break
+
+    cut = np.zeros(nb_vertices, dtype=bool)
+    cut[A] = True
+
+    return cut
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # Discrete approach
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -100,7 +237,7 @@ def find_kmodes_cuts(xs, max_nb_clusters):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def find_approximate_mincuts(A, nb_cuts, algorthm):
+def find_approximate_mincuts(A, nb_cuts, algorithm):
     """
 
     Generates a list of cuts by finding cheap approximations of min-cuts in a graph.
@@ -120,9 +257,9 @@ def find_approximate_mincuts(A, nb_cuts, algorthm):
 
     cuts = []
     nb_vertices, _ = A.shape
-    if algorthm == 'karger':
+    if algorithm == 'karger':
         function = karger
-    elif algorthm == 'fast':
+    elif algorithm == 'fast':
         function = fast_min_cut
     else:
         raise Exception("Wrong algorithm name")

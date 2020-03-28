@@ -35,7 +35,7 @@ algorithm:
   name: core
 
 preprocessing:
-  name: karger
+  name: karnig-lin
   nb_cuts: 10
 
   random:
