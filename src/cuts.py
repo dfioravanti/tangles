@@ -85,9 +85,10 @@ def initial_partition(xs, fraction=0.5):
 
     partition = round(fraction * nb_vertices)
 
-    A = np.random.choice(np.arange(nb_vertices), partition, False)
+    A = np.zeros(nb_vertices, dtype=bool)
+    A[np.random.choice(np.arange(nb_vertices), partition, False)] = True
 
-    B = np.delete(np.arange(nb_vertices), A)
+    B = np.logical_not(A)
 
     return A, B
 
@@ -124,10 +125,11 @@ def maximize(xs, A, B, D):
     a_res = -1
     b_res = -1
 
+    A_indices = np.arange(len(A))[A]
+    B_indices = np.arange(len(B))[B]
 
-    # maybe possible to vectorize ? Not sure if this improves runtime
-    for a_i, a in enumerate(A):
-        for b_i, b in enumerate(B):
+    for a in A_indices:
+        for b in B_indices:
             g = D[a] + D[b] - 2 * xs[a, b]
             if g > g_max:
                 g_max = g
@@ -153,19 +155,20 @@ def find_k(gv):
     return index, g_max
 
 
-def kernighan_lin(A, nb_cuts):
+def kernighan_lin(xs, nb_cuts):
     cuts = []
     fractions = [2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     for f in fractions:
         print("\t Calculating cuts for a fraction of: ", 1/f)
         for c in range(nb_cuts):
-            cut = kernighan_lin_algorithm(A, 1/f)
+            cut = kernighan_lin_algorithm(xs, 1/f)
             cuts.append(cut)
 
     cuts = np.array(cuts)
 
     return cuts
+
 
 def kernighan_lin_algorithm(xs, fraction):
     nb_vertices, _ = xs.shape
@@ -182,24 +185,21 @@ def kernighan_lin_algorithm(xs, fraction):
         av = []
         bv = []
 
-        while min(len(A_copy), len(B_copy)) > 2:
+        while min(sum(A_copy), sum(B_copy)) > 0:
             # greedily find best two vertices to swap
             g, a, b = maximize(xs_copy, A_copy, B_copy, D)
 
-            a_index = np.argwhere(A == a)[0][0]
-            b_index = np.argwhere(B == b)[0][0]
-
             gv.append(g)
-            av.append(a_index)
-            bv.append(b_index)
+            av.append(a)
+            bv.append(b)
 
             xs_copy[a, :] = 0
             xs_copy[:, a] = 0
             xs_copy[b, :] = 0
             xs_copy[:, b] = 0
 
-            A_copy = np.setdiff1d(A_copy, a)
-            B_copy = np.setdiff1d(B_copy, b)
+            A_copy[a] = False
+            B_copy[b] = False
 
             D = update_D_values(xs_copy, A_copy, B_copy, D)
 
@@ -208,20 +208,15 @@ def kernighan_lin_algorithm(xs, fraction):
 
         if g_max > 0:
             # swapping nodes from initial partition that improve the cut
-            av_k_indices = np.array(av[0:k+1])
-            bv_k_indices = np.array(bv[0:k+1])
+            k_indices = np.concatenate([av[0:k+1], bv[0:k+1]])
 
-            tmp = A[av_k_indices]
-            A[av_k_indices] = B[bv_k_indices]
-            B[bv_k_indices] = tmp
+            A[k_indices] = B[k_indices]
+            B = np.logical_not(A)
 
         else:
             break
 
-    cut = np.zeros(nb_vertices, dtype=bool)
-    cut[A] = True
-
-    return cut
+    return A
 
 
 # ----------------------------------------------------------------------------------------------------------------------

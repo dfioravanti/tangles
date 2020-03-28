@@ -48,7 +48,7 @@ def compute_cuts(xs, preprocessing):
     elif preprocessing.name == PREPROCESSING_KARGER:
         cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.nb_cuts, algorthm='karger')
     elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
-        cuts = kernighan_lin(A=xs, nb_cuts=preprocessing.nb_cuts)
+        cuts = kernighan_lin(xs=xs, nb_cuts=preprocessing.nb_cuts)
     elif preprocessing.name == PREPROCESSING_FAST_MINCUT:
         cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.nb_cuts, algorthm='fast')
     elif preprocessing.name == PREPROCESSING_KMODES:

@@ -67,7 +67,7 @@ def main(args):
 
     for idx_order, order in enumerate(range(min_order, max_order+1)):
 
-        if nb_cuts_considered >= nb_cuts * 1:
+        if nb_cuts_considered >= nb_cuts * 0.4:
             break
 
         idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order],
