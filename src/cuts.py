@@ -73,6 +73,11 @@ def make_submodular(cuts):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Kernighan-Lin algorithm
+#
+# implemented the pseudocode from https://en.wikipedia.org/wiki/Kernighan–Lin_algorithm
+# also kept all the variable names
+# it's a little difficult to see right away cause I often use indices
+# might change to binary vectors, this could be much faster actually 
 # ----------------------------------------------------------------------------------------------------------------------
 
 def initial_partition(xs, fraction=0.5):
@@ -95,8 +100,8 @@ def compute_D_values(xs, A, B):
     A_xs = xs[A, :]
     B_xs = xs[B, :]
 
-    D[A] = sum(A_xs[:, B]) - sum(A_xs[:, A])
-    D[B] = sum(B_xs[:, A]) - sum(B_xs[:, B])
+    D[A] = np.sum(A_xs[:, B], axis=1) - np.sum(A_xs[:, A], axis=1)
+    D[B] = np.sum(B_xs[:, A], axis=1) - np.sum(B_xs[:, B], axis=1)
 
     return D
 
@@ -107,8 +112,8 @@ def update_D_values(xs, A, B, D):
     A_xs = xs[A, :]
     B_xs = xs[B, :]
 
-    D[A] = sum(A_xs[:, B]) - sum(A_xs[:, A])
-    D[B] = sum(B_xs[:, A]) - sum(B_xs[:, B])
+    D[A] = np.sum(A_xs[:, B], axis=1) - np.sum(A_xs[:, A], axis=1)
+    D[B] = np.sum(B_xs[:, A], axis=1) - np.sum(B_xs[:, B], axis=1)
 
     return D
 
@@ -119,8 +124,10 @@ def maximize(xs, A, B, D):
     a_res = -1
     b_res = -1
 
-    for a in A:
-        for b in B:
+
+    # maybe possible to vectorize ? Not sure if this improves runtime
+    for a_i, a in enumerate(A):
+        for b_i, b in enumerate(B):
             g = D[a] + D[b] - 2 * xs[a, b]
             if g > g_max:
                 g_max = g
@@ -145,14 +152,16 @@ def find_k(gv):
 
     return index, g_max
 
+
 def kernighan_lin(A, nb_cuts):
     cuts = []
+    fractions = [2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-    while len(cuts) < nb_cuts:
-        cut = kernighan_lin_algorithm(A, 0.5)
-        cuts.append(cut)
-
-        print("appended cut")
+    for f in fractions:
+        print("\t Calculating cuts for a fraction of: ", 1/f)
+        for c in range(nb_cuts):
+            cut = kernighan_lin_algorithm(A, 1/f)
+            cuts.append(cut)
 
     cuts = np.array(cuts)
 
@@ -163,7 +172,7 @@ def kernighan_lin_algorithm(xs, fraction):
 
     A, B = initial_partition(xs, fraction)
 
-    for counter in np.arange(10):
+    while True:
 
         A_copy = A.copy()
         B_copy = B.copy()
@@ -174,30 +183,37 @@ def kernighan_lin_algorithm(xs, fraction):
         bv = []
 
         while min(len(A_copy), len(B_copy)) > 2:
+            # greedily find best two vertices to swap
             g, a, b = maximize(xs_copy, A_copy, B_copy, D)
 
+            a_index = np.argwhere(A == a)[0][0]
+            b_index = np.argwhere(B == b)[0][0]
+
             gv.append(g)
-            av.append(list(np.argwhere(A == a)[0]))
-            bv.append(list(np.argwhere(B == b)[0]))
+            av.append(a_index)
+            bv.append(b_index)
 
             xs_copy[a, :] = 0
             xs_copy[:, a] = 0
             xs_copy[b, :] = 0
             xs_copy[:, b] = 0
+
             A_copy = np.setdiff1d(A_copy, a)
             B_copy = np.setdiff1d(B_copy, b)
+
             D = update_D_values(xs_copy, A_copy, B_copy, D)
 
+        # greedily only swap the vertices that
         k, g_max = find_k(gv)
 
         if g_max > 0:
+            # swapping nodes from initial partition that improve the cut
+            av_k_indices = np.array(av[0:k+1])
+            bv_k_indices = np.array(bv[0:k+1])
 
-            av_k = np.array(av[0:k+1])
-            bv_k = np.array(bv[0:k+1])
-
-            tmp = A[av_k]
-            A[av_k] = B[bv_k]
-            B[bv_k] = tmp
+            tmp = A[av_k_indices]
+            A[av_k_indices] = B[bv_k_indices]
+            B[bv_k_indices] = tmp
 
         else:
             break
