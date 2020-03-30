@@ -7,6 +7,8 @@ from kmodes.kmodes import KModes
 from sklearn.cluster import SpectralClustering
 from sklearn.neighbors._dist_metrics import DistanceMetric
 
+from src.config import PREPROCESSING_KARGER, PREPROCESSING_FAST_MINCUT
+
 
 def make_submodular(cuts):
     """
@@ -120,7 +122,6 @@ def update_D_values(xs, A, B, D):
 
 
 def maximize(xs, A, B, D):
-
     g_max = -np.inf
     a_res = -1
     b_res = -1
@@ -140,7 +141,6 @@ def maximize(xs, A, B, D):
 
 
 def find_k(gv):
-
     g_max = -np.inf
     g = 0
     index = -1
@@ -155,14 +155,13 @@ def find_k(gv):
     return index, g_max
 
 
-def kernighan_lin(xs, nb_cuts):
+def kernighan_lin(xs, nb_cuts, fractions):
     cuts = []
-    fractions = [2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     for f in fractions:
-        print("\t Calculating cuts for a fraction of: ", 1/f)
+        print(f"\t Calculating cuts for a fraction of: 1/{f}")
         for c in range(nb_cuts):
-            cut = kernighan_lin_algorithm(xs, 1/f)
+            cut = kernighan_lin_algorithm(xs, 1 / f)
             cuts.append(cut)
 
     cuts = np.array(cuts)
@@ -208,7 +207,7 @@ def kernighan_lin_algorithm(xs, fraction):
 
         if g_max > 0:
             # swapping nodes from initial partition that improve the cut
-            k_indices = np.concatenate([av[0:k+1], bv[0:k+1]])
+            k_indices = np.concatenate([av[0:k + 1], bv[0:k + 1]])
 
             A[k_indices] = B[k_indices]
             B = np.logical_not(A)
@@ -268,9 +267,9 @@ def find_approximate_mincuts(A, nb_cuts, algorithm):
 
     cuts = []
     nb_vertices, _ = A.shape
-    if algorithm == 'karger':
+    if algorithm == PREPROCESSING_KARGER:
         function = karger
-    elif algorithm == 'fast':
+    elif algorithm == PREPROCESSING_FAST_MINCUT:
         function = fast_min_cut
     else:
         raise Exception("Wrong algorithm name")
@@ -442,7 +441,6 @@ def pick_edge_from(A):
 
 
 def get_neighbours_few_edges(idx_neighbours, A):
-
     nb_edges = np.sum(A[idx_neighbours, :], axis=1)
     idxs = np.where(nb_edges <= 2)[0]
 
@@ -450,7 +448,6 @@ def get_neighbours_few_edges(idx_neighbours, A):
 
 
 def get_neighbour_patch(idx_vertex, A, min_size):
-
     nb_vertex = len(A)
     idx_patch = set()
 
@@ -471,13 +468,11 @@ def get_neighbour_patch(idx_vertex, A, min_size):
 
 
 def get_neighbour_cover(A, nb_cuts, percentages):
-
     cover = []
     nb_vertex = len(A)
     for percentage in percentages:
         min_size = nb_vertex * percentage
         for i in range(nb_cuts):
-
             idx_vertex = np.random.randint(low=0, high=nb_vertex)
             patch = get_neighbour_patch(idx_vertex, A, min_size)
             cover.append(patch)

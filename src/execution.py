@@ -1,16 +1,17 @@
 import numpy as np
-from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.metrics import homogeneity_completeness_v_measure
+from sklearn.metrics.pairwise import manhattan_distances
 
+from src.config import ALGORITHM_CORE
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
     PREPROCESSING_RANDOM_COVER, PREPROCESSING_KARGER, PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES, \
-    PREPROCESSING_KARNIG_LIN, PREPROCESSING_NEIGHBOURS  
-from src.config import ALGORITHM_CORE
+    PREPROCESSING_KARNIG_LIN, PREPROCESSING_NEIGHBOURS
+from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, \
+    find_kmodes_cuts, get_neighbour_cover, kernighan_lin
 from src.tangles import core_algorithm
-from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, find_kmodes_cuts, get_neighbour_cover, kernighan_lin
+
 
 def compute_cuts(xs, preprocessing):
-
     """
     Given a set of points or an adjacency matrix this function returns the set of cuts that we will use
     to compute tangles.
@@ -48,11 +49,15 @@ def compute_cuts(xs, preprocessing):
                                    nb_cuts=preprocessing.neighbours.nb_cuts,
                                    percentages=preprocessing.neighbours.percentages)
     elif preprocessing.name == PREPROCESSING_KARGER:
+        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.karger.nb_cuts,
+                                        algorthm=PREPROCESSING_KARGER)
     elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
-        cuts = kernighan_lin(xs=xs, nb_cuts=preprocessing.nb_cuts)
-        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.karger.nb_cuts, algorthm='karger')
+        cuts = kernighan_lin(xs=xs,
+                             nb_cuts=preprocessing.karnig_lin.nb_cuts,
+                             fractions=preprocessing.karnig_lin.fractions)
     elif preprocessing.name == PREPROCESSING_FAST_MINCUT:
-        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.fast_min_cut.nb_cuts, algorthm='fast')
+        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.fast_min_cut.nb_cuts,
+                                        algorthm=PREPROCESSING_FAST_MINCUT)
     elif preprocessing.name == PREPROCESSING_KMODES:
         cuts = find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
 
@@ -89,7 +94,6 @@ def order_cuts(cuts, order_function):
 
 
 def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm):
-
     """
     Select with tangle algorithm to use. For now only one algorithm is supported.
 
@@ -112,7 +116,7 @@ def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm
     """
 
     if algorithm.name == ALGORITHM_CORE:
-            tangles = core_algorithm(tangles, current_cuts, idx_current_cuts, min_size)
+        tangles = core_algorithm(tangles, current_cuts, idx_current_cuts, min_size)
 
     return tangles
 
@@ -120,7 +124,6 @@ def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm
 # Old code. But it might be useful later
 
 def mask_points_in_tangle(tangle, all_cuts, threshold):
-
     points = all_cuts[tangle.get_idx_cuts()].T
     center = np.array(tangle.get_orientations())
     center = center.reshape(1, -1)
@@ -131,7 +134,6 @@ def mask_points_in_tangle(tangle, all_cuts, threshold):
 
 
 def compute_clusters(tangles, cuts, tolerance=0.8):
-
     n_cuts, n_points = cuts.shape
 
     predictions = np.zeros(n_points, dtype=int)
@@ -143,7 +145,7 @@ def compute_clusters(tangles, cuts, tolerance=0.8):
         for j, oriented_cut in enumerate(tangle):
             numpy_tangle[j, :] = oriented_cut.to_numpy(n_cuts)
 
-        threshold = np.int(np.trunc(len_tangle * (1-tolerance)))
+        threshold = np.int(np.trunc(len_tangle * (1 - tolerance)))
         mask = mask_points_in_tangle(tangle, cuts, threshold)
         predictions[mask] = i
 
@@ -151,7 +153,6 @@ def compute_clusters(tangles, cuts, tolerance=0.8):
 
 
 def compute_evaluation(ys, predictions):
-
     evaluations = {}
 
     for order, prediction in predictions.items():

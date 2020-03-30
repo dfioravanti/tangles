@@ -5,7 +5,7 @@ output:
 
 dataset:
   path: datasets/big5.csv
-  name: roc
+  name: sbm
 
   knn:
     block_size: 10
@@ -17,8 +17,8 @@ dataset:
   sbm:
     block_size: 20
     nb_blocks: 5
-    p: 0.6
-    q: 0.05
+    p: 0.5
+    q: 0.1
 
   roc:
     nb_cliques: 20
@@ -31,11 +31,15 @@ dataset:
     tolerance: 0.10
 
 algorithm:
-  min_size: 10
+  min_size: 12
   name: core
 
 preprocessing:
-  name: karnig-lin
+  name: karnig_lin
+
+  karnig_lin:
+    nb_cuts: 30
+    fractions: [2, 3, 4, 5]
 
   karger:
     nb_cuts: 100
@@ -55,7 +59,7 @@ preprocessing:
     max_nb_clusters: 10
 
 tangles:
-  percentage_cuts: 0.01
+  percentage_cuts: 0.2
 
 # -1 in nb_cuts means all
 plot:
