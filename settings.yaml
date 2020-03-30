@@ -5,7 +5,7 @@ output:
 
 dataset:
   path: datasets/big5.csv
-  name: knn
+  name: sbm
 
   knn:
     block_size: 10
@@ -15,10 +15,10 @@ dataset:
     k: 5
 
   sbm:
-    block_size: 10
-    nb_blocks: 3
-    p: 0.9
-    q: 0.2
+    block_size: 30
+    nb_blocks: 5
+    p: 0.7
+    q: 0.05
 
   roc:
     nb_cliques: 5
@@ -31,12 +31,21 @@ dataset:
     tolerance: 0.10
 
 algorithm:
-  min_size: 8
+  min_size: 20
   name: core
 
 preprocessing:
   name: karger
-  nb_cuts: 10
+
+  karger:
+    nb_cuts: 10
+
+  fast_min_cut:
+    nb_cuts: 10
+
+  neighbours:
+    nb_cuts: 1000
+    percentages: [0.2, 0.3, 0.4, 0.5]
 
   random:
     min_size_cover: 100
@@ -45,8 +54,11 @@ preprocessing:
   kmodes:
     max_nb_clusters: 10
 
+tangles:
+  percentage_cuts: 0.4
+
 # -1 in nb_cuts means all
 plot:
   tangles: True
   cuts: True
-  nb_cuts: -1
+  nb_cuts: 10

@@ -293,6 +293,51 @@ def pick_edge_from(A):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
+def get_neighbours_few_edges(idx_neighbours, A):
+
+    nb_edges = np.sum(A[idx_neighbours, :], axis=1)
+    idxs = np.where(nb_edges <= 2)[0]
+
+    return set(idxs)
+
+
+def get_neighbour_patch(idx_vertex, A, min_size):
+
+    nb_vertex = len(A)
+    idx_patch = set()
+
+    current_vertex = idx_vertex
+    while len(idx_patch) <= min_size:
+        idx_neighbours = list(np.where(A[current_vertex] > 0)[0])
+
+        idx_patch.add(current_vertex)
+        idx_patch = idx_patch.union(get_neighbours_few_edges(idx_neighbours, A))
+
+        current_vertex = np.random.choice(idx_neighbours)
+
+    patch = np.zeros(nb_vertex, dtype=bool)
+    idx_patch = list(idx_patch)
+    patch[idx_patch] = True
+
+    return patch
+
+
+def get_neighbour_cover(A, nb_cuts, percentages):
+
+    cover = []
+    nb_vertex = len(A)
+    for percentage in percentages:
+        min_size = nb_vertex * percentage
+        for i in range(nb_cuts):
+
+            idx_vertex = np.random.randint(low=0, high=nb_vertex)
+            patch = get_neighbour_patch(idx_vertex, A, min_size)
+            cover.append(patch)
+
+    cover = np.stack(cover, axis=0)
+    return cover
+
+
 def get_random_cover(A, min_size_cover):
     nb_verteces, _ = A.shape
     idx_to_cover = set(range(nb_verteces))

@@ -3,10 +3,11 @@ from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.metrics import homogeneity_completeness_v_measure
 
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
-    PREPROCESSING_RANDOM_COVER, PREPROCESSING_KARGER, PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES
+    PREPROCESSING_RANDOM_COVER, PREPROCESSING_KARGER, PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES, \
+    PREPROCESSING_NEIGHBOURS
 from src.config import ALGORITHM_CORE
 from src.tangles import core_algorithm
-from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, find_kmodes_cuts
+from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, find_kmodes_cuts, get_neighbour_cover
 
 
 def compute_cuts(xs, preprocessing):
@@ -43,10 +44,14 @@ def compute_cuts(xs, preprocessing):
         cuts = random_cover_cuts(A=xs,
                                  min_size_cover=preprocessing.random.min_size_cover,
                                  dim_linspace=preprocessing.random.dim_linspace)
+    elif preprocessing.name == PREPROCESSING_NEIGHBOURS:
+        cuts = get_neighbour_cover(A=xs,
+                                   nb_cuts=preprocessing.neighbours.nb_cuts,
+                                   percentages=preprocessing.neighbours.percentages)
     elif preprocessing.name == PREPROCESSING_KARGER:
-        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.nb_cuts, algorthm='karger')
+        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.karger.nb_cuts, algorthm='karger')
     elif preprocessing.name == PREPROCESSING_FAST_MINCUT:
-        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.nb_cuts, algorthm='fast')
+        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.fast_min_cut.nb_cuts, algorthm='fast')
     elif preprocessing.name == PREPROCESSING_KMODES:
         cuts = find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
 
