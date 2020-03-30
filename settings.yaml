@@ -5,7 +5,7 @@ output:
 
 dataset:
   path: datasets/big5.csv
-  name: sbm
+  name: roc
 
   knn:
     block_size: 10
@@ -15,13 +15,13 @@ dataset:
     k: 5
 
   sbm:
-    block_size: 30
+    block_size: 20
     nb_blocks: 5
-    p: 0.7
+    p: 0.6
     q: 0.05
 
   roc:
-    nb_cliques: 5
+    nb_cliques: 20
     clique_size: 10
 
   q_syn:
@@ -31,14 +31,14 @@ dataset:
     tolerance: 0.10
 
 algorithm:
-  min_size: 20
+  min_size: 10
   name: core
 
 preprocessing:
   name: karger
 
   karger:
-    nb_cuts: 10
+    nb_cuts: 100
 
   fast_min_cut:
     nb_cuts: 10
@@ -55,7 +55,7 @@ preprocessing:
     max_nb_clusters: 10
 
 tangles:
-  percentage_cuts: 0.4
+  percentage_cuts: 0.01
 
 # -1 in nb_cuts means all
 plot:

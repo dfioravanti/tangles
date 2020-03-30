@@ -155,6 +155,8 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
 
             os = np.array(os, dtype=bool)
             matching_cuts = np.sum((all_cuts[cs, :].T == os), axis=1)
+            m = max(matching_cuts)
+            matching_cuts[matching_cuts <= m * 0.90] = 0
 
             cmap = plt.cm.get_cmap('tab10')
             my_cmap = cmap(i)

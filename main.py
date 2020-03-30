@@ -96,11 +96,12 @@ def main(args):
           f" {t_total.minutes} minutes and {t_total.seconds} seconds\n")
 
     if args.plot.tangles:
+        print('Start plotting', flush=True)
         if args.dataset.type == 'graph':
             plot_heatmap_graph(G=G, all_cuts=all_cuts, tangles_by_orders=tangles_of_order, path=args.output.root_dir)
         elif args.dataset.type == 'discrete':
             plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=tangles_of_order, path=args.output.root_dir)
-
+        print('Done plotting', flush=True)
 
 
 if __name__ == '__main__':
