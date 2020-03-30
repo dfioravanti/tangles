@@ -128,7 +128,8 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
     plt.ioff()
 
     A = nx.to_numpy_array(G)
-    pos = nx.spring_layout(G, k=.5, iterations=100)
+    pos = nx.spectral_layout(G)
+    pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
 
     for order, tangles in tangles_by_orders.items():
 
@@ -161,11 +162,11 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
             cmap = plt.cm.get_cmap('tab10')
             my_cmap = cmap(i)
             my_cmap = np.array([my_cmap])
-            my_cmap = np.tile(my_cmap, (max(matching_cuts), 1))
-            my_cmap[:, -1] = np.linspace(0.1, 1, max(matching_cuts))
+            my_cmap = np.tile(my_cmap, (max(matching_cuts) + 1, 1))
+            my_cmap[:, -1] = np.linspace(0.1, 1, max(matching_cuts) + 1)
             my_cmap = ListedColormap(my_cmap)
 
-            nx.draw_networkx(G, pos=pos, ax=axs[i], node_color=matching_cuts, cmap=my_cmap)
+            nx.draw_networkx(G, pos=pos, ax=axs[i], node_color=matching_cuts, cmap=my_cmap, edge_color='#00000033')
 
             if path is None:
                 plt.show()
