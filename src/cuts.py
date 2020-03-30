@@ -72,6 +72,154 @@ def make_submodular(cuts):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Kernighan-Lin algorithm
+#
+# implemented the pseudocode from https://en.wikipedia.org/wiki/Kernighan–Lin_algorithm
+# also kept all the variable names
+# it's a little difficult to see right away cause I often use indices
+# might change to binary vectors, this could be much faster actually 
+# ----------------------------------------------------------------------------------------------------------------------
+
+def initial_partition(xs, fraction=0.5):
+    nb_vertices, _ = xs.shape
+
+    partition = round(fraction * nb_vertices)
+
+    A = np.zeros(nb_vertices, dtype=bool)
+    A[np.random.choice(np.arange(nb_vertices), partition, False)] = True
+
+    B = np.logical_not(A)
+
+    return A, B
+
+
+def compute_D_values(xs, A, B):
+    nb_vertices, _ = xs.shape
+
+    D = np.zeros(nb_vertices)
+
+    A_xs = xs[A, :]
+    B_xs = xs[B, :]
+
+    D[A] = np.sum(A_xs[:, B], axis=1) - np.sum(A_xs[:, A], axis=1)
+    D[B] = np.sum(B_xs[:, A], axis=1) - np.sum(B_xs[:, B], axis=1)
+
+    return D
+
+
+def update_D_values(xs, A, B, D):
+    nb_vertices, _ = xs.shape
+
+    A_xs = xs[A, :]
+    B_xs = xs[B, :]
+
+    D[A] = np.sum(A_xs[:, B], axis=1) - np.sum(A_xs[:, A], axis=1)
+    D[B] = np.sum(B_xs[:, A], axis=1) - np.sum(B_xs[:, B], axis=1)
+
+    return D
+
+
+def maximize(xs, A, B, D):
+
+    g_max = -np.inf
+    a_res = -1
+    b_res = -1
+
+    A_indices = np.arange(len(A))[A]
+    B_indices = np.arange(len(B))[B]
+
+    for a in A_indices:
+        for b in B_indices:
+            g = D[a] + D[b] - 2 * xs[a, b]
+            if g > g_max:
+                g_max = g
+                a_res = a
+                b_res = b
+
+    return g_max, a_res, b_res
+
+
+def find_k(gv):
+
+    g_max = -np.inf
+    g = 0
+    index = -1
+
+    for i in range(len(gv)):
+        g += gv[i]
+
+        if g > g_max:
+            g_max = g
+            index = i
+
+    return index, g_max
+
+
+def kernighan_lin(xs, nb_cuts):
+    cuts = []
+    fractions = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    for f in fractions:
+        print("\t Calculating cuts for a fraction of: ", 1/f)
+        for c in range(nb_cuts):
+            cut = kernighan_lin_algorithm(xs, 1/f)
+            cuts.append(cut)
+
+    cuts = np.array(cuts)
+
+    return cuts
+
+
+def kernighan_lin_algorithm(xs, fraction):
+    nb_vertices, _ = xs.shape
+
+    A, B = initial_partition(xs, fraction)
+
+    while True:
+
+        A_copy = A.copy()
+        B_copy = B.copy()
+        xs_copy = xs.copy()
+        D = compute_D_values(xs, A_copy, B_copy)
+        gv = []
+        av = []
+        bv = []
+
+        while min(sum(A_copy), sum(B_copy)) > 0:
+            # greedily find best two vertices to swap
+            g, a, b = maximize(xs_copy, A_copy, B_copy, D)
+
+            gv.append(g)
+            av.append(a)
+            bv.append(b)
+
+            xs_copy[a, :] = 0
+            xs_copy[:, a] = 0
+            xs_copy[b, :] = 0
+            xs_copy[:, b] = 0
+
+            A_copy[a] = False
+            B_copy[b] = False
+
+            D = update_D_values(xs_copy, A_copy, B_copy, D)
+
+        # greedily only swap the vertices that
+        k, g_max = find_k(gv)
+
+        if g_max > 0:
+            # swapping nodes from initial partition that improve the cut
+            k_indices = np.concatenate([av[0:k+1], bv[0:k+1]])
+
+            A[k_indices] = B[k_indices]
+            B = np.logical_not(A)
+
+        else:
+            break
+
+    return A
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # Discrete approach
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -100,7 +248,7 @@ def find_kmodes_cuts(xs, max_nb_clusters):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def find_approximate_mincuts(A, nb_cuts, algorthm):
+def find_approximate_mincuts(A, nb_cuts, algorithm):
     """
 
     Generates a list of cuts by finding cheap approximations of min-cuts in a graph.
@@ -120,9 +268,9 @@ def find_approximate_mincuts(A, nb_cuts, algorthm):
 
     cuts = []
     nb_vertices, _ = A.shape
-    if algorthm == 'karger':
+    if algorithm == 'karger':
         function = karger
-    elif algorthm == 'fast':
+    elif algorithm == 'fast':
         function = fast_min_cut
     else:
         raise Exception("Wrong algorithm name")
