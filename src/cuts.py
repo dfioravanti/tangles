@@ -78,8 +78,8 @@ def make_submodular(cuts):
 #
 # implemented the pseudocode from https://en.wikipedia.org/wiki/Kernighan–Lin_algorithm
 # also kept all the variable names
-# it's a little difficult to see right away cause I often use indices
-# might change to binary vectors, this could be much faster actually 
+# it's a little difficult to see right away
+# This is now fully vectorized. Everything still seems to work. Somebody should review this, though.
 # ----------------------------------------------------------------------------------------------------------------------
 
 def initial_partition(xs, fraction=0.5):
@@ -126,16 +126,14 @@ def maximize(xs, A, B, D):
     a_res = -1
     b_res = -1
 
-    A_indices = A.nonzero()[0]
-    B_indices = B.nonzero()[0]
+    Dtiled = np.tile(D, (len(D), 1))
+    g = Dtiled + Dtiled.T - 2 * xs
 
-    Dt = np.tile(D, (len(D), 1))
-    G = Dt + Dt.T - 2 * xs
-    G = G[A,:][:,B]
-    (ai, bi) = np.unravel_index(np.argmax(G), G.shape)
-    a_res = A_indices[ai]
-    b_res = B_indices[bi]
-    g_max = G[ai,bi]
+    mask = np.logical_not(np.outer(A, B))
+    g = np.ma.masked_array(g, mask)
+
+    (a_res, b_res) = np.unravel_index(np.argmax(g), g.shape)
+    g_max = g[a_res, b_res]
 
     return g_max, a_res, b_res
 
@@ -171,7 +169,7 @@ def kernighan_lin_algorithm(xs, fraction):
         for _ in range(min(sum(A_copy), sum(B_copy))):
             # greedily find best two vertices to swap
             g, a, b = maximize(xs_copy, A_copy, B_copy, D)
-            
+
             swap_acc[a] = True
             swap_acc[b] = True
             g_acc += g
@@ -183,7 +181,7 @@ def kernighan_lin_algorithm(xs, fraction):
             xs_copy[:, a] = 0
             xs_copy[b, :] = 0
             xs_copy[:, b] = 0
-            
+
             A_copy[a] = False
             B_copy[b] = False
 
