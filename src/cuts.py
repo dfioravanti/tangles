@@ -126,33 +126,18 @@ def maximize(xs, A, B, D):
     a_res = -1
     b_res = -1
 
-    A_indices = np.arange(len(A))[A]
-    B_indices = np.arange(len(B))[B]
+    A_indices = A.nonzero()[0]
+    B_indices = B.nonzero()[0]
 
-    for a in A_indices:
-        for b in B_indices:
-            g = D[a] + D[b] - 2 * xs[a, b]
-            if g > g_max:
-                g_max = g
-                a_res = a
-                b_res = b
+    Dt = np.tile(D, (len(D), 1))
+    G = Dt + Dt.T - 2 * xs
+    G = G[A,:][:,B]
+    (ai, bi) = np.unravel_index(np.argmax(G), G.shape)
+    a_res = A_indices[ai]
+    b_res = B_indices[bi]
+    g_max = G[ai,bi]
 
     return g_max, a_res, b_res
-
-
-def find_k(gv):
-    g_max = -np.inf
-    g = 0
-    index = -1
-
-    for i in range(len(gv)):
-        g += gv[i]
-
-        if g > g_max:
-            g_max = g
-            index = i
-
-    return index, g_max
 
 
 def kernighan_lin(xs, nb_cuts, fractions):
@@ -168,49 +153,46 @@ def kernighan_lin(xs, nb_cuts, fractions):
 
     return cuts
 
-
 def kernighan_lin_algorithm(xs, fraction):
     nb_vertices, _ = xs.shape
 
     A, B = initial_partition(xs, fraction)
 
     while True:
-
         A_copy = A.copy()
         B_copy = B.copy()
         xs_copy = xs.copy()
         D = compute_D_values(xs, A_copy, B_copy)
-        gv = []
-        av = []
-        bv = []
+        g_max = -np.inf
+        g_acc = 0
+        swap_max = np.empty_like(A)
+        swap_acc = np.zeros_like(A)
 
-        while min(sum(A_copy), sum(B_copy)) > 0:
+        for _ in range(min(sum(A_copy), sum(B_copy))):
             # greedily find best two vertices to swap
             g, a, b = maximize(xs_copy, A_copy, B_copy, D)
-
-            gv.append(g)
-            av.append(a)
-            bv.append(b)
+            
+            swap_acc[a] = True
+            swap_acc[b] = True
+            g_acc += g
+            if g_acc > g_max:
+                g_max = g_acc
+                swap_max[:] = swap_acc[:]
 
             xs_copy[a, :] = 0
             xs_copy[:, a] = 0
             xs_copy[b, :] = 0
             xs_copy[:, b] = 0
-
+            
             A_copy[a] = False
             B_copy[b] = False
 
             D = update_D_values(xs_copy, A_copy, B_copy, D)
 
-        # greedily only swap the vertices that
-        k, g_max = find_k(gv)
-
         if g_max > 0:
             # swapping nodes from initial partition that improve the cut
-            k_indices = np.concatenate([av[0:k + 1], bv[0:k + 1]])
-
-            A[k_indices] = B[k_indices]
-            B = np.logical_not(A)
+            np.logical_not(A, out=A, where=swap_max)
+            np.logical_not(A, out=B)
 
         else:
             break
