@@ -213,6 +213,39 @@ def plot_cuts(xs, cuts, orders, type, path):
 
         plt.close(fig)
 
+
+def plot_evaluation(evaluations, path):
+
+    plt.style.use('ggplot')
+    plt.ioff()
+
+    for nb_blocks, p_evaluations in evaluations.items():
+        fig, ax = plt.subplots(1, 1)
+        for i, (p, q_evaluations) in enumerate(p_evaluations.items()):
+
+            cmap = plt.cm.get_cmap('tab10')
+            rgb_color = np.array(cmap(i)).reshape(1, -1)
+            v_scores = []
+            for _, evaluation in q_evaluations.items():
+                v_scores.append(evaluation["v_measure_score"])
+
+            qs = list(q_evaluations.keys())
+
+            ax.scatter(qs, v_scores, c=rgb_color)
+            ax.plot(qs, v_scores, c=rgb_color[0], label=f'p = {p}')
+
+            ax.xaxis.set_ticks(qs)
+            ax.yaxis.set_ticks(np.arange(0, 1.05, 0.05))
+
+        ax.set_ylabel('V-measure')
+        ax.set_xlabel('q')
+        ax.set_title(f'Number of blocks = {nb_blocks}')
+        ax.legend()
+
+        plt.savefig(path / f"Number of blocks {nb_blocks}.svg")
+        plt.close(fig)
+
+
 # Old code
 
 def plot_dataset(xs, ys, path=None):

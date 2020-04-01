@@ -7,9 +7,9 @@ import numpy as np
 
 from src.config import load_validate_settings, set_up_dirs
 from src.loading import get_dataset_and_order_function
-from src.plotting import plot_heatmap_graph, plot_heatmap, plot_cuts
+from src.plotting import plot_heatmap_graph, plot_heatmap, plot_cuts, plot_evaluation
 from src.execution import compute_cuts, compute_tangles, order_cuts, compute_clusters, compute_evaluation
-
+from src.config import EXPERIMENT_BATCH, EXPERIMENT_SINGLE
 
 def main_single_experiment(args):
 
@@ -110,6 +110,63 @@ def main_single_experiment(args):
         print('Done plotting', flush=True)
 
 
+def main_batch_experiment(args):
+
+    evaluations = {}
+    for nb_blocks in args.experiment.batch.nbs_blocks:
+        print(f'Working on nb_blocks = {nb_blocks}', flush=True)
+        evaluations[nb_blocks] = {}
+        for p in args.experiment.batch.ps:
+            evaluations[nb_blocks][p] = {}
+            for q in args.experiment.batch.qs:
+
+                print(f'\tWorking with ({p}, {q})', flush=True)
+
+                args.dataset.sbm.block_sizes = args.experiment.batch.block_sizes
+                args.dataset.sbm.nb_blocks = nb_blocks
+                args.dataset.sbm.p = p
+                args.dataset.sbm.q = q
+
+                args.preprocessing.karnig_lin.fractions = args.preprocessing.karnig_lin.fractions[:(nb_blocks+1)]
+
+                xs, ys, G, order_function = get_dataset_and_order_function(args.dataset, args.seed)
+                all_cuts = compute_cuts(xs, args.preprocessing)
+
+                all_cuts, orders = order_cuts(all_cuts, order_function)
+                max_order = np.int(np.ceil(np.max(orders)))
+                min_order = np.int(np.floor(np.min(orders)))
+
+                min_size = args.algorithm.min_size
+
+                tangles = []
+                tangles_of_order = {}
+                predictions = {}
+                nb_cuts_considered = 0
+                nb_cuts = len(all_cuts)
+
+                for idx_order, order in enumerate(range(min_order, max_order+1)):
+
+                    if nb_cuts_considered >= nb_cuts * args.tangles.percentage_cuts:
+                        break
+
+                    idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order],
+                                                       axis=0))[0]
+                    nb_cuts_considered += len(idx_cuts_order_i)
+
+                    if len(idx_cuts_order_i) > 0:
+
+                        cuts_order_i = all_cuts[idx_cuts_order_i]
+                        tangles = compute_tangles(tangles, cuts_order_i, idx_cuts_order_i,
+                                                  min_size=min_size, algorithm=args.algorithm)
+                        tangles_of_order[order] = deepcopy(tangles)
+                        predictions[order] = compute_clusters(tangles, all_cuts, tolerance=args.output.tolerance_predictions)
+
+                evaluation = compute_evaluation(ys, predictions)
+                evaluations[nb_blocks][p][q] = evaluation
+
+    plot_evaluation(evaluations, path=args.output.dir)
+
+
 if __name__ == '__main__':
 
     # Make parser, read inputs from command line and resolve paths
@@ -117,4 +174,7 @@ if __name__ == '__main__':
     root_dir = Path(__file__).resolve().parent
     args = set_up_dirs(args, root_dir=root_dir)
 
-    main_single_experiment(args)
+    if args.experiment.type == EXPERIMENT_SINGLE:
+        main_single_experiment(args)
+    elif args.experiment.type == EXPERIMENT_BATCH:
+        main_batch_experiment(args)

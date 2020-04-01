@@ -5,6 +5,16 @@ from types import SimpleNamespace
 import yaml
 
 # Global constants for validations of inputs
+
+# Experiments
+EXPERIMENT_SINGLE = 'single'
+EXPERIMENT_BATCH = 'batch'
+
+VALID_EXPERIMENTS = [
+    EXPERIMENT_SINGLE,
+    EXPERIMENT_BATCH
+]
+
 # Datasets
 
 DATASET_QUESTIONNAIRE_SYNTHETIC = "q_syn"
@@ -117,6 +127,10 @@ def load_settings(file):
 
 
 def validate_settings(args):
+
+    if args.experiment.type not in VALID_EXPERIMENTS:
+        raise ValueError(f'The experiment type must be in: {VALID_EXPERIMENTS}')
+
     if args.dataset.name not in VALID_DATASETS:
         raise ValueError(f'The dataset name must be in: {VALID_DATASETS}')
 

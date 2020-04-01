@@ -142,7 +142,7 @@ def kernighan_lin(xs, nb_cuts, fractions):
     cuts = []
 
     for f in fractions:
-        print(f"\t Calculating cuts for a fraction of: 1/{f}")
+        #but print(f"\t Calculating cuts for a fraction of: 1/{f}")
         for c in range(nb_cuts):
             cut = kernighan_lin_algorithm(xs, 1 / f)
             cuts.append(cut)
