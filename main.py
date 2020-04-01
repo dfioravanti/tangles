@@ -8,10 +8,10 @@ import numpy as np
 from src.config import load_validate_settings, set_up_dirs
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_heatmap_graph, plot_heatmap, plot_cuts
-from src.execution import compute_cuts, compute_tangles, order_cuts
+from src.execution import compute_cuts, compute_tangles, order_cuts, compute_clusters, compute_evaluation
 
 
-def main(args):
+def main_single_experiment(args):
 
     """
     Main function of the program.
@@ -50,7 +50,7 @@ def main(args):
 
     if args.plot.cuts:
         if args.dataset.type == 'graph':
-            plot_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.dataset.type, args.output.root_dir)
+            plot_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.dataset.type, args.output.dir)
         else:
             raise NotImplementedError('I still need to implement this')
 
@@ -62,6 +62,7 @@ def main(args):
 
     tangles = []
     tangles_of_order = {}
+    predictions = {}
     nb_cuts_considered = 0
     nb_cuts = len(all_cuts)
 
@@ -84,6 +85,8 @@ def main(args):
             print(f"\tCompute clusters for order {order}", flush=True)
 
             tangles_of_order[order] = deepcopy(tangles)
+            predictions[order] = compute_clusters(tangles, all_cuts, tolerance=args.output.tolerance_predictions)
+            print(predictions[order])
 
             if tangles == []:
                 print(f'Stopped computation at order {order} instead of {max_order}',
@@ -95,12 +98,15 @@ def main(args):
     print(f"\nThe computation took {t_total.days} days, {t_total.hours} hours,"
           f" {t_total.minutes} minutes and {t_total.seconds} seconds\n")
 
+    evaluation = compute_evaluation(ys, predictions)
+    print(evaluation)
+
     if args.plot.tangles:
         print('Start plotting', flush=True)
         if args.dataset.type == 'graph':
-            plot_heatmap_graph(G=G, all_cuts=all_cuts, tangles_by_orders=tangles_of_order, path=args.output.root_dir)
+            plot_heatmap_graph(G=G, all_cuts=all_cuts, tangles_by_orders=tangles_of_order, path=args.output.dir)
         elif args.dataset.type == 'discrete':
-            plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=tangles_of_order, path=args.output.root_dir)
+            plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=tangles_of_order, path=args.output.dir)
         print('Done plotting', flush=True)
 
 
@@ -111,4 +117,4 @@ if __name__ == '__main__':
     root_dir = Path(__file__).resolve().parent
     args = set_up_dirs(args, root_dir=root_dir)
 
-    main(args)
+    main_single_experiment(args)

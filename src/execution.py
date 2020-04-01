@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.metrics import homogeneity_completeness_v_measure
-from sklearn.metrics.pairwise import manhattan_distances
 
 from src.config import ALGORITHM_CORE
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
@@ -9,6 +8,8 @@ from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
 from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, \
     find_kmodes_cuts, get_neighbour_cover, kernighan_lin
 from src.tangles import core_algorithm
+
+MISSING = -1
 
 
 def compute_cuts(xs, preprocessing):
@@ -47,17 +48,17 @@ def compute_cuts(xs, preprocessing):
     elif preprocessing.name == PREPROCESSING_NEIGHBOURS:
         cuts = get_neighbour_cover(A=xs,
                                    nb_cuts=preprocessing.neighbours.nb_cuts,
-                                   percentages=preprocessing.neighbours.percentages)
+                                   factions=preprocessing.neighbours.fractions)
     elif preprocessing.name == PREPROCESSING_KARGER:
         cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.karger.nb_cuts,
-                                        algorthm=PREPROCESSING_KARGER)
+                                        algorithm=PREPROCESSING_KARGER)
     elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(xs=xs,
                              nb_cuts=preprocessing.karnig_lin.nb_cuts,
                              fractions=preprocessing.karnig_lin.fractions)
     elif preprocessing.name == PREPROCESSING_FAST_MINCUT:
         cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.fast_min_cut.nb_cuts,
-                                        algorthm=PREPROCESSING_FAST_MINCUT)
+                                        algorithm=PREPROCESSING_FAST_MINCUT)
     elif preprocessing.name == PREPROCESSING_KMODES:
         cuts = find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
 
@@ -121,51 +122,45 @@ def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm
     return tangles
 
 
-# Old code. But it might be useful later
+def compute_clusters(tangles, all_cuts, tolerance=0.8):
+    _, n_points = all_cuts.shape
 
-def mask_points_in_tangle(tangle, all_cuts, threshold):
-    points = all_cuts[tangle.get_idx_cuts()].T
-    center = np.array(tangle.get_orientations())
-    center = center.reshape(1, -1)
+    predictions = np.zeros(n_points, dtype=int) + MISSING
 
-    distances = manhattan_distances(points, center)
-    mask = distances <= threshold
-    return mask.reshape(-1)
+    for i, tangle in enumerate(tangles):
 
+        cuts = list(tangle.specification.keys())
+        orientations = list(tangle.specification.values())
 
-def compute_clusters(tangles, cuts, tolerance=0.8):
-    n_cuts, n_points = cuts.shape
+        nb_cuts_in_tangle = len(cuts)
+        matching_cuts = np.sum((all_cuts[cuts, :].T == orientations), axis=1)
 
-    predictions = np.zeros(n_points, dtype=int)
-
-    for i, tangle in enumerate(tangles, 1):
-        len_tangle = len(tangle)
-
-        numpy_tangle = np.zeros((len_tangle, n_cuts), dtype=bool)
-        for j, oriented_cut in enumerate(tangle):
-            numpy_tangle[j, :] = oriented_cut.to_numpy(n_cuts)
-
-        threshold = np.int(np.trunc(len_tangle * (1 - tolerance)))
-        mask = mask_points_in_tangle(tangle, cuts, threshold)
-        predictions[mask] = i
+        threshold = np.int(np.trunc(nb_cuts_in_tangle * tolerance))
+        predictions[matching_cuts >= threshold] = i
 
     return predictions
 
 
 def compute_evaluation(ys, predictions):
-    evaluations = {}
+
+    evaluation = {}
+    evaluation['v_measure_score'] = None
+    evaluation['order_max'] = None
+    evaluation['unassigned'] = None
 
     for order, prediction in predictions.items():
-        evaluations[order] = {}
 
-        # Save the number of points that do not belong to a tangle
-        evaluations[order]["unassigned"] = np.sum(prediction == 0)
+        unassigned = np.sum(prediction == -1)
 
-        mask_assigned = prediction != 0
         homogeneity, completeness, v_measure_score = \
-            homogeneity_completeness_v_measure(ys[mask_assigned], prediction[mask_assigned])
-        evaluations[order]["homogeneity"] = homogeneity
-        evaluations[order]["completeness"] = completeness
-        evaluations[order]["v_measure_score"] = v_measure_score
+            homogeneity_completeness_v_measure(ys, prediction)
 
-    return evaluations
+        if evaluation['v_measure_score'] is None or evaluation['v_measure_score'] < v_measure_score:
+
+            evaluation["homogeneity"] = homogeneity
+            evaluation["completeness"] = completeness
+            evaluation["v_measure_score"] = v_measure_score
+            evaluation['order_max'] = order
+            evaluation['unassigned'] = unassigned
+
+    return evaluation

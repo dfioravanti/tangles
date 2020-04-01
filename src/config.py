@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 from types import SimpleNamespace
 
 import yaml
@@ -10,7 +11,7 @@ DATASET_QUESTIONNAIRE_SYNTHETIC = "q_syn"
 DATASET_BINARY_IRIS = "iris"
 DATASET_SBM = "sbm"
 DATASET_KNN = "knn"
-DATASET_LFR = "lfr"
+DATASET_MULTILEVEL = "multilevel"
 DATASET_RING_OF_CLIQUES = "roc"
 DATASET_FLORENCE = "flo"
 DATASET_BIG5 = 'big5'
@@ -24,7 +25,7 @@ DISCRETE_DATASETS = [
 GRAPH_DATASETS = [
     DATASET_SBM,
     DATASET_KNN,
-    DATASET_LFR,
+    DATASET_MULTILEVEL,
     DATASET_RING_OF_CLIQUES,
     DATASET_FLORENCE,
 ]
@@ -134,7 +135,9 @@ def validate_settings(args):
 
 
 def set_up_dirs(args, root_dir):
-    args.output.root_dir = Path(f"{root_dir / args.output.root_dir}")
-    args.output.root_dir.mkdir(parents=True, exist_ok=True)
+    args.output.dir = Path(f"{root_dir / args.output.dir}")
+    if args.output.wipe_old_dir:
+        shutil.rmtree(args.output.dir)
+    args.output.dir.mkdir(parents=True, exist_ok=True)
 
     return args

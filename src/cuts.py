@@ -261,7 +261,7 @@ def find_approximate_mincuts(A, nb_cuts, algorithm):
 
         # at the moment sme hard coding to avoid super unbalanced cuts
         # does not make sense for more than 2 maybe 3 clusters and definitely needs to be changed later on
-        if nb_vertices * 0.15 < sum(cut) < nb_vertices * 0.85:
+        if nb_vertices * 0.16 < sum(cut) < nb_vertices * 0.84:
             cuts.append(cut)
 
     cuts = np.array(cuts)
@@ -447,11 +447,12 @@ def get_neighbour_patch(idx_vertex, A, min_size):
     return patch
 
 
-def get_neighbour_cover(A, nb_cuts, percentages):
+def get_neighbour_cover(A, nb_cuts, factions):
     cover = []
     nb_vertex = len(A)
-    for percentage in percentages:
-        min_size = nb_vertex * percentage
+    for fraction in factions:
+        print(f"\t Calculating cuts for a fraction of: 1/{fraction}")
+        min_size = nb_vertex * (1/fraction)
         for i in range(nb_cuts):
             idx_vertex = np.random.randint(low=0, high=nb_vertex)
             patch = get_neighbour_patch(idx_vertex, A, min_size)

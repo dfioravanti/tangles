@@ -5,6 +5,8 @@ from sklearn.manifold import TSNE
 
 from matplotlib import pyplot as plt
 
+COLOR_SILVER = '#C2C2C2'
+
 
 def plot_heatmap(all_cuts, ys, tangles_by_orders, path=None):
 
@@ -41,6 +43,9 @@ def plot_heatmap(all_cuts, ys, tangles_by_orders, path=None):
         if nb_tangles == 1:
             axs = np.array(axs)
         axs = axs.flatten()
+        for ax in axs:
+            ax.axis('off')
+            ax.grid(b=None)
 
         idx_in_all = cuts_in_all_tangles(tangles)
 
@@ -127,21 +132,23 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
     plt.style.use('ggplot')
     plt.ioff()
 
-    A = nx.to_numpy_array(G)
     pos = nx.spectral_layout(G)
     pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
 
     for order, tangles in tangles_by_orders.items():
 
         nb_tangles = len(tangles)
-        nrows = nb_tangles // 2 + nb_tangles % 2
-        ncols = 2 if nb_tangles >= 2 else 1
+        nrows = nb_tangles // 3 + 1 if nb_tangles % 3 != 0 else nb_tangles // 3
+        ncols = nb_tangles if nb_tangles <= 2 else 3
 
-        f, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(12, 12))
+        f, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(15, 15))
 
         if nb_tangles == 1:
             axs = np.array(axs)
         axs = axs.flatten()
+        for ax in axs:
+            ax.axis('off')
+            ax.grid(b=None)
 
         idx_in_all = cuts_in_all_tangles(tangles)
 
@@ -157,7 +164,7 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
             os = np.array(os, dtype=bool)
             matching_cuts = np.sum((all_cuts[cs, :].T == os), axis=1)
             m = max(matching_cuts)
-            matching_cuts[matching_cuts <= m * 0.90] = 0
+            #matching_cuts[matching_cuts <= m * 0.8] = 0
 
             cmap = plt.cm.get_cmap('tab10')
             my_cmap = cmap(i)
@@ -166,12 +173,13 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
             my_cmap[:, -1] = np.linspace(0.1, 1, max(matching_cuts) + 1)
             my_cmap = ListedColormap(my_cmap)
 
-            nx.draw_networkx(G, pos=pos, ax=axs[i], node_color=matching_cuts, cmap=my_cmap, edge_color='#00000033')
+            nx.draw_networkx(G, pos=pos, ax=axs[i], node_color=matching_cuts,
+                             cmap=my_cmap, edge_color=COLOR_SILVER)
 
             if path is None:
                 plt.show()
             else:
-                plt.savefig(path / f"Tangle order {order}.png")
+                plt.savefig(path / f"Tangle order {order}.svg")
 
         plt.close(f)
 
@@ -183,10 +191,13 @@ def plot_cuts(xs, cuts, orders, type, path):
     _, nb_points = cuts.shape
 
     if type == 'graph':
-        pos = nx.spring_layout(xs, k=.5, iterations=100)
+        pos = nx.spectral_layout(xs)
+        pos = nx.spring_layout(xs, pos=pos, k=.5, iterations=100)
 
     for i, cut in enumerate(cuts):
         fig, ax = plt.subplots(1, 1)
+        ax.axis('off')
+        ax.grid(b=None)
 
         ax.set_title(f"cut of order {orders[i]}")
 
@@ -194,10 +205,11 @@ def plot_cuts(xs, cuts, orders, type, path):
         colors[cut] = (i % 9) + 1
 
         if type == 'graph':
-            nx.draw_networkx(xs, pos=pos, ax=ax, node_color=colors, cmap='tab10')
+            nx.draw_networkx(xs, pos=pos, ax=ax, node_color=colors, cmap='tab10',
+                             edge_color=COLOR_SILVER)
 
         if path is not None:
-            plt.savefig(path / f"cut number {i}.png")
+            plt.savefig(path / f"cut number {i}.svg")
 
         plt.close(fig)
 
