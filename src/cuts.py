@@ -1,6 +1,6 @@
 from copy import deepcopy
 from itertools import combinations
-from random import sample
+from random import sample, shuffle
 
 import numpy as np
 from kmodes.kmodes import KModes
@@ -413,6 +413,52 @@ def pick_edge_from(A):
         return i, j
     else:
         return j, i
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Kneip fundamental cuts
+# ----------------------------------------------------------------------------------------------------------------------
+import networkx as nx
+#DEBUG:
+#import matplotlib.pyplot as plt
+
+def kneip(adj, nb_cuts):
+    G = nx.from_numpy_array(adj)
+    cuts = np.zeros((0, len(G)), dtype=bool)
+    while len(cuts) < nb_cuts:
+        cuts = np.append(cuts, all_karger_fundamental_cuts(G), axis=0)
+        cuts = np.unique(cuts, axis=0)
+        print(f'\t\t If found {len(cuts)} cuts so far')
+    return cuts
+
+def all_karger_fundamental_cuts(G):
+    edges = list(G.edges)
+    shuffle(edges)
+    for i, e in enumerate(edges):
+        G.edges[e]['weight'] = i
+    
+    T = nx.minimum_spanning_tree(G)
+    #pos = nx.spring_layout(T, pos=nx.spectral_layout(G), weight=None)
+    #nx.draw_networkx(G, pos=pos, edge_color='#DDDDDD')
+    #nx.draw_networkx(T, pos=pos, edge_color='r')
+    #plt.show()
+    return fundamental_cuts(G, T)
+
+def fundamental_cuts(G, T):
+    """
+    
+    """
+    cuts = []
+    for e in T.edges:
+        T2 = T.copy()
+        T2.remove_edge(*e)
+        A, B = nx.connected_components(T2)
+        if len(A) == 1 or len(B) == 1:
+            continue
+        cut = np.zeros(len(T), dtype=bool)
+        for a in A:
+            cut[a] = True
+        cuts.append(cut)
+    return cuts
 
 
 # ----------------------------------------------------------------------------------------------------------------------

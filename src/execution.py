@@ -4,10 +4,11 @@ from sklearn.metrics.pairwise import manhattan_distances
 
 from src.config import ALGORITHM_CORE
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
-    PREPROCESSING_RANDOM_COVER, PREPROCESSING_KARGER, PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES, \
-    PREPROCESSING_KARNIG_LIN, PREPROCESSING_NEIGHBOURS
+    PREPROCESSING_RANDOM_COVER, PREPROCESSING_KARGER, PREPROCESSING_KNEIP, \
+    PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN, \
+    PREPROCESSING_NEIGHBOURS
 from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, \
-    find_kmodes_cuts, get_neighbour_cover, kernighan_lin
+    find_kmodes_cuts, get_neighbour_cover, kernighan_lin, kneip
 from src.tangles import core_algorithm
 
 
@@ -50,7 +51,9 @@ def compute_cuts(xs, preprocessing):
                                    percentages=preprocessing.neighbours.percentages)
     elif preprocessing.name == PREPROCESSING_KARGER:
         cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.karger.nb_cuts,
-                                        algorthm=PREPROCESSING_KARGER)
+                                        algorithm=PREPROCESSING_KARGER)
+    elif preprocessing.name == PREPROCESSING_KNEIP:
+        cuts = kneip(adj=xs, nb_cuts=preprocessing.kneip.nb_cuts)
     elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(xs=xs,
                              nb_cuts=preprocessing.karnig_lin.nb_cuts,

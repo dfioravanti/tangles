@@ -37,6 +37,9 @@ algorithm:
 preprocessing:
   name: karnig_lin
 
+  kneip:
+    nb_cuts: 501
+
   karnig_lin:
     nb_cuts: 30
     fractions: [2, 3, 4, 5]
