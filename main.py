@@ -113,7 +113,7 @@ def main_single_experiment(args):
 
 def main_batch_experiment(args):
 
-    for nb_blocks in args.experiment.batch.nbs_blocks:
+    for nb_blocks in args.experiment.sbm.nbs_blocks:
 
         print(f'Working on nb_blocks = {nb_blocks}', flush=True)
 
@@ -122,17 +122,17 @@ def main_batch_experiment(args):
         v_measure_score = pd.DataFrame()
         unassigned = pd.DataFrame()
 
-        for p in args.experiment.batch.ps:
-            nb_repetitions = args.experiment.batch.nb_repetitions
+        for p in args.experiment.sbm.ps:
+            nb_repetitions = args.nb_repetitions
             for i in range(nb_repetitions):
                 h, c, v, u = [], [], [], []
-                qs = args.experiment.batch.qs
+                qs = args.experiment.sbm.qs
 
                 for q in qs:
 
                     print(f'\tWorking with ({p}, {q}): {i+1}/{nb_repetitions}', flush=True)
 
-                    args.dataset.sbm.block_sizes = args.experiment.batch.block_sizes
+                    args.dataset.sbm.block_size = args.experiment.sbm.block_sizes
                     args.dataset.sbm.nb_blocks = nb_blocks
                     args.dataset.sbm.p = p
                     args.dataset.sbm.q = q

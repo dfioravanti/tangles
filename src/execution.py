@@ -2,11 +2,8 @@ import numpy as np
 from sklearn.metrics import homogeneity_completeness_v_measure
 
 from src.config import ALGORITHM_CORE
-from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
-    PREPROCESSING_RANDOM_COVER, PREPROCESSING_KARGER, PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES, \
-    PREPROCESSING_KARNIG_LIN, PREPROCESSING_NEIGHBOURS
-from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, \
-    find_kmodes_cuts, get_neighbour_cover, kernighan_lin
+from src.config import PREPROCESSING_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
+from src.cuts import find_kmodes_cuts, kernighan_lin
 from src.tangles import core_algorithm
 
 MISSING = -1
@@ -38,27 +35,10 @@ def compute_cuts(xs, preprocessing):
 
     if preprocessing.name == PREPROCESSING_FEATURES:
         cuts = (xs == True).T
-    elif preprocessing.name == PREPROCESSING_MAKE_SUBMODULAR:
-        cuts = (xs == True).T
-        cuts = make_submodular(cuts)
-    elif preprocessing.name == PREPROCESSING_RANDOM_COVER:
-        cuts = random_cover_cuts(A=xs,
-                                 min_size_cover=preprocessing.random.min_size_cover,
-                                 dim_linspace=preprocessing.random.dim_linspace)
-    elif preprocessing.name == PREPROCESSING_NEIGHBOURS:
-        cuts = get_neighbour_cover(A=xs,
-                                   nb_cuts=preprocessing.neighbours.nb_cuts,
-                                   factions=preprocessing.neighbours.fractions)
-    elif preprocessing.name == PREPROCESSING_KARGER:
-        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.karger.nb_cuts,
-                                        algorithm=PREPROCESSING_KARGER)
     elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(xs=xs,
                              nb_cuts=preprocessing.karnig_lin.nb_cuts,
                              fractions=preprocessing.karnig_lin.fractions)
-    elif preprocessing.name == PREPROCESSING_FAST_MINCUT:
-        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.fast_min_cut.nb_cuts,
-                                        algorithm=PREPROCESSING_FAST_MINCUT)
     elif preprocessing.name == PREPROCESSING_KMODES:
         cuts = find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
 
@@ -128,7 +108,6 @@ def compute_clusters(tangles, all_cuts, tolerance=0.8):
     predictions = np.zeros(n_points, dtype=int) + MISSING
 
     for i, tangle in enumerate(tangles):
-
         cuts = list(tangle.specification.keys())
         orientations = list(tangle.specification.values())
 
@@ -142,7 +121,6 @@ def compute_clusters(tangles, all_cuts, tolerance=0.8):
 
 
 def compute_evaluation(ys, predictions):
-
     evaluation = {}
     evaluation['v_measure_score'] = None
     evaluation['order_max'] = None
@@ -156,7 +134,6 @@ def compute_evaluation(ys, predictions):
             homogeneity_completeness_v_measure(ys, prediction)
 
         if evaluation['v_measure_score'] is None or evaluation['v_measure_score'] < v_measure_score:
-
             evaluation["homogeneity"] = homogeneity
             evaluation["completeness"] = completeness
             evaluation["v_measure_score"] = v_measure_score
