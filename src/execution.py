@@ -6,9 +6,9 @@ from src.config import ALGORITHM_CORE
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
     PREPROCESSING_RANDOM_COVER, PREPROCESSING_KARGER, PREPROCESSING_KNEIP, \
     PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN, \
-    PREPROCESSING_NEIGHBOURS
+    PREPROCESSING_NEIGHBOURS, PREPROCESSING_LOCALMIN
 from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, \
-    find_kmodes_cuts, get_neighbour_cover, kernighan_lin, kneip
+    find_kmodes_cuts, get_neighbour_cover, kernighan_lin, kneip, local_minimization
 from src.tangles import core_algorithm
 
 
@@ -54,13 +54,15 @@ def compute_cuts(xs, preprocessing):
                                         algorithm=PREPROCESSING_KARGER)
     elif preprocessing.name == PREPROCESSING_KNEIP:
         cuts = kneip(adj=xs, nb_cuts=preprocessing.kneip.nb_cuts)
+    elif preprocessing.name == PREPROCESSING_LOCALMIN:
+        cuts = local_minimization(xs=xs, nb_cuts=preprocessing.local_min.nb_cuts)
     elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(xs=xs,
                              nb_cuts=preprocessing.karnig_lin.nb_cuts,
                              fractions=preprocessing.karnig_lin.fractions)
     elif preprocessing.name == PREPROCESSING_FAST_MINCUT:
         cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.fast_min_cut.nb_cuts,
-                                        algorthm=PREPROCESSING_FAST_MINCUT)
+                                        algorithm=PREPROCESSING_FAST_MINCUT)
     elif preprocessing.name == PREPROCESSING_KMODES:
         cuts = find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
 
