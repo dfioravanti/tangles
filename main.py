@@ -4,6 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 import numpy as np
+import pandas as pd
 
 from src.config import load_validate_settings, set_up_dirs
 from src.loading import get_dataset_and_order_function
@@ -112,59 +113,92 @@ def main_single_experiment(args):
 
 def main_batch_experiment(args):
 
-    evaluations = {}
     for nb_blocks in args.experiment.batch.nbs_blocks:
+
         print(f'Working on nb_blocks = {nb_blocks}', flush=True)
-        evaluations[nb_blocks] = {}
+
+        homogeneity = pd.DataFrame()
+        completeness = pd.DataFrame()
+        v_measure_score = pd.DataFrame()
+        unassigned = pd.DataFrame()
+
         for p in args.experiment.batch.ps:
-            evaluations[nb_blocks][p] = {}
-            for q in args.experiment.batch.qs:
+            nb_repetitions = args.experiment.batch.nb_repetitions
+            for i in range(nb_repetitions):
+                h, c, v, u = [], [], [], []
+                qs = args.experiment.batch.qs
 
-                print(f'\tWorking with ({p}, {q})', flush=True)
+                for q in qs:
 
-                args.dataset.sbm.block_sizes = args.experiment.batch.block_sizes
-                args.dataset.sbm.nb_blocks = nb_blocks
-                args.dataset.sbm.p = p
-                args.dataset.sbm.q = q
+                    print(f'\tWorking with ({p}, {q}): {i+1}/{nb_repetitions}', flush=True)
 
-                args.preprocessing.karnig_lin.fractions = args.preprocessing.karnig_lin.fractions[:(nb_blocks+1)]
+                    args.dataset.sbm.block_sizes = args.experiment.batch.block_sizes
+                    args.dataset.sbm.nb_blocks = nb_blocks
+                    args.dataset.sbm.p = p
+                    args.dataset.sbm.q = q
 
-                xs, ys, G, order_function = get_dataset_and_order_function(args.dataset, args.seed)
-                all_cuts = compute_cuts(xs, args.preprocessing)
+                    args.preprocessing.karnig_lin.fractions = args.preprocessing.karnig_lin.fractions[:(nb_blocks+1)]
 
-                all_cuts, orders = order_cuts(all_cuts, order_function)
-                max_order = np.int(np.ceil(np.max(orders)))
-                min_order = np.int(np.floor(np.min(orders)))
+                    xs, ys, G, order_function = get_dataset_and_order_function(args.dataset, args.seed)
+                    all_cuts = compute_cuts(xs, args.preprocessing)
 
-                min_size = args.algorithm.min_size
+                    all_cuts, orders = order_cuts(all_cuts, order_function)
+                    max_order = np.int(np.ceil(np.max(orders)))
+                    min_order = np.int(np.floor(np.min(orders)))
 
-                tangles = []
-                tangles_of_order = {}
-                predictions = {}
-                nb_cuts_considered = 0
-                nb_cuts = len(all_cuts)
+                    min_size = args.algorithm.min_size
 
-                for idx_order, order in enumerate(range(min_order, max_order+1)):
+                    tangles = []
+                    tangles_of_order = {}
+                    predictions = {}
+                    nb_cuts_considered = 0
+                    nb_cuts = len(all_cuts)
 
-                    if nb_cuts_considered >= nb_cuts * args.tangles.percentage_cuts:
-                        break
+                    for idx_order, order in enumerate(range(min_order, max_order+1)):
 
-                    idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order],
-                                                       axis=0))[0]
-                    nb_cuts_considered += len(idx_cuts_order_i)
+                        if nb_cuts_considered >= nb_cuts * args.tangles.percentage_cuts:
+                            break
 
-                    if len(idx_cuts_order_i) > 0:
+                        idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order],
+                                                           axis=0))[0]
+                        nb_cuts_considered += len(idx_cuts_order_i)
 
-                        cuts_order_i = all_cuts[idx_cuts_order_i]
-                        tangles = compute_tangles(tangles, cuts_order_i, idx_cuts_order_i,
-                                                  min_size=min_size, algorithm=args.algorithm)
-                        tangles_of_order[order] = deepcopy(tangles)
-                        predictions[order] = compute_clusters(tangles, all_cuts, tolerance=args.output.tolerance_predictions)
+                        if len(idx_cuts_order_i) > 0:
 
-                evaluation = compute_evaluation(ys, predictions)
-                evaluations[nb_blocks][p][q] = evaluation
+                            cuts_order_i = all_cuts[idx_cuts_order_i]
+                            tangles = compute_tangles(tangles, cuts_order_i, idx_cuts_order_i,
+                                                      min_size=min_size, algorithm=args.algorithm)
+                            tangles_of_order[order] = deepcopy(tangles)
+                            predictions[order] = compute_clusters(tangles, all_cuts,
+                                                                  tolerance=args.output.tolerance_predictions)
 
-    plot_evaluation(evaluations, path=args.output.dir)
+                    evaluation = compute_evaluation(ys, predictions)
+                    h.append(evaluation["homogeneity"])
+                    c.append(evaluation["completeness"])
+                    v.append(evaluation["v_measure_score"])
+                    u.append(evaluation['unassigned'])
+
+                h = pd.DataFrame([h], columns=qs, index=[p])
+                c = pd.DataFrame([c], columns=qs, index=[p])
+                v = pd.DataFrame([v], columns=qs, index=[p])
+                u = pd.DataFrame([u], columns=qs, index=[p])
+
+                homogeneity = homogeneity.append(h)
+                completeness = completeness.append(c)
+                v_measure_score = v_measure_score.append(v)
+                unassigned = unassigned.append(u)
+
+        path = args.output.dir / f'nb_blocks_{nb_blocks}_homogeneity.csv'
+        homogeneity.to_csv(path)
+
+        path = args.output.dir / f'nb_blocks_{nb_blocks}_completeness.csv'
+        completeness.to_csv(path)
+
+        path = args.output.dir / f'nb_blocks_{nb_blocks}_v_measure_score.csv'
+        v_measure_score.to_csv(path)
+
+        path = args.output.dir / f'nb_blocks_{nb_blocks}_unassigned.csv'
+        unassigned.to_csv(path)
 
 
 if __name__ == '__main__':
