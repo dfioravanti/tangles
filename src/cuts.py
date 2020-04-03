@@ -493,8 +493,6 @@ def pick_edge_from(A):
 # Kneip fundamental cuts
 # ----------------------------------------------------------------------------------------------------------------------
 import networkx as nx
-#DEBUG:
-#import matplotlib.pyplot as plt
 
 def kneip(adj, nb_cuts):
     G = nx.from_numpy_array(adj)
@@ -502,7 +500,7 @@ def kneip(adj, nb_cuts):
     while len(cuts) < nb_cuts:
         cuts = np.append(cuts, all_karger_fundamental_cuts(G), axis=0)
         cuts = np.unique(cuts, axis=0)
-        print(f'\t\t If found {len(cuts)} cuts so far')
+        print(f'\t\t I\'ve found {len(cuts)} cuts so far')
     return cuts
 
 def all_karger_fundamental_cuts(G):
@@ -511,23 +509,23 @@ def all_karger_fundamental_cuts(G):
     for i, e in enumerate(edges):
         G.edges[e]['weight'] = i
     
-    T = nx.minimum_spanning_tree(G)
-    #pos = nx.spring_layout(T, pos=nx.spectral_layout(G), weight=None)
-    #nx.draw_networkx(G, pos=pos, edge_color='#DDDDDD')
-    #nx.draw_networkx(T, pos=pos, edge_color='r')
-    #plt.show()
+    T = nx.minimum_spanning_tree(G, algorithm='kruskal') # May be a forest
+    while not nx.is_connected(T):
+        CC = list(nx.connected_components(T))
+        C1, C2 = random.sample(CC, k=2)
+        v1 = random.choice(list(C1))
+        v2 = random.choice(list(C2))
+        T.add_edge(v1,v2)
     return fundamental_cuts(G, T)
 
 def fundamental_cuts(G, T):
-    """
-    
-    """
     cuts = []
     for e in T.edges:
         T2 = T.copy()
         T2.remove_edge(*e)
         A, B = nx.connected_components(T2)
-        if len(A) == 1 or len(B) == 1:
+        acceptance = (2 * min(len(A), len(B)) / len(G))
+        if random.random() > acceptance:
             continue
         cut = np.zeros(len(T), dtype=bool)
         for a in A:
