@@ -46,6 +46,9 @@ preprocessing:
 
   karger:
     nb_cuts: 100
+    
+  local_min:
+    nb_cuts: 500
 
   fast_min_cut:
     nb_cuts: 10

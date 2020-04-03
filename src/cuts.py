@@ -1,6 +1,7 @@
 from copy import deepcopy
 from itertools import combinations
 from random import sample, shuffle
+import random
 
 import numpy as np
 from kmodes.kmodes import KModes
@@ -199,39 +200,77 @@ def kernighan_lin_algorithm(xs, fraction):
 
 def local_minimization(xs, nb_cuts):
     cuts = []
+    xs = np.array(xs, dtype=int)
     for _ in range(nb_cuts):
         cut = local_minimization_algorithm(xs)
         cuts.append(cut)
 
     return np.array(cuts)
 
-import random
+def local_minimization_bounded(xs, nb_cuts):
+    cuts = []
+    xs = np.array(xs, dtype=int)
+    for _ in range(nb_cuts):
+        cut = local_minimization_algorithm_bounded(xs)
+        cuts.append(cut)
 
-def local_minimization_algorithm(xs):
+    return np.array(cuts)
+
+def local_minimization_algorithm_bounded(xs):
     cutoff = 0.5 + random.random() * 0.5
     cut, _ = initial_partition(xs, .5)
     n, _ = xs.shape
-    assert 0.2 * n < cut.sum()  < n * .8
     domain = list(range(n))
-    cutvalue = xs[cut,:][:,~cut].sum()
+    cutvalue = cut @ xs @ (~cut)
     while True:
-        if cut.sum() <= n // 2:
-            cut = ~cut
-        random.shuffle(domain)
+        if cut.sum() < n / 2:
+            np.logical_not(cut, out=cut)
+        shuffle(domain)
         for i in domain:
-                newcut = cut.copy()
-                newcut[i] = not newcut[i]
-                if newcut.sum() > cutoff * n:
-                    continue
-                newvalue = xs[newcut,:][:,~newcut].sum()
-                if newvalue < cutvalue:
-                    cut = newcut
-                    cutvalue = newvalue
-                    break
+            newcut = cut.copy()
+            newcut[i] = not newcut[i]
+            if newcut.sum() > cutoff * n:
+                continue
+            newvalue = newcut @ xs @ (~newcut)
+            if newvalue < cutvalue or (newvalue == cutvalue and cut[i] and cut.sum() > (n+1)/2 ) :
+                cut = newcut
+                cutvalue = newvalue
+                break
         else:
             break
             
     return cut
+
+def local_minimization_algorithm(xs):
+    cut, _ = initial_partition(xs, random.random())
+    n, _ = xs.shape
+    domain = list(range(n))
+    cutvalue = cut @ xs @ (~cut)
+    
+    optimal = False
+    while not optimal:
+        if cut.sum() <= n // 2:
+            np.logical_not(cut, out=cut)
+        shuffle(domain)
+        optimal = True
+        for side in [True, False]:
+            if not optimal:
+                break
+            for i in domain:
+                if cut[i] != side:
+                    continue
+                newcut = cut.copy()
+                newcut[i] = not newcut[i]
+                newvalue = newcut @ xs @ (~newcut)
+                if newvalue < cutvalue:
+                    cut = newcut
+                    cutvalue = newvalue
+                    optimal = False
+                    break
+            
+            
+    return cut
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
