@@ -13,7 +13,7 @@ preprocessing:
   name: karnig_lin
 
   karnig_lin:
-    nb_cuts: 1
+    nb_cuts: 100
     fractions: [2, 3, 4, 5, 6]
 
 tangles:

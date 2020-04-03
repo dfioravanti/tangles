@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import pandas as pd
@@ -86,7 +87,7 @@ def main_batch_experiment(args):
                 homogeneity = homogeneity.append(h)
                 completeness = completeness.append(c)
                 v_measure_score = v_measure_score.append(v)
-            break
+
         path = args.output.dir / f'nb_blocks_{nb_blocks}_homogeneity.csv'
         homogeneity.to_csv(path)
 
@@ -96,15 +97,25 @@ def main_batch_experiment(args):
         path = args.output.dir / f'nb_blocks_{nb_blocks}_v_measure_score.csv'
         v_measure_score.to_csv(path)
 
-        break
-
 
 if __name__ == '__main__':
 
     # Make parser, read inputs from command line and resolve paths
+
+    parser = argparse.ArgumentParser(description='Run the main program')
+
+    parser.add_argument('-n', type=int,
+                        help='number of blocks for the SBM')
+
+    args_parser = parser.parse_args()
+    nb_blocks = getattr(args_parser, 'n')
+
     args = load_validate_settings('./')
     root_dir = Path(__file__).resolve().parent
     args = set_up_dirs(args, root_dir=root_dir)
+
+    if nb_blocks is not None:
+        args.sbms.nbs_blocks = [nb_blocks]
 
     if args.experiment.type == EXPERIMENT_SINGLE:
         main_single_experiment(args)

@@ -1,5 +1,5 @@
 from pathlib import Path
-from types import SimpleNamespace
+from argparse import Namespace
 
 import yaml
 
@@ -109,7 +109,7 @@ def dict_to_namespace(args):
     Transforms the dictionary of the settings to a namespace
     """
 
-    namespace = SimpleNamespace()
+    namespace = Namespace()
 
     for key, value in args.items():
         keep = '~dict~' in key
@@ -134,7 +134,7 @@ def namespace_to_dict(namespace):
     result = {}
     for attr in dir(namespace):
         if attr[:2] != '__':
-            if isinstance(getattr(namespace, attr), SimpleNamespace):
+            if isinstance(getattr(namespace, attr), Namespace):
                 result.update({attr: namespace_to_dict(getattr(namespace, attr))})
             else:
                 result.update({attr: getattr(namespace, attr)})
