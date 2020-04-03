@@ -9,7 +9,7 @@ measures = ['completeness', 'homogeneity', 'v_measure_score', 'unassigned']
 
 plt.style.use('ggplot')
 plt.ioff()
-cmap = plt.cm.get_cmap('tab10')
+cmap = plt.cm.get_cmap('tab20')
 path_plots = Path('plots')
 path_plots.mkdir(parents=True, exist_ok=True)
 

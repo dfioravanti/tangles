@@ -9,7 +9,7 @@ output:
   dir: output
 
 algorithm:
-  min_size: 10
+  agreement: 10
   name: core
 
 preprocessing:
@@ -20,7 +20,7 @@ preprocessing:
     fractions: [2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 tangles:
-  percentage_cuts: 0.1
+  percentage_orders: 25
 
 # -1 in nb_cuts means all
 plot:
