@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 nbs_blocks = [2, 3, 4, 5, 6, 7]
-measures = ['completeness', 'homogeneity', 'v_measure_score', 'unassigned']
+measures = ['completeness', 'homogeneity', 'v_measure_score']
 
 plt.style.use('ggplot')
 plt.ioff()

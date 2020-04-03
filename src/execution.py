@@ -11,7 +11,7 @@ from src.plotting import plot_cuts, plot_heatmap_graph, plot_heatmap
 from src.tangles import core_algorithm
 
 
-def compute_cuts(xs, preprocessing):
+def compute_cuts(xs, preprocessing, verbose):
     """
     Given a set of points or an adjacency matrix this function returns the set of cuts that we will use
     to compute tangles.
@@ -40,7 +40,8 @@ def compute_cuts(xs, preprocessing):
     elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(xs=xs,
                              nb_cuts=preprocessing.karnig_lin.nb_cuts,
-                             fractions=preprocessing.karnig_lin.fractions)
+                             fractions=preprocessing.karnig_lin.fractions,
+                             verbose=verbose)
     elif preprocessing.name == PREPROCESSING_KMODES:
         cuts = find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
 
@@ -104,13 +105,14 @@ def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm
     return tangles
 
 
-def compute_clusters(tangles_by_orders, all_cuts):
+def compute_clusters(tangles_by_orders, all_cuts, verbose):
 
     predictions_by_order = {}
 
     for order, tangles in tangles_by_orders.items():
 
-        print(f"\tCompute clusters for order {order}", flush=True)
+        if verbose >= 2:
+            print(f"\tCompute clusters for order {order}", flush=True)
         _, n_points = all_cuts.shape
         nb_tangles = len(tangles)
 
@@ -148,14 +150,17 @@ def compute_evaluation(ys, predictions):
 
 
 def get_dataset_cuts_order(args):
-    print("Load data\n", flush=True)
-    xs, ys, G, order_function = get_dataset_and_order_function(args.dataset, args.seed)
+    if args.verbose >= 2:
+        print("Load data\n", flush=True)
+    xs, ys, G, order_function = get_dataset_and_order_function(args, args.seed)
 
-    print("Find cuts", flush=True)
-    all_cuts = compute_cuts(xs, args.preprocessing)
-    print(f"\tI found {len(all_cuts)} cuts\n", flush=True)
+    if args.verbose >= 2:
+        print("Find cuts", flush=True)
+    all_cuts = compute_cuts(xs, args.preprocessing, verbose=args.verbose)
 
-    print("Compute order", flush=True)
+    if args.verbose >= 2:
+        print(f"\tI found {len(all_cuts)} cuts\n")
+        print("Compute order", flush=True)
     all_cuts, orders = order_cuts(all_cuts, order_function)
 
     mask_orders_to_pick = orders <= np.percentile(orders, q=args.tangles.percentage_orders)
@@ -163,12 +168,13 @@ def get_dataset_cuts_order(args):
     all_cuts = all_cuts[mask_orders_to_pick, :]
 
     max_considered_order = orders[-1]
-    print(f"\tI will stop at order: {max_considered_order}")
-    print(f'\tI will use {len(all_cuts)} cuts\n', flush=True)
+    if args.verbose >= 2:
+        print(f"\tI will stop at order: {max_considered_order}")
+        print(f'\tI will use {len(all_cuts)} cuts\n', flush=True)
 
     if args.plot.cuts:
-        if args.dataset.type == 'graph':
-            plot_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.dataset.type, args.output.dir)
+        if args.experiment.dataset_type == 'graph':
+            plot_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.experiment.dataset_type, args.output.dir)
         else:
             raise NotImplementedError('I still need to implement this')
     return xs, ys, G, orders, all_cuts
@@ -176,9 +182,11 @@ def get_dataset_cuts_order(args):
 
 def tangle_computation(args, all_cuts, orders):
     agreement = args.algorithm.agreement
-    print(f"Using agreement = {agreement} \n", flush=True)
 
-    print("Start tangle computation", flush=True)
+    if args.verbose >= 2:
+        print(f"Using agreement = {agreement} \n")
+        print("Start tangle computation", flush=True)
+
     tangles = []
     tangles_of_order = {}
 
@@ -189,16 +197,19 @@ def tangle_computation(args, all_cuts, orders):
         idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order], axis=0))[0]
 
         if len(idx_cuts_order_i) > 0:
-            print(f"\tCompute tangles of order {order}", flush=True)
+            if args.verbose >= 2:
+                print(f"\tCompute tangles of order {order}", flush=True)
 
             cuts_order_i = all_cuts[idx_cuts_order_i]
             tangles = compute_tangles(tangles, cuts_order_i, idx_cuts_order_i,
                                       min_size=agreement, algorithm=args.algorithm)
-            print(f"\t\tI found {len(tangles)} tangles of order {order}", flush=True)
+            if args.verbose >= 2:
+                print(f"\t\tI found {len(tangles)} tangles of order {order}", flush=True)
 
             if not tangles:
                 max_considered_order = orders[-1]
-                print(f'Stopped computation at order {order} instead of {max_considered_order}', flush=True)
+                if args.verbose >= 2:
+                    print(f'Stopped computation at order {order} instead of {max_considered_order}', flush=True)
                 break
 
             tangles_of_order[order] = deepcopy(tangles)
@@ -208,9 +219,13 @@ def tangle_computation(args, all_cuts, orders):
 
 def plotting(args, predictions, G, ys, all_cuts):
 
-    print('Start plotting', flush=True)
-    if args.dataset.type == 'graph':
+    if args.verbose >= 2:
+        print('Start plotting', flush=True)
+
+    if args.experiment.dataset_type == 'graph':
         plot_heatmap_graph(G=G, all_cuts=all_cuts, predictions=predictions, path=args.output.dir)
-    elif args.dataset.type == 'discrete':
+    elif args.experiment.dataset_type == 'discrete':
         plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=predictions, path=args.output.dir)
-    print('Done plotting', flush=True)
+
+    if args.verbose >= 2:
+        print('Done plotting', flush=True)

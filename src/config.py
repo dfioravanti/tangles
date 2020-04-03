@@ -151,13 +151,13 @@ def validate_settings(args):
     if args.experiment.type not in VALID_EXPERIMENTS:
         raise ValueError(f'The experiment type must be in: {VALID_EXPERIMENTS}')
 
-    if args.dataset.name not in VALID_DATASETS:
+    if args.experiment.dataset_name not in VALID_DATASETS:
         raise ValueError(f'The dataset name must be in: {VALID_DATASETS}')
 
-    if args.dataset.name in DISCRETE_DATASETS:
-        args.dataset.type = 'discrete'
-    elif args.dataset.name in GRAPH_DATASETS:
-        args.dataset.type = 'graph'
+    if args.experiment.dataset_name in DISCRETE_DATASETS:
+        args.experiment.dataset_type = 'discrete'
+    elif args.experiment.dataset_name in GRAPH_DATASETS:
+        args.experiment.dataset_type = 'graph'
 
     if args.preprocessing.name not in VALID_PREPROCESSING:
         raise ValueError(f'The preprocessing name must be in: {VALID_PREPROCESSING}')

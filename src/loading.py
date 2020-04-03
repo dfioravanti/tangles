@@ -11,7 +11,7 @@ from src.datasets.questionnaire import make_synthetic_questionnaire
 from src.order_functions import implicit_order, cut_order
 
 
-def get_dataset_and_order_function(dataset, seed):
+def get_dataset_and_order_function(args, seed):
 
     """
     TODO: MOVE A LOT OF THESE PARAMETERS OUT AND GET THEM VIA COMMAND LINE
@@ -43,37 +43,37 @@ def get_dataset_and_order_function(dataset, seed):
         The partially evaluated order function
     """
     G = None
-    if dataset.name == DATASET_QUESTIONNAIRE_SYNTHETIC:
-        xs, ys, cs = make_synthetic_questionnaire(n_samples=dataset.q_syn.n_samples,
-                                                  n_features=dataset.q_syn.n_features,
-                                                  n_mindsets=dataset.q_syn.n_mindsets,
-                                                  tolerance=dataset.q_syn.tolerance,
+    if args.experiment.dataset_name == DATASET_QUESTIONNAIRE_SYNTHETIC:
+        xs, ys, cs = make_synthetic_questionnaire(n_samples=args.q_syn.n_samples,
+                                                  n_features=args.q_syn.n_features,
+                                                  n_mindsets=args.q_syn.n_mindsets,
+                                                  tolerance=args.q_syn.tolerance,
                                                   seed=seed,
                                                   centers=True)
         order_function = partial(implicit_order, xs, None)
-    elif dataset.name == DATASET_BINARY_IRIS:
+    elif args.experiment.dataset_name == DATASET_BINARY_IRIS:
         xs, ys = get_binarized_iris()
         order_function = partial(implicit_order, xs, None)
-    elif dataset.name == DATASET_BIG5:
-        xs, ys = load_BIG5(dataset.path)
+    elif args.experiment.dataset_name == DATASET_BIG5:
+        xs, ys = load_BIG5(args.big5.path)
         order_function = partial(implicit_order, xs, 100)
-    elif dataset.name == DATASET_SBM:
-        xs, ys, G = load_RPG(block_size=dataset.sbm.block_size, nb_blocks=dataset.sbm.nb_blocks,
-                             p_in=dataset.sbm.p, p_out=dataset.sbm.q)
+    elif args.experiment.dataset_name == DATASET_SBM:
+        xs, ys, G = load_RPG(block_size=args.sbm.block_size, nb_blocks=args.sbm.nb_blocks,
+                             p_in=args.sbm.p, p_out=args.sbm.q)
         order_function = partial(cut_order, xs)
-    elif dataset.name == DATASET_MULTILEVEL:
-        xs, ys, G = load_multilevel(nb_nodes=dataset.multilevel.block_size,
-                                    p_in=dataset.multilevel.p_in,
-                                    p_out=dataset.multilevel.p_out)
+    elif args.experiment.dataset_name == DATASET_MULTILEVEL:
+        xs, ys, G = load_multilevel(nb_nodes=args.multilevel.block_size,
+                                    p_in=args.multilevel.p_in,
+                                    p_out=args.multilevel.p_out)
         order_function = partial(cut_order, xs)
-    elif dataset.name == DATASET_RING_OF_CLIQUES:
-        xs, ys, G = load_ROC(nb_cliques=dataset.roc.nb_cliques, clique_size=dataset.roc.clique_size)
+    elif args.experiment.dataset_name == DATASET_RING_OF_CLIQUES:
+        xs, ys, G = load_ROC(nb_cliques=args.roc.nb_cliques, clique_size=args.roc.clique_size)
         order_function = partial(cut_order, xs)
-    elif dataset.name == DATASET_FLORENCE:
+    elif args.experiment.dataset_name == DATASET_FLORENCE:
         xs, ys, G = load_FLORENCE()
         order_function = partial(cut_order, xs)
-    elif dataset.name == DATASET_KNN:
-        xs, ys, G = load_KNN(dataset.knn.mus, dataset.knn.vars, dataset.knn.block_size, dataset.knn.nb_blocks, dataset.knn.k)
+    elif args.experiment.dataset_name == DATASET_KNN:
+        xs, ys, G = load_KNN(args.knn.mus, args.knn.vars, args.knn.block_size, args.knn.nb_blocks, args.knn.k)
         order_function = partial(cut_order, xs)
 
     return xs, ys, G, order_function

@@ -62,11 +62,12 @@ def maximize(xs, A, B, D):
     return g_max, a_res, b_res
 
 
-def kernighan_lin(xs, nb_cuts, fractions):
+def kernighan_lin(xs, nb_cuts, fractions, verbose):
     cuts = []
 
     for f in fractions:
-        # but print(f"\t Calculating cuts for a fraction of: 1/{f}")
+        if verbose >= 3:
+            print(f"\t Calculating cuts for a fraction of: 1/{f}")
         for c in range(nb_cuts):
             cut = kernighan_lin_algorithm(xs, 1 / f)
             cuts.append(cut)

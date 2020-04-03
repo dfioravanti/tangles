@@ -33,7 +33,7 @@ def main_single_experiment(args):
     xs, ys, G, orders, all_cuts = get_dataset_cuts_order(args)
 
     tangles_of_order = tangle_computation(args, all_cuts, orders)
-    predictions = compute_clusters(tangles_of_order, all_cuts)
+    predictions = compute_clusters(tangles_of_order, all_cuts, verbose=args.verbose)
 
     evaluation = compute_evaluation(ys, predictions)
     print(evaluation)
@@ -43,52 +43,50 @@ def main_single_experiment(args):
 
 
 def main_batch_experiment(args):
-    for nb_blocks in args.experiment.sbm.nbs_blocks:
+    for nb_blocks in args.sbms.nbs_blocks:
 
-        print(f'Working on nb_blocks = {nb_blocks}', flush=True)
+        if args.verbose >= 1:
+            print(f'Working on nb_blocks = {nb_blocks}', flush=True)
 
         homogeneity = pd.DataFrame()
         completeness = pd.DataFrame()
         v_measure_score = pd.DataFrame()
-        unassigned = pd.DataFrame()
 
-        for p in args.experiment.sbm.ps:
+        for p in args.sbms.ps:
             nb_repetitions = args.nb_repetitions
             for i in range(nb_repetitions):
-                h, c, v, u = [], [], [], []
-                qs = args.experiment.sbm.qs
+                h, c, v = [], [], []
+                qs = args.sbms.qs
 
                 for q in qs:
-                    print(f'\tWorking with ({p}, {q}): {i + 1}/{nb_repetitions}', flush=True)
+                    if args.verbose >= 1:
+                        print(f'\tWorking with ({p}, {q}): {i + 1}/{nb_repetitions}', flush=True)
 
-                    args.dataset.sbm.block_size = args.experiment.sbm.block_sizes
-                    args.dataset.sbm.nb_blocks = nb_blocks
-                    args.dataset.sbm.p = p
-                    args.dataset.sbm.q = q
+                    args.sbm.block_size = args.sbms.block_sizes
+                    args.sbm.nb_blocks = nb_blocks
+                    args.sbm.p = p
+                    args.sbm.q = q
 
                     args.preprocessing.karnig_lin.fractions = args.preprocessing.karnig_lin.fractions[:(nb_blocks + 1)]
 
                     xs, ys, G, orders, all_cuts = get_dataset_cuts_order(args)
                     tangles_of_order = tangle_computation(args, all_cuts, orders)
-                    predictions = compute_clusters(tangles_of_order, all_cuts)
+                    predictions = compute_clusters(tangles_of_order, all_cuts, verbose=args.verbose)
 
                     evaluation = compute_evaluation(ys, predictions)
 
                     h.append(evaluation["homogeneity"])
                     c.append(evaluation["completeness"])
                     v.append(evaluation["v_measure_score"])
-                    u.append(evaluation['unassigned'])
 
                 h = pd.DataFrame([h], columns=qs, index=[p])
                 c = pd.DataFrame([c], columns=qs, index=[p])
                 v = pd.DataFrame([v], columns=qs, index=[p])
-                u = pd.DataFrame([u], columns=qs, index=[p])
 
                 homogeneity = homogeneity.append(h)
                 completeness = completeness.append(c)
                 v_measure_score = v_measure_score.append(v)
-                unassigned = unassigned.append(u)
-
+            break
         path = args.output.dir / f'nb_blocks_{nb_blocks}_homogeneity.csv'
         homogeneity.to_csv(path)
 
@@ -98,8 +96,7 @@ def main_batch_experiment(args):
         path = args.output.dir / f'nb_blocks_{nb_blocks}_v_measure_score.csv'
         v_measure_score.to_csv(path)
 
-        path = args.output.dir / f'nb_blocks_{nb_blocks}_unassigned.csv'
-        unassigned.to_csv(path)
+        break
 
 
 if __name__ == '__main__':

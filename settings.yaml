@@ -2,11 +2,8 @@ seed: 21
 
 # allowed types: single, batch
 experiment:
-  type: 'single'
-
-output:
-  tolerance_predictions: 0.8
-  dir: output
+  type: 'batch'
+  dataset_name: sbm
 
 algorithm:
   agreement: 10
@@ -16,14 +13,24 @@ preprocessing:
   name: karnig_lin
 
   karnig_lin:
-    nb_cuts: 300
-    fractions: [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    nb_cuts: 1
+    fractions: [2, 3, 4, 5, 6]
 
 tangles:
   percentage_orders: 25
+
+output:
+  dir: output
 
 # -1 in nb_cuts means all
 plot:
   tangles: True
   cuts: True
   nb_cuts: 10
+
+# 0, 1, 2, 3 allowed
+# 0: Nothing
+# 1: Only batch info
+# 2: All but cuts finding infos
+# #: All
+verbose: 1
