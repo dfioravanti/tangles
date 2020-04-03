@@ -143,9 +143,9 @@ def kernighan_lin(xs, nb_cuts, fractions):
     cuts = []
 
     for f in fractions:
-        print(f"\t Calculating cuts for a fraction of: 1/{f}")
+#         print(f"\t Calculating cuts for a fraction of: 1/{f}")
         for c in range(nb_cuts):
-            cut = kernighan_lin_algorithm(xs, 1 / f)
+            cut = kernighan_lin_algorithm(xs, 0.5 + random.random() * .5)
             cuts.append(cut)
 
     cuts = np.array(cuts)
@@ -570,8 +570,8 @@ def get_neighbour_cover(A, nb_cuts, percentages):
     cover = []
     nb_vertex = len(A)
     for percentage in percentages:
-        min_size = nb_vertex * percentage
         for i in range(nb_cuts):
+            min_size = nb_vertex * (0.5 + random.random() * .5)
             idx_vertex = np.random.randint(low=0, high=nb_vertex)
             patch = get_neighbour_patch(idx_vertex, A, min_size)
             cover.append(patch)
