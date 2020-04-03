@@ -4,13 +4,23 @@ from types import SimpleNamespace
 import yaml
 
 # Global constants for validations of inputs
+
+# Experiments
+EXPERIMENT_SINGLE = 'single'
+EXPERIMENT_BATCH = 'batch'
+
+VALID_EXPERIMENTS = [
+    EXPERIMENT_SINGLE,
+    EXPERIMENT_BATCH
+]
+
 # Datasets
 
 DATASET_QUESTIONNAIRE_SYNTHETIC = "q_syn"
 DATASET_BINARY_IRIS = "iris"
 DATASET_SBM = "sbm"
 DATASET_KNN = "knn"
-DATASET_LFR = "lfr"
+DATASET_MULTILEVEL = "multilevel"
 DATASET_RING_OF_CLIQUES = "roc"
 DATASET_FLORENCE = "flo"
 DATASET_BIG5 = 'big5'
@@ -24,7 +34,7 @@ DISCRETE_DATASETS = [
 GRAPH_DATASETS = [
     DATASET_SBM,
     DATASET_KNN,
-    DATASET_LFR,
+    DATASET_MULTILEVEL,
     DATASET_RING_OF_CLIQUES,
     DATASET_FLORENCE,
 ]
@@ -34,27 +44,17 @@ VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS
 # Preprocessing
 
 PREPROCESSING_FEATURES = "fea"
-PREPROCESSING_MAKE_SUBMODULAR = "sub"
-PREPROCESSING_RANDOM_COVER = "random"
-PREPROCESSING_KARGER = "karger"
 PREPROCESSING_KNEIP = "kneip"
-PREPROCESSING_FAST_MINCUT = "fast_min_cut"
 PREPROCESSING_KMODES = "kmodes"
 PREPROCESSING_KARNIG_LIN = "karnig_lin"
-PREPROCESSING_NEIGHBOURS = "neighbours"
 PREPROCESSING_LOCALMIN = "local_min"
 PREPROCESSING_LOCALMINB = "local_min_bounded"
 
 VALID_PREPROCESSING = [
     PREPROCESSING_FEATURES,
-    PREPROCESSING_MAKE_SUBMODULAR,
-    PREPROCESSING_RANDOM_COVER,
-    PREPROCESSING_KARGER,
     PREPROCESSING_KNEIP,
     PREPROCESSING_KARNIG_LIN,
-    PREPROCESSING_FAST_MINCUT,
     PREPROCESSING_KMODES,
-    PREPROCESSING_NEIGHBOURS,
     PREPROCESSING_LOCALMIN,
     PREPROCESSING_LOCALMINB,
 ]
@@ -69,14 +69,45 @@ VALID_ALGORITHM = [
 
 
 def load_validate_settings(root_dir):
-    cfg_file = 'settings.yaml'
+    main_cfg_file = 'settings.yaml'
+    main_cfg = load_settings(f'{root_dir}/{main_cfg_file}')
+    experiment_type = main_cfg['experiment']['type']
 
-    cfg = load_settings(f'{root_dir}/{cfg_file}')
+    if experiment_type not in VALID_EXPERIMENTS:
+        raise ValueError(f'The experiment type must be in: {VALID_EXPERIMENTS}')
+    elif experiment_type == EXPERIMENT_SINGLE:
+        auxiliary_cfg_file = 'settings_single.yaml'
+    elif experiment_type == EXPERIMENT_BATCH:
+        auxiliary_cfg_file = 'settings_batch.yaml'
+    auxiliary_cfg = load_settings(f'{root_dir}/{auxiliary_cfg_file}')
+
+    cfg = merge_config(main_cfg, auxiliary_cfg)
     args = dict_to_namespace(cfg)
-
     args = validate_settings(args)
 
     return args
+
+
+def merge_config(main_cfg, auxiliary_cfg):
+    """
+    Updates the default configuration with the experiment specific one
+
+    :param main_cfg:
+    :param auxiliary_cfg:
+    :return:
+    """
+
+    for k in auxiliary_cfg.keys():
+        if k not in main_cfg.keys():
+            main_cfg[k] = auxiliary_cfg[k]
+        else:
+            if isinstance(auxiliary_cfg[k], dict):
+                assert isinstance(main_cfg[k], dict)
+                merge_config(main_cfg[k], auxiliary_cfg[k])
+            else:
+                main_cfg[k] = auxiliary_cfg[k]
+
+    return main_cfg
 
 
 def dict_to_namespace(args):
@@ -122,6 +153,10 @@ def load_settings(file):
 
 
 def validate_settings(args):
+
+    if args.experiment.type not in VALID_EXPERIMENTS:
+        raise ValueError(f'The experiment type must be in: {VALID_EXPERIMENTS}')
+
     if args.dataset.name not in VALID_DATASETS:
         raise ValueError(f'The dataset name must be in: {VALID_DATASETS}')
 
@@ -140,7 +175,7 @@ def validate_settings(args):
 
 
 def set_up_dirs(args, root_dir):
-    args.output.root_dir = Path(f"{root_dir / args.output.root_dir}")
-    args.output.root_dir.mkdir(parents=True, exist_ok=True)
+    args.output.dir = Path(f"{root_dir / args.output.dir}")
+    args.output.dir.mkdir(parents=True, exist_ok=True)
 
     return args

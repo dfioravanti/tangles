@@ -1,14 +1,15 @@
+from copy import deepcopy
+
 import numpy as np
 from sklearn.metrics import homogeneity_completeness_v_measure
-from sklearn.metrics.pairwise import manhattan_distances
 
 from src.config import ALGORITHM_CORE
-from src.config import PREPROCESSING_FEATURES, PREPROCESSING_MAKE_SUBMODULAR, \
-    PREPROCESSING_RANDOM_COVER, PREPROCESSING_KARGER, PREPROCESSING_KNEIP, \
-    PREPROCESSING_FAST_MINCUT, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN, \
-    PREPROCESSING_NEIGHBOURS, PREPROCESSING_LOCALMIN, PREPROCESSING_LOCALMINB
-from src.cuts import make_submodular, random_cover_cuts, find_approximate_mincuts, \
-    find_kmodes_cuts, get_neighbour_cover, kernighan_lin, kneip, local_minimization, local_minimization_bounded
+from src.config import PREPROCESSING_FEATURES, PREPROCESSING_KNEIP, PREPROCESSING_KMODES, \
+    PREPROCESSING_KARNIG_LIN, PREPROCESSING_LOCALMIN, PREPROCESSING_LOCALMINB
+from src.cuts import find_kmodes_cuts, kernighan_lin, kneip, local_minimization, \
+    local_minimization_bounded
+from src.loading import get_dataset_and_order_function
+from src.plotting import plot_cuts, plot_heatmap_graph, plot_heatmap
 from src.tangles import core_algorithm
 
 
@@ -38,20 +39,6 @@ def compute_cuts(xs, preprocessing):
 
     if preprocessing.name == PREPROCESSING_FEATURES:
         cuts = (xs == True).T
-    elif preprocessing.name == PREPROCESSING_MAKE_SUBMODULAR:
-        cuts = (xs == True).T
-        cuts = make_submodular(cuts)
-    elif preprocessing.name == PREPROCESSING_RANDOM_COVER:
-        cuts = random_cover_cuts(A=xs,
-                                 min_size_cover=preprocessing.random.min_size_cover,
-                                 dim_linspace=preprocessing.random.dim_linspace)
-    elif preprocessing.name == PREPROCESSING_NEIGHBOURS:
-        cuts = get_neighbour_cover(A=xs,
-                                   nb_cuts=preprocessing.neighbours.nb_cuts,
-                                   percentages=preprocessing.neighbours.percentages)
-    elif preprocessing.name == PREPROCESSING_KARGER:
-        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.karger.nb_cuts,
-                                        algorithm=PREPROCESSING_KARGER)
     elif preprocessing.name == PREPROCESSING_KNEIP:
         cuts = kneip(adj=xs, nb_cuts=preprocessing.kneip.nb_cuts)
     elif preprocessing.name == PREPROCESSING_LOCALMIN:
@@ -62,9 +49,6 @@ def compute_cuts(xs, preprocessing):
         cuts = kernighan_lin(xs=xs,
                              nb_cuts=preprocessing.karnig_lin.nb_cuts,
                              fractions=preprocessing.karnig_lin.fractions)
-    elif preprocessing.name == PREPROCESSING_FAST_MINCUT:
-        cuts = find_approximate_mincuts(A=xs, nb_cuts=preprocessing.fast_min_cut.nb_cuts,
-                                        algorithm=PREPROCESSING_FAST_MINCUT)
     elif preprocessing.name == PREPROCESSING_KMODES:
         cuts = find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
 
@@ -128,51 +112,113 @@ def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm
     return tangles
 
 
-# Old code. But it might be useful later
+def compute_clusters(tangles_by_orders, all_cuts):
 
-def mask_points_in_tangle(tangle, all_cuts, threshold):
-    points = all_cuts[tangle.get_idx_cuts()].T
-    center = np.array(tangle.get_orientations())
-    center = center.reshape(1, -1)
+    predictions_by_order = {}
 
-    distances = manhattan_distances(points, center)
-    mask = distances <= threshold
-    return mask.reshape(-1)
+    for order, tangles in tangles_by_orders.items():
 
+        print(f"\tCompute clusters for order {order}", flush=True)
+        _, n_points = all_cuts.shape
+        nb_tangles = len(tangles)
 
-def compute_clusters(tangles, cuts, tolerance=0.8):
-    n_cuts, n_points = cuts.shape
+        matching_cuts = np.zeros((nb_tangles, n_points), dtype=int)
 
-    predictions = np.zeros(n_points, dtype=int)
+        for i, tangle in enumerate(tangles):
+            cuts = list(tangle.specification.keys())
+            orientations = list(tangle.specification.values())
 
-    for i, tangle in enumerate(tangles, 1):
-        len_tangle = len(tangle)
+            matching_cuts[i, :] = np.sum((all_cuts[cuts, :].T == orientations), axis=1)
 
-        numpy_tangle = np.zeros((len_tangle, n_cuts), dtype=bool)
-        for j, oriented_cut in enumerate(tangle):
-            numpy_tangle[j, :] = oriented_cut.to_numpy(n_cuts)
+        predictions = np.argmax(matching_cuts, axis=0)
+        predictions_by_order[order] = predictions
 
-        threshold = np.int(np.trunc(len_tangle * (1 - tolerance)))
-        mask = mask_points_in_tangle(tangle, cuts, threshold)
-        predictions[mask] = i
-
-    return predictions
+    return predictions_by_order
 
 
 def compute_evaluation(ys, predictions):
-    evaluations = {}
+    evaluation = {}
+    evaluation['v_measure_score'] = None
+    evaluation['order_max'] = None
 
     for order, prediction in predictions.items():
-        evaluations[order] = {}
 
-        # Save the number of points that do not belong to a tangle
-        evaluations[order]["unassigned"] = np.sum(prediction == 0)
-
-        mask_assigned = prediction != 0
         homogeneity, completeness, v_measure_score = \
-            homogeneity_completeness_v_measure(ys[mask_assigned], prediction[mask_assigned])
-        evaluations[order]["homogeneity"] = homogeneity
-        evaluations[order]["completeness"] = completeness
-        evaluations[order]["v_measure_score"] = v_measure_score
+            homogeneity_completeness_v_measure(ys, prediction)
 
-    return evaluations
+        if evaluation['v_measure_score'] is None or evaluation['v_measure_score'] < v_measure_score:
+            evaluation["homogeneity"] = homogeneity
+            evaluation["completeness"] = completeness
+            evaluation["v_measure_score"] = v_measure_score
+            evaluation['order_max'] = order
+
+    return evaluation
+
+
+def get_dataset_cuts_order(args):
+    print("Load data\n", flush=True)
+    xs, ys, G, order_function = get_dataset_and_order_function(args.dataset, args.seed)
+
+    print("Find cuts", flush=True)
+    all_cuts = compute_cuts(xs, args.preprocessing)
+    print(f"\tI found {len(all_cuts)} cuts\n", flush=True)
+
+    print("Compute order", flush=True)
+    all_cuts, orders = order_cuts(all_cuts, order_function)
+
+    mask_orders_to_pick = orders <= np.percentile(orders, q=args.tangles.percentage_orders)
+    orders = orders[mask_orders_to_pick]
+    all_cuts = all_cuts[mask_orders_to_pick, :]
+
+    max_considered_order = orders[-1]
+    print(f"\tI will stop at order: {max_considered_order}")
+    print(f'\tI will use {len(all_cuts)} cuts\n', flush=True)
+
+    if args.plot.cuts:
+        if args.dataset.type == 'graph':
+            plot_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.dataset.type, args.output.dir)
+        else:
+            raise NotImplementedError('I still need to implement this')
+    return xs, ys, G, orders, all_cuts
+
+
+def tangle_computation(args, all_cuts, orders):
+    agreement = args.algorithm.agreement
+    print(f"Using agreement = {agreement} \n", flush=True)
+
+    print("Start tangle computation", flush=True)
+    tangles = []
+    tangles_of_order = {}
+
+    unique_orders = np.unique(orders)
+
+    for idx_order, order in enumerate(unique_orders):
+
+        idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order], axis=0))[0]
+
+        if len(idx_cuts_order_i) > 0:
+            print(f"\tCompute tangles of order {order}", flush=True)
+
+            cuts_order_i = all_cuts[idx_cuts_order_i]
+            tangles = compute_tangles(tangles, cuts_order_i, idx_cuts_order_i,
+                                      min_size=agreement, algorithm=args.algorithm)
+            print(f"\t\tI found {len(tangles)} tangles of order {order}", flush=True)
+
+            if not tangles:
+                max_considered_order = orders[-1]
+                print(f'Stopped computation at order {order} instead of {max_considered_order}', flush=True)
+                break
+
+            tangles_of_order[order] = deepcopy(tangles)
+
+    return tangles_of_order
+
+
+def plotting(args, predictions, G, ys, all_cuts):
+
+    print('Start plotting', flush=True)
+    if args.dataset.type == 'graph':
+        plot_heatmap_graph(G=G, all_cuts=all_cuts, predictions=predictions, path=args.output.dir)
+    elif args.dataset.type == 'discrete':
+        plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=predictions, path=args.output.dir)
+    print('Done plotting', flush=True)

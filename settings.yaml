@@ -1,37 +1,14 @@
 seed: 21
 
+experiment:
+  type: 'single'
+
 output:
-  root_dir: output
-
-dataset:
-  path: datasets/big5.csv
-  name: sbm
-
-  knn:
-    block_size: 100
-    nb_blocks: 2
-    mus: [[0, 0], [0, 2]]
-    vars: [[1, 1], [1, 1]]
-    k: 5
-
-  sbm:
-    block_size: 100
-    nb_blocks: 4
-    p: 0.05
-    q: 0.001
-
-  roc:
-    nb_cliques: 20
-    clique_size: 10
-
-  q_syn:
-    n_samples: 100
-    n_features: 30
-    n_mindsets: 5
-    tolerance: 0.10
+  tolerance_predictions: 0.8
+  dir: output
 
 algorithm:
-  min_size: 12
+  agreement: 10
   name: core
 
 preprocessing:
@@ -44,28 +21,15 @@ preprocessing:
     nb_cuts: 100
     fractions: [2, 2.5, 3.3, 5, 10]
 
-  karger:
-    nb_cuts: 500
-    
   local_min:
     nb_cuts: 500
-
-  fast_min_cut:
-    nb_cuts: 10
-
-  neighbours:
-    nb_cuts: 100
-    percentages: [0.2, 0.3, 0.4, 0.5, 0.1]
-
-  random:
-    min_size_cover: 100
-    dim_linspace: 5
 
   kmodes:
     max_nb_clusters: 10
 
+
 tangles:
-  percentage_cuts: 0.2
+  percentage_orders: 25
 
 # -1 in nb_cuts means all
 plot:

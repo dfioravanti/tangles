@@ -129,6 +129,8 @@ dmypy.json
 .pyre/
 
 .idea/
-./outputs/
+output
+data
+plots
 *.svg
 *.png

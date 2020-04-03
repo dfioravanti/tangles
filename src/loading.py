@@ -2,9 +2,9 @@ from functools import partial
 import numpy as np
 
 from src.config import DATASET_QUESTIONNAIRE_SYNTHETIC, DATASET_BINARY_IRIS, DATASET_SBM, \
-    DATASET_LFR, DATASET_RING_OF_CLIQUES, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN
+    DATASET_MULTILEVEL, DATASET_RING_OF_CLIQUES, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN
 from src.datasets.big5 import load_BIG5
-from src.datasets.graphs import load_RPG, load_LFR, load_ROC, load_FLORENCE
+from src.datasets.graphs import load_RPG, load_LFR, load_ROC, load_FLORENCE, load_multilevel
 from src.datasets.iris import get_binarized_iris
 from src.datasets.kNN import load_KNN
 from src.datasets.questionnaire import make_synthetic_questionnaire
@@ -61,9 +61,10 @@ def get_dataset_and_order_function(dataset, seed):
         xs, ys, G = load_RPG(block_size=dataset.sbm.block_size, nb_blocks=dataset.sbm.nb_blocks,
                              p_in=dataset.sbm.p, p_out=dataset.sbm.q)
         order_function = partial(cut_order, xs)
-    elif dataset.name == DATASET_LFR:
-        xs, ys, G = load_LFR(nb_nodes=50, tau1=3, tau2=1.5, mu=0.1,
-                          min_community=10, average_degree=3, seed=10)
+    elif dataset.name == DATASET_MULTILEVEL:
+        xs, ys, G = load_multilevel(nb_nodes=dataset.multilevel.block_size,
+                                    p_in=dataset.multilevel.p_in,
+                                    p_out=dataset.multilevel.p_out)
         order_function = partial(cut_order, xs)
     elif dataset.name == DATASET_RING_OF_CLIQUES:
         xs, ys, G = load_ROC(nb_cliques=dataset.roc.nb_cliques, clique_size=dataset.roc.clique_size)

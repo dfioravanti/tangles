@@ -1,0 +1,31 @@
+dataset:
+  path: datasets/big5.csv
+  name: sbm
+
+  sbm:
+    block_size: 30
+    nb_blocks: 6
+    p: 0.2
+    q: 0.01
+
+  multilevel:
+    block_size: [20, 10]
+    p_in: [0.5, 1]
+    p_out: 0.05
+
+  knn:
+    block_size: 10
+    nb_blocks: 2
+    mus: [[0, 0], [0, 2]]
+    vars: [[1, 1], [1, 1]]
+    k: 5
+
+  roc:
+    nb_cliques: 20
+    clique_size: 10
+
+  q_syn:
+    n_samples: 100
+    n_features: 30
+    n_mindsets: 5
+    tolerance: 0.10
