@@ -16,7 +16,7 @@ preprocessing:
   name: karnig_lin
 
   karnig_lin:
-    nb_cuts: 100
+    nb_cuts: 300
     fractions: [2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 tangles:
@@ -25,5 +25,5 @@ tangles:
 # -1 in nb_cuts means all
 plot:
   tangles: True
-  cuts: False
+  cuts: True
   nb_cuts: 10

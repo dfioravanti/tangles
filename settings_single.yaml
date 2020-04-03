@@ -3,10 +3,10 @@ dataset:
   name: sbm
 
   sbm:
-    block_size: 20
-    nb_blocks: 5
-    p: 0.9
-    q: 0.05
+    block_size: 30
+    nb_blocks: 6
+    p: 0.2
+    q: 0.01
 
   multilevel:
     block_size: [20, 10]

@@ -10,8 +10,6 @@ from src.loading import get_dataset_and_order_function
 from src.plotting import plot_cuts, plot_heatmap_graph, plot_heatmap
 from src.tangles import core_algorithm
 
-MISSING = -1
-
 
 def compute_cuts(xs, preprocessing):
     """
@@ -106,33 +104,36 @@ def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm
     return tangles
 
 
-def compute_clusters(tangles, all_cuts, tolerance=0.8):
-    _, n_points = all_cuts.shape
+def compute_clusters(tangles_by_orders, all_cuts):
 
-    predictions = np.zeros(n_points, dtype=int) + MISSING
+    predictions_by_order = {}
 
-    for i, tangle in enumerate(tangles):
-        cuts = list(tangle.specification.keys())
-        orientations = list(tangle.specification.values())
+    for order, tangles in tangles_by_orders.items():
 
-        nb_cuts_in_tangle = len(cuts)
-        matching_cuts = np.sum((all_cuts[cuts, :].T == orientations), axis=1)
+        print(f"\tCompute clusters for order {order}", flush=True)
+        _, n_points = all_cuts.shape
+        nb_tangles = len(tangles)
 
-        threshold = np.int(np.trunc(nb_cuts_in_tangle * tolerance))
-        predictions[matching_cuts >= threshold] = i
+        matching_cuts = np.zeros((nb_tangles, n_points), dtype=int)
 
-    return predictions
+        for i, tangle in enumerate(tangles):
+            cuts = list(tangle.specification.keys())
+            orientations = list(tangle.specification.values())
+
+            matching_cuts[i, :] = np.sum((all_cuts[cuts, :].T == orientations), axis=1)
+
+        predictions = np.argmax(matching_cuts, axis=0)
+        predictions_by_order[order] = predictions
+
+    return predictions_by_order
 
 
 def compute_evaluation(ys, predictions):
     evaluation = {}
     evaluation['v_measure_score'] = None
     evaluation['order_max'] = None
-    evaluation['unassigned'] = None
 
     for order, prediction in predictions.items():
-
-        unassigned = np.sum(prediction == -1)
 
         homogeneity, completeness, v_measure_score = \
             homogeneity_completeness_v_measure(ys, prediction)
@@ -142,7 +143,6 @@ def compute_evaluation(ys, predictions):
             evaluation["completeness"] = completeness
             evaluation["v_measure_score"] = v_measure_score
             evaluation['order_max'] = order
-            evaluation['unassigned'] = unassigned
 
     return evaluation
 
@@ -181,9 +181,10 @@ def tangle_computation(args, all_cuts, orders):
     print("Start tangle computation", flush=True)
     tangles = []
     tangles_of_order = {}
-    predictions = {}
 
-    for idx_order, order in enumerate(orders):
+    unique_orders = np.unique(orders)
+
+    for idx_order, order in enumerate(unique_orders):
 
         idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order], axis=0))[0]
 
@@ -194,24 +195,22 @@ def tangle_computation(args, all_cuts, orders):
             tangles = compute_tangles(tangles, cuts_order_i, idx_cuts_order_i,
                                       min_size=agreement, algorithm=args.algorithm)
             print(f"\t\tI found {len(tangles)} tangles of order {order}", flush=True)
-            tangles_of_order[order] = deepcopy(tangles)
-
-            print(f"\tCompute clusters for order {order}", flush=True)
-            predictions[order] = compute_clusters(tangles, all_cuts, tolerance=args.output.tolerance_predictions)
 
             if not tangles:
                 max_considered_order = orders[-1]
                 print(f'Stopped computation at order {order} instead of {max_considered_order}', flush=True)
                 break
 
-    return predictions, tangles_of_order
+            tangles_of_order[order] = deepcopy(tangles)
+
+    return tangles_of_order
 
 
-def plotting(args, tangles_of_order, G, ys, all_cuts):
+def plotting(args, predictions, G, ys, all_cuts):
 
     print('Start plotting', flush=True)
     if args.dataset.type == 'graph':
-        plot_heatmap_graph(G=G, all_cuts=all_cuts, tangles_by_orders=tangles_of_order, path=args.output.dir)
+        plot_heatmap_graph(G=G, all_cuts=all_cuts, predictions=predictions, path=args.output.dir)
     elif args.dataset.type == 'discrete':
-        plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=tangles_of_order, path=args.output.dir)
+        plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=predictions, path=args.output.dir)
     print('Done plotting', flush=True)

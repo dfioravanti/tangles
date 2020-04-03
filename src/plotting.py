@@ -109,7 +109,7 @@ def cuts_in_all_tangles(tangles):
     return idx_in_all
 
 
-def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
+def plot_heatmap_graph(G, all_cuts, predictions, path=None):
 
     """
     For each tangle print a heatmap that shows how many cuts each point satisfies.
@@ -120,7 +120,7 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
         the collection of all cuts
     ys: array of shape [n_points]
         The array of class labels
-    tangles_by_orders: dict of list of Specification
+    predictions: dict of list of Specification
         A dictionary where the key is the order and the value is a list of all the tangles of that order
     path:
 
@@ -135,51 +135,21 @@ def plot_heatmap_graph(G, all_cuts, tangles_by_orders, path=None):
     pos = nx.spectral_layout(G)
     pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
 
-    for order, tangles in tangles_by_orders.items():
+    for order, prediction in predictions.items():
 
-        nb_tangles = len(tangles)
-        nrows = nb_tangles // 3 + 1 if nb_tangles % 3 != 0 else nb_tangles // 3
-        ncols = nb_tangles if nb_tangles <= 2 else 3
+        f, ax = plt.subplots(nrows=1, ncols=1, figsize=(15, 15))
 
-        f, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(15, 15))
+        ax.axis('off')
+        ax.grid(b=None)
+        cmap = plt.cm.get_cmap('tab10')
 
-        if nb_tangles == 1:
-            axs = np.array(axs)
-        axs = axs.flatten()
-        for ax in axs:
-            ax.axis('off')
-            ax.grid(b=None)
+        nx.draw_networkx(G, pos=pos, ax=ax, node_color=prediction,
+                         cmap=cmap, edge_color=COLOR_SILVER)
 
-        idx_in_all = cuts_in_all_tangles(tangles)
-
-        for i, tangle in enumerate(tangles):
-
-            cs, os = [], []
-
-            for c, o in tangle.specification.items():
-                if c not in idx_in_all:
-                    cs.append(c)
-                    os.append(o)
-
-            os = np.array(os, dtype=bool)
-            matching_cuts = np.sum((all_cuts[cs, :].T == os), axis=1)
-            m = max(matching_cuts)
-            #matching_cuts[matching_cuts <= m * 0.8] = 0
-
-            cmap = plt.cm.get_cmap('tab10')
-            my_cmap = cmap(i)
-            my_cmap = np.array([my_cmap])
-            my_cmap = np.tile(my_cmap, (max(matching_cuts) + 1, 1))
-            my_cmap[:, -1] = np.linspace(0.1, 1, max(matching_cuts) + 1)
-            my_cmap = ListedColormap(my_cmap)
-
-            nx.draw_networkx(G, pos=pos, ax=axs[i], node_color=matching_cuts,
-                             cmap=my_cmap, edge_color=COLOR_SILVER)
-
-            if path is None:
-                plt.show()
-            else:
-                plt.savefig(path / f"Tangle order {order}.svg")
+        if path is None:
+            plt.show()
+        else:
+            plt.savefig(path / f"Tangle order {order}.svg")
 
         plt.close(f)
 

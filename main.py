@@ -1,18 +1,13 @@
 from pathlib import Path
-from copy import deepcopy
 
-import numpy as np
 import pandas as pd
 
-from src.config import load_validate_settings, set_up_dirs
-from src.loading import get_dataset_and_order_function
-from src.execution import compute_cuts, compute_tangles, order_cuts, compute_clusters, compute_evaluation, \
-    get_dataset_cuts_order, tangle_computation, plotting
 from src.config import EXPERIMENT_BATCH, EXPERIMENT_SINGLE
+from src.config import load_validate_settings, set_up_dirs
+from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting
 
 
 def main_single_experiment(args):
-
     """
     Main function of the program.
     The execution is divided in the following steps
@@ -37,17 +32,17 @@ def main_single_experiment(args):
 
     xs, ys, G, orders, all_cuts = get_dataset_cuts_order(args)
 
-    predictions, tangles_of_order = tangle_computation(args, all_cuts, orders)
+    tangles_of_order = tangle_computation(args, all_cuts, orders)
+    predictions = compute_clusters(tangles_of_order, all_cuts)
 
     evaluation = compute_evaluation(ys, predictions)
     print(evaluation)
 
     if args.plot.tangles:
-        plotting(args, tangles_of_order, G, ys, all_cuts)
+        plotting(args, predictions, G, ys, all_cuts)
 
 
 def main_batch_experiment(args):
-
     for nb_blocks in args.experiment.sbm.nbs_blocks:
 
         print(f'Working on nb_blocks = {nb_blocks}', flush=True)
@@ -64,18 +59,19 @@ def main_batch_experiment(args):
                 qs = args.experiment.sbm.qs
 
                 for q in qs:
-
-                    print(f'\tWorking with ({p}, {q}): {i+1}/{nb_repetitions}', flush=True)
+                    print(f'\tWorking with ({p}, {q}): {i + 1}/{nb_repetitions}', flush=True)
 
                     args.dataset.sbm.block_size = args.experiment.sbm.block_sizes
                     args.dataset.sbm.nb_blocks = nb_blocks
                     args.dataset.sbm.p = p
                     args.dataset.sbm.q = q
 
-                    args.preprocessing.karnig_lin.fractions = args.preprocessing.karnig_lin.fractions[:(nb_blocks+1)]
+                    args.preprocessing.karnig_lin.fractions = args.preprocessing.karnig_lin.fractions[:(nb_blocks + 1)]
 
                     xs, ys, G, orders, all_cuts = get_dataset_cuts_order(args)
-                    predictions, tangles_of_order = tangle_computation(args, all_cuts, orders)
+                    tangles_of_order = tangle_computation(args, all_cuts, orders)
+                    predictions = compute_clusters(tangles_of_order, all_cuts)
+
                     evaluation = compute_evaluation(ys, predictions)
 
                     h.append(evaluation["homogeneity"])
