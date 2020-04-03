@@ -8,17 +8,17 @@ dataset:
   name: sbm
 
   knn:
-    block_size: 10
+    block_size: 100
     nb_blocks: 2
     mus: [[0, 0], [0, 2]]
     vars: [[1, 1], [1, 1]]
     k: 5
 
   sbm:
-    block_size: 20
-    nb_blocks: 5
-    p: 0.5
-    q: 0.1
+    block_size: 100
+    nb_blocks: 4
+    p: 0.05
+    q: 0.001
 
   roc:
     nb_cliques: 20
@@ -38,14 +38,14 @@ preprocessing:
   name: karnig_lin
 
   kneip:
-    nb_cuts: 501
+    nb_cuts: 500
 
   karnig_lin:
-    nb_cuts: 30
-    fractions: [2, 3, 4, 5]
+    nb_cuts: 100
+    fractions: [2, 2.5, 3.3, 5, 10]
 
   karger:
-    nb_cuts: 100
+    nb_cuts: 500
     
   local_min:
     nb_cuts: 500
@@ -54,8 +54,8 @@ preprocessing:
     nb_cuts: 10
 
   neighbours:
-    nb_cuts: 1000
-    percentages: [0.2, 0.3, 0.4, 0.5]
+    nb_cuts: 100
+    percentages: [0.2, 0.3, 0.4, 0.5, 0.1]
 
   random:
     min_size_cover: 100
