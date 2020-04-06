@@ -37,21 +37,26 @@ def compute_cuts(xs, preprocessing):
         The bipartitions that we will use to compute tangles
     """
 
-    if preprocessing.name == PREPROCESSING_FEATURES:
-        cuts = (xs == True).T
-    elif preprocessing.name == PREPROCESSING_KNEIP:
-        cuts = kneip(adj=xs, nb_cuts=preprocessing.kneip.nb_cuts)
-    elif preprocessing.name == PREPROCESSING_LOCALMIN:
-        cuts = local_minimization(xs=xs, nb_cuts=preprocessing.local_min.nb_cuts)
-    elif preprocessing.name == PREPROCESSING_LOCALMINB:
-        cuts = local_minimization_bounded(xs=xs, nb_cuts=preprocessing.local_min.nb_cuts)
-    elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
-        cuts = kernighan_lin(xs=xs,
-                             nb_cuts=preprocessing.karnig_lin.nb_cuts,
-                             fractions=preprocessing.karnig_lin.fractions)
-    elif preprocessing.name == PREPROCESSING_KMODES:
-        cuts = find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
-
+    cuts = np.empty((0, xs.shape[0]), dtype=bool)
+    for name in preprocessing.name:
+        print(name)
+        if name == PREPROCESSING_FEATURES:
+            cuts = np.append(cuts, (xs == True).T, axis=0)
+        elif name == PREPROCESSING_KNEIP:
+            cuts = np.append(cuts, kneip(adj=xs, nb_cuts=preprocessing.kneip.nb_cuts), axis=0)
+        elif name == PREPROCESSING_LOCALMIN:
+            cuts = np.append(cuts, local_minimization(xs=xs, nb_cuts=preprocessing.local_min.nb_cuts), axis=0)
+        elif name == PREPROCESSING_LOCALMINB:
+            cuts = np.append(cuts, local_minimization_bounded(xs=xs, nb_cuts=preprocessing.local_min.nb_cuts), axis=0)
+        elif name == PREPROCESSING_KARNIG_LIN:
+            cuts = np.append(cuts, kernighan_lin(xs=xs,
+                                 nb_cuts=preprocessing.karnig_lin.nb_cuts,
+                                 fractions=preprocessing.karnig_lin.fractions), axis=0)
+        elif name == PREPROCESSING_KMODES:
+            cuts = np.append(cuts, find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters), axis=0)
+        else:
+            assert False
+            
     return cuts
 
 

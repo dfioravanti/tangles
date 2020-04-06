@@ -165,8 +165,8 @@ def validate_settings(args):
     elif args.dataset.name in GRAPH_DATASETS:
         args.dataset.type = 'graph'
 
-    if args.preprocessing.name not in VALID_PREPROCESSING:
-        raise ValueError(f'The preprocessing name must be in: {VALID_PREPROCESSING}')
+    if any(name not in VALID_PREPROCESSING for name in args.preprocessing.name):
+        raise ValueError(f'The preprocessing names must be in: {VALID_PREPROCESSING}')
 
     if args.algorithm.name not in VALID_ALGORITHM:
         raise ValueError(f'The algorithm name must be in: {VALID_ALGORITHM}')

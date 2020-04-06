@@ -8,11 +8,11 @@ output:
   dir: output
 
 algorithm:
-  agreement: 10
+  agreement: 40
   name: core
 
 preprocessing:
-  name: karnig_lin
+  name: [kneip, karnig_lin]
 
   kneip:
     nb_cuts: 500
@@ -29,7 +29,7 @@ preprocessing:
 
 
 tangles:
-  percentage_orders: 25
+  percentage_orders: 100
 
 # -1 in nb_cuts means all
 plot:
