@@ -132,11 +132,14 @@ def plot_heatmap_graph(G, all_cuts, predictions, path=None):
     plt.style.use('ggplot')
     plt.ioff()
 
-    pos = nx.spectral_layout(G)
-    pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
+    if nx.is_connected(G):
+        pos = nx.spectral_layout(G)
+        pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
+    else:
+        pos = nx.kamada_kawai_layout(G)
+        pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
 
     for order, prediction in predictions.items():
-
         f, ax = plt.subplots(nrows=1, ncols=1, figsize=(15, 15))
 
         ax.axis('off')
