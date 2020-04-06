@@ -52,21 +52,26 @@ class FindCuts(object):
             merged_node = merged_node.union(V[idx])
         return merged_node
         
-    def __call__(self, N_max=100):
+    def __call__(self, N_max=100, verbose=False):
         """ Coarsen graph until it contains at most N_max nodes, then partition, then project it back. """
         A = self.A
         V = self.V
-        print('Start coarsening')
+        if verbose:
+            print('Start coarsening')
         for _ in range(50):
-            print(f'{len(V)} nodes in graph')
+            if verbose:
+                print(f'{len(V)} nodes in graph')
             if len(V) < N_max:
-                print('Start partitioning')
+                if verbose:
+                    print('Start partitioning')
                 x_coarse = self.partition_fn(A=A, w=np.array([len(v) for v in V]))
-                print('Start refining')
+                if verbose:
+                    print('Start refining')
                 x = self._refine(V_coarse=V, x_coarse=x_coarse)
                 return x
             A, V = self._coarsen(A, V)
-        print('Maximal number of merging iterations exceeded.')
+        if verbose:
+            print('Maximal number of merging iterations exceeded.')
         return
    
 
