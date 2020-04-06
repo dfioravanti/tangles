@@ -1,6 +1,5 @@
 import numpy as np
 import networkx as nx
-from sklearn.manifold import TSNE
 
 from matplotlib import pyplot as plt
 
@@ -32,14 +31,14 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
     cmap = plt.cm.get_cmap('tab10')
 
     if path is not None:
-        output_path = path / 'points'
+        output_path = path / 'points prediction'
         output_path.mkdir(parents=True, exist_ok=True)
 
     for order, prediction in predictions_of_order.items():
 
         f, (ax_true, ax_pred) = plt.subplots(nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(b=None)
-        ax_pred.axis('off'), ax_pred.grid(b=None)
+        ax_true.axis('off'), ax_true.grid(b=None), ax_true.set_title("True clusters")
+        ax_pred.axis('off'), ax_pred.grid(b=None), ax_pred.set_title("Predicted clusters")
 
         ax_true.scatter(xs[:, 0], xs[:, 1], c=ys, cmap=cmap)
         ax_pred.scatter(xs[:, 0], xs[:, 1], c=prediction, cmap=cmap)
@@ -75,6 +74,10 @@ def plot_predictions_graph(G, ys, predictions_of_order, path=None):
     plt.style.use('ggplot')
     plt.ioff()
 
+    if path is not None:
+        output_path = path / 'graph prediction'
+        output_path.mkdir(parents=True, exist_ok=True)
+
     pos = nx.spectral_layout(G)
     pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
 
@@ -83,9 +86,9 @@ def plot_predictions_graph(G, ys, predictions_of_order, path=None):
     for order, prediction in predictions_of_order.items():
 
         f, (ax_true, ax_pred) = plt.subplots(nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(b=None)
-        ax_pred.axis('off'), ax_pred.grid(b=None)
-        
+        ax_true.axis('off'), ax_true.grid(b=None), ax_true.set_title("True clusters")
+        ax_pred.axis('off'), ax_pred.grid(b=None), ax_pred.set_title("Predicted clusters")
+
         nx.draw_networkx(G, pos=pos, ax=ax_true, node_color=ys,
                          cmap=cmap, edge_color=COLOR_SILVER)
 
@@ -95,7 +98,7 @@ def plot_predictions_graph(G, ys, predictions_of_order, path=None):
         if path is None:
             plt.show()
         else:
-            plt.savefig(path / f"Tangle order {order}.svg")
+            plt.savefig(output_path / f"Tangle order {order}.svg")
 
         plt.close(f)
 

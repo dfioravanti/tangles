@@ -60,7 +60,7 @@ def get_dataset_and_order_function(args, seed):
         data['ys'] = ys
         order_function = partial(implicit_order, xs, 100)
     elif args.experiment.dataset_name == DATASET_SBM:
-        A, ys, G = load_RPG(block_size=args.sbm.block_size, nb_blocks=args.sbm.nb_blocks,
+        A, ys, G = load_RPG(block_sizes=args.sbm.block_sizes,
                             p_in=args.sbm.p, p_out=args.sbm.q)
 
         data['A'] = A

@@ -69,14 +69,13 @@ def load_LFR(nb_nodes, tau1, tau2, mu, min_community, average_degree, seed):
     return A, ys, G
 
 
-def load_RPG(block_size, nb_blocks, p_in, p_out):
+def load_RPG(block_sizes, p_in, p_out):
 
-    sizes = np.zeros(nb_blocks, dtype=int) + block_size
-    nb_nodes = block_size * nb_blocks
+    nb_nodes = np.sum(block_sizes)
 
     A = np.zeros((nb_nodes, nb_nodes), dtype=bool)
     ys = np.zeros(nb_nodes, dtype=int)
-    G = nx.random_partition_graph(sizes, p_in, p_out)
+    G = nx.random_partition_graph(block_sizes, p_in, p_out)
 
     for node, ad in G.adjacency():
         A[node, list(ad.keys())] = True
