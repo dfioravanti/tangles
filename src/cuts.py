@@ -250,7 +250,7 @@ def all_karger_fundamental_cuts(G):
     T = nx.minimum_spanning_tree(G, algorithm='kruskal') # May be a forest
     while not nx.is_connected(T):
         CC = list(nx.connected_components(T))
-        C1, C2 = np.random.choice(CC, 2)
+        C1, C2 = np.random.choice(CC, 2, replace=False)
         v1 = np.random.choice(list(C1))
         v2 = np.random.choice(list(C2))
         T.add_edge(v1,v2)
