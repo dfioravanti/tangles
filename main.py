@@ -4,7 +4,8 @@ import pandas as pd
 
 from src.config import EXPERIMENT_BATCH, EXPERIMENT_SINGLE
 from src.config import load_validate_settings, set_up_dirs
-from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting
+from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting, \
+                        compute_maximal_tangles, compute_clusters_maximals
 
 
 def main_single_experiment(args):
@@ -33,11 +34,16 @@ def main_single_experiment(args):
     xs, ys, G, orders, all_cuts = get_dataset_cuts_order(args)
 
     tangles_of_order = tangle_computation(args, all_cuts, orders)
-    predictions = compute_clusters(tangles_of_order, all_cuts)
+    # predictions = compute_clusters(tangles_of_order, all_cuts)
+    maximals = compute_maximal_tangles(tangles_of_order)
+    print(f'Found {len(maximals)} maximal tangles')
+    predictions = compute_clusters_maximals(maximals, all_cuts)
 
     evaluation = compute_evaluation(ys, predictions)
+
     print(evaluation)
 
+    predictions[0] = ys
     if args.plot.tangles:
         plotting(args, predictions, G, ys, all_cuts)
 
