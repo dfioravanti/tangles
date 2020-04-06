@@ -2,8 +2,8 @@ seed: 21
 
 # allowed types: single, batch
 experiment:
-  type: 'batch'
-  dataset_name: sbm
+  type: 'single'
+  dataset_name: knn_blobs
 
 algorithm:
   agreement: 10
@@ -13,8 +13,8 @@ preprocessing:
   name: karnig_lin
 
   karnig_lin:
-    nb_cuts: 100
-    fractions: [2, 3, 4, 5, 6]
+    nb_cuts: 40
+    fractions: [2, 3, 4, 5]
 
 tangles:
   percentage_orders: 25
@@ -33,4 +33,4 @@ plot:
 # 1: Only batch info
 # 2: All but cuts finding infos
 # #: All
-verbose: 1
+verbose: 2
