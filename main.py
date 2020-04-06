@@ -31,16 +31,16 @@ def main_single_experiment(args):
 
     """
 
-    xs, ys, G, orders, all_cuts = get_dataset_cuts_order(args)
+    data, orders, all_cuts = get_dataset_cuts_order(args)
 
     tangles_of_order = tangle_computation(args, all_cuts, orders)
-    predictions = compute_clusters(tangles_of_order, all_cuts, verbose=args.verbose)
+    predictions_of_order = compute_clusters(tangles_of_order, all_cuts, verbose=args.verbose)
 
-    evaluation = compute_evaluation(ys, predictions)
+    evaluation = compute_evaluation(data['ys'], predictions_of_order)
     print(evaluation)
 
     if args.plot.tangles:
-        plotting(args, predictions, G, ys, all_cuts)
+        plotting(args, data, predictions_of_order)
 
 
 def main_batch_experiment(args):

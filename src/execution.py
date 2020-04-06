@@ -7,11 +7,11 @@ from src.config import ALGORITHM_CORE
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
 from src.cuts import find_kmodes_cuts, kernighan_lin
 from src.loading import get_dataset_and_order_function
-from src.plotting import plot_cuts, plot_heatmap_graph, plot_heatmap
+from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions
 from src.tangles import core_algorithm
 
 
-def compute_cuts(xs, preprocessing, verbose):
+def compute_cuts(data, preprocessing, verbose):
     """
     Given a set of points or an adjacency matrix this function returns the set of cuts that we will use
     to compute tangles.
@@ -24,8 +24,7 @@ def compute_cuts(xs, preprocessing, verbose):
 
     Parameters
     ----------
-    xs: array of shape [n_points, n_features] or array of shape [n_points, n_points]
-        The points in our space or an adjacency matrix
+    data: dictionary containing all the input data in various representations
     preprocessing: SimpleNamespace
         The parameters of the preprocessing
 
@@ -36,14 +35,12 @@ def compute_cuts(xs, preprocessing, verbose):
     """
 
     if preprocessing.name == PREPROCESSING_FEATURES:
-        cuts = (xs == True).T
+        cuts = (data['xs'] == True).T
     elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
-        cuts = kernighan_lin(xs=xs,
-                             nb_cuts=preprocessing.karnig_lin.nb_cuts,
-                             fractions=preprocessing.karnig_lin.fractions,
-                             verbose=verbose)
+        cuts = kernighan_lin(A=data['A'], nb_cuts=preprocessing.karnig_lin.nb_cuts,
+                             fractions=preprocessing.karnig_lin.fractions, verbose=verbose)
     elif preprocessing.name == PREPROCESSING_KMODES:
-        cuts = find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
+        cuts = find_kmodes_cuts(xs=data['xs'], max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
 
     return cuts
 
@@ -152,11 +149,11 @@ def compute_evaluation(ys, predictions):
 def get_dataset_cuts_order(args):
     if args.verbose >= 2:
         print("Load data\n", flush=True)
-    xs, ys, G, order_function = get_dataset_and_order_function(args, args.seed)
+    data, order_function = get_dataset_and_order_function(args, args.seed)
 
     if args.verbose >= 2:
         print("Find cuts", flush=True)
-    all_cuts = compute_cuts(xs, args.preprocessing, verbose=args.verbose)
+    all_cuts = compute_cuts(data, args.preprocessing, verbose=args.verbose)
 
     if args.verbose >= 2:
         print(f"\tI found {len(all_cuts)} cuts\n")
@@ -173,11 +170,13 @@ def get_dataset_cuts_order(args):
         print(f'\tI will use {len(all_cuts)} cuts\n', flush=True)
 
     if args.plot.cuts:
-        if args.experiment.dataset_type == 'graph':
-            plot_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.experiment.dataset_type, args.output.dir)
-        else:
-            raise NotImplementedError('I still need to implement this')
-    return xs, ys, G, orders, all_cuts
+        xs = data.get('xs', None)
+        G = data.get('G', None)
+
+        if G is not None:
+            plot_graph_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.experiment.dataset_type, args.output.dir)
+
+    return data, orders, all_cuts
 
 
 def tangle_computation(args, all_cuts, orders):
@@ -217,15 +216,18 @@ def tangle_computation(args, all_cuts, orders):
     return tangles_of_order
 
 
-def plotting(args, predictions, G, ys, all_cuts):
+def plotting(args, data, predictions_of_order):
 
     if args.verbose >= 2:
         print('Start plotting', flush=True)
 
-    if args.experiment.dataset_type == 'graph':
-        plot_heatmap_graph(G=G, all_cuts=all_cuts, predictions=predictions, path=args.output.dir)
-    elif args.experiment.dataset_type == 'discrete':
-        plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=predictions, path=args.output.dir)
+    xs = data.get('xs', None)
+    ys = data.get('ys', None)
+    G = data.get('G', None)
 
+    if G is not None:
+        plot_predictions_graph(G=G, ys=ys, predictions_of_order=predictions_of_order, path=args.output.dir)
+    if xs is not None:
+        plot_predictions(xs=xs, ys=ys, predictions_of_order=predictions_of_order, path=args.output.dir)
     if args.verbose >= 2:
         print('Done plotting', flush=True)

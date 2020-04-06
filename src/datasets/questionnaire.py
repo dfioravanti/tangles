@@ -30,7 +30,7 @@ def make_centers(n_features=20, n_mindsets=2):
 def make_centers2(n_features=20, n_mindsets=2):
 
     """
-    Generates n_mindsets centers that are have hamming distance bigger than
+    Generates n_mindsets blob_centers that are have hamming distance bigger than
     n_features // 2 - 2. This statement should be correct but I did not prove it.
 
     For now we generate those point by cropping a hadamarn matrix.
@@ -47,7 +47,7 @@ def make_centers2(n_features=20, n_mindsets=2):
     Returns
     -------
     c : array of shape [n_mindsets, n_features]
-        The coordinates of the centers of the mindsets
+        The coordinates of the blob_centers of the mindsets
 
     """
 
@@ -97,7 +97,7 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
     ys : array of shape [n_samples]
         The integer labels for mindset membership of each sample.
     cs : array of shape [n_mindsets, n_features]
-        The coordinates of the centers of the mindsets
+        The coordinates of the blob_centers of the mindsets
 
     """
 
