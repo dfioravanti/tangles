@@ -1,0 +1,13 @@
+executable = /home/dfioravanti/miniconda3/envs/tangles/bin/python3
+arguments = main.py $(MyArg)
+
+error = logs/err.$(Process).txt
+output = logs/output.$(Process).txt
+log = logs/log.$(Process).txt
+
+request_cpus = 1
+request_memory = 1000
+getenv = true
+concurrency_limits=user.running:30
+
+queue MyArg from parameters.txt
