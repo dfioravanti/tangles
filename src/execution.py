@@ -5,9 +5,9 @@ from sklearn.metrics import homogeneity_completeness_v_measure
 
 from src.config import ALGORITHM_CORE
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_KNEIP, PREPROCESSING_KMODES, \
-    PREPROCESSING_KARNIG_LIN, PREPROCESSING_LOCALMIN, PREPROCESSING_LOCALMINB
+    PREPROCESSING_KARNIG_LIN, PREPROCESSING_LOCALMIN, PREPROCESSING_LOCALMINB, PREPROCESSING_RANDOM
 from src.cuts import find_kmodes_cuts, kernighan_lin, kneip, local_minimization, \
-    local_minimization_bounded
+    local_minimization_bounded, random_cuts
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_cuts, plot_heatmap_graph, plot_heatmap
 from src.tangles import core_algorithm
@@ -54,6 +54,8 @@ def compute_cuts(xs, preprocessing):
                                  fractions=preprocessing.karnig_lin.fractions), axis=0)
         elif name == PREPROCESSING_KMODES:
             cuts = np.append(cuts, find_kmodes_cuts(xs=xs, max_nb_clusters=preprocessing.kmodes.max_nb_clusters), axis=0)
+        elif name == PREPROCESSING_RANDOM:
+            cuts = np.append(cuts, random_cuts(xs=xs, nb_cuts=preprocessing.random.nb_cuts), axis=0)
         else:
             assert False
             

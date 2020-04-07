@@ -271,3 +271,15 @@ def fundamental_cuts(G, T):
         cuts.append(cut)
     return cuts
 
+
+
+# ---------------------------------------
+# Random cuts
+# ---------------------------------------
+
+def random_cuts(xs, nb_cuts):
+    cuts = []
+    for _ in range(nb_cuts):
+        cut, _ = initial_partition(xs, np.random.rand())
+        cuts.append(cut)
+    return np.array(cuts)

@@ -27,6 +27,9 @@ preprocessing:
   kmodes:
     max_nb_clusters: 10
 
+  random:
+    nb_cuts: 500
+
 
 tangles:
   percentage_orders: 100
