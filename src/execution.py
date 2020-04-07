@@ -270,7 +270,7 @@ def plotting(args, predictions, G, ys, all_cuts):
 
     print('Start plotting', flush=True)
     if args.dataset.type == 'graph':
-        plot_heatmap_graph(G=G, all_cuts=all_cuts, predictions=predictions, path=args.output.dir)
+        plot_heatmap_graph(G=G, all_cuts=all_cuts, ys=ys, predictions=predictions, path=args.output.dir)
     elif args.dataset.type == 'discrete':
         plot_heatmap(all_cuts=all_cuts, ys=ys, tangles_by_orders=predictions, path=args.output.dir)
     print('Done plotting', flush=True)

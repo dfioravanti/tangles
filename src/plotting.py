@@ -109,7 +109,7 @@ def cuts_in_all_tangles(tangles):
     return idx_in_all
 
 
-def plot_heatmap_graph(G, all_cuts, predictions, path=None):
+def plot_heatmap_graph(G, all_cuts, predictions, path=None, ys=None):
 
     """
     For each tangle print a heatmap that shows how many cuts each point satisfies.
@@ -132,7 +132,16 @@ def plot_heatmap_graph(G, all_cuts, predictions, path=None):
     plt.style.use('ggplot')
     plt.ioff()
 
-    if nx.is_connected(G):
+    if ys is not None:
+        pos = nx.random_layout(G)
+        ncls = np.max(ys) + 1
+        xoff = np.sin(2 * np.pi * ys / ncls) * 2
+        yoff = np.cos(2 * np.pi * ys / ncls) * 2
+        for v in G:
+            pos[v][0] += xoff[v]
+            pos[v][1] += yoff[v]
+        pos = nx.spring_layout(G, pos=pos, iterations=1)
+    elif nx.is_connected(G):
         pos = nx.spectral_layout(G)
         pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
     else:
