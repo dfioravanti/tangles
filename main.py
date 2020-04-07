@@ -65,8 +65,9 @@ if __name__ == '__main__':
     parser = make_parser()
     args_parser = parser.parse_args()
 
-    args = load_validate_settings(args_parser, root_dir='./')
     root_dir = Path(__file__).resolve().parent
+    print(root_dir)
+    args = load_validate_settings(args_parser, root_dir=root_dir)
     args = set_up_dirs(args, root_dir=root_dir)
 
     main(args)
