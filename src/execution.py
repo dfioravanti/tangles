@@ -181,7 +181,7 @@ def compute_clusters_maximals(maximal_tangles, all_cuts):
         if the_best.sum() == 1:
             predictions[p] = np.argwhere(the_best)
         else:
-            predictions[p] = np.nan
+            predictions[p] = -1
             print(f'Unsure about {p}')
 
     predictions_by_order[-1] = predictions
