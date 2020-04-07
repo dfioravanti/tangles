@@ -113,9 +113,9 @@ def merge_config(args_parser, main_cfg):
             main_cfg['preprocessing']['karnig_lin']['fractions'] = args_parser.KL_frac
 
     if args_parser.plot_tangles is not None:
-        main_cfg['dataset']['plot']['tangles'] = args_parser.plot_tangles
+        main_cfg['plot']['tangles'] = args_parser.plot_tangles
     if args_parser.plot_cuts is not None:
-        main_cfg['dataset']['plot']['cuts'] = args_parser.plot_cuts
+        main_cfg['plot']['cuts'] = args_parser.plot_cuts
 
     return main_cfg
 

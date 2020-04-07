@@ -1,6 +1,6 @@
 from pathlib import Path
-from itertools import product
 
+import json
 import pandas as pd
 
 from src.parser import make_parser
@@ -33,6 +33,7 @@ def main(args):
     """
 
     all_parameters = get_parameters(args)
+    unique_id = hash(json.dumps(all_parameters, sort_keys=True))
 
     df_output = pd.DataFrame()
 
@@ -53,7 +54,7 @@ def main(args):
             if args.plot.tangles:
                 plotting(args, data, predictions_of_order)
 
-    path = args.root_dir / f'evaluation.csv'
+    path = args.root_dir / f'evaluation_{unique_id}.csv'
     df_output.to_csv(path)
 
 
