@@ -1,9 +1,28 @@
-seed: 21
+seeds: [21, 42]
 
 # allowed types: single, batch
 experiment:
-  type: 'single'
-  dataset_name: knn_blobs
+  dataset_name: sbm
+
+big5:
+  path: datasets/big5.csv
+
+dataset:
+  sbm:
+    block_sizes: [100, 100, 100]
+    ps: [0.3]
+    qs: [0.1]
+
+  knn_blobs:
+    blob_sizes: [20, 20, 20, 20]
+    blob_centers: [[-1.5, -1.5], [1.5, -1.5], [-1.5, 1.5], [1.5, 1.5]]
+    k: 6
+
+  q_syn:
+    n_samples: 100
+    n_features: 30
+    n_mindsets: 5
+    tolerance: 0.10
 
 algorithm:
   agreement: 10
@@ -13,14 +32,15 @@ preprocessing:
   name: karnig_lin
 
   karnig_lin:
-    nb_cuts: 40
-    fractions: [2, 3, 4, 5]
+    nb_cuts: 100
+    fractions: [2, 3]
+
+  coarsening:
+    nb_cuts: 300
+    n_max: 20
 
 tangles:
   percentage_orders: 25
-
-output:
-  dir: output
 
 # -1 in nb_cuts means all
 plot:
@@ -33,4 +53,4 @@ plot:
 # 1: Only batch info
 # 2: All but cuts finding infos
 # #: All
-verbose: 2
+verbose: 1

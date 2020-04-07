@@ -9,7 +9,7 @@ from src.datasets.questionnaire import make_synthetic_questionnaire
 from src.order_functions import implicit_order, cut_order
 
 
-def get_dataset_and_order_function(args, seed):
+def get_dataset_and_order_function(dataset_name, parameters):
     """
     TODO: MOVE A LOT OF THESE PARAMETERS OUT AND GET THEM VIA COMMAND LINE
 
@@ -42,7 +42,7 @@ def get_dataset_and_order_function(args, seed):
 
     data = {}
 
-    if args.experiment.dataset_name == DATASET_QUESTIONNAIRE_SYNTHETIC:
+    if dataset_name== DATASET_QUESTIONNAIRE_SYNTHETIC:
         xs, ys, cs = make_synthetic_questionnaire(n_samples=args.q_syn.n_samples,
                                                   n_features=args.q_syn.n_features,
                                                   n_mindsets=args.q_syn.n_mindsets,
@@ -53,35 +53,37 @@ def get_dataset_and_order_function(args, seed):
         data['xs'] = xs
         data['ys'] = ys
         order_function = partial(implicit_order, xs, None)
-    elif args.experiment.dataset_name == DATASET_BIG5:
+    elif dataset_name== DATASET_BIG5:
         xs, ys = load_BIG5(args.big5.path)
 
         data['xs'] = xs
         data['ys'] = ys
         order_function = partial(implicit_order, xs, 100)
-    elif args.experiment.dataset_name == DATASET_SBM:
-        A, ys, G = load_RPG(block_sizes=args.sbm.block_sizes,
-                            p_in=args.sbm.p, p_out=args.sbm.q)
+    elif dataset_name == DATASET_SBM:
+        A, ys, G = load_RPG(block_sizes=parameters['block_sizes'],
+                            p_in=parameters['p'],
+                            p_out=parameters['q'],
+                            seed=parameters['seed'])
 
         data['A'] = A
         data['ys'] = ys
         data['G'] = G
         order_function = partial(cut_order, A)
-    elif args.experiment.dataset_name == DATASET_RING_OF_CLIQUES:
+    elif dataset_name== DATASET_RING_OF_CLIQUES:
         A, ys, G = load_ROC(nb_cliques=args.roc.nb_cliques, clique_size=args.roc.clique_size)
 
         data['A'] = A
         data['ys'] = ys
         data['G'] = G
         order_function = partial(cut_order, A)
-    elif args.experiment.dataset_name == DATASET_FLORENCE:
+    elif dataset_name== DATASET_FLORENCE:
         A, ys, G = load_FLORENCE()
 
         data['A'] = A
         data['ys'] = ys
         data['G'] = G
         order_function = partial(cut_order, A)
-    elif args.experiment.dataset_name == DATASET_KNN_BLOBS:
+    elif dataset_name== DATASET_KNN_BLOBS:
         xs, ys, A, G = load_knn_blobs(blob_sizes=args.knn_blobs.blob_sizes, blob_centers=args.knn_blobs.blob_centers,
                                       k=args.knn_blobs.k, seed=args.seed)
 

@@ -1,6 +1,8 @@
 import numpy as np
 from kmodes.kmodes import KModes
 
+import src.coarsening as coarsening
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Kernighan-Lin algorithm
 #
@@ -122,6 +124,25 @@ def kernighan_lin_algorithm(xs, fraction):
             break
 
     return A
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Coarsening approach
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def coarsening_cuts(A, nb_cuts, n_max):
+
+    find_cuts = coarsening.FindCuts(A=A,
+                                    merge_fn=coarsening.max_cut_merging,
+                                    partition_fn=coarsening.compute_spectral_wcut)
+
+    cuts = []
+
+    for _ in np.arange(nb_cuts):
+        cuts.append(find_cuts(N_max=n_max, verbose=False))
+
+    cuts = np.array(cuts).astype(bool)
+    return cuts
 
 
 # ----------------------------------------------------------------------------------------------------------------------

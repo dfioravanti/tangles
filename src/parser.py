@@ -15,15 +15,22 @@ def make_parser():
 
     parser = argparse.ArgumentParser(description='Program to compute tangles')
 
-    # Datasets
-    parser.add_argument('-p', '--dat_path', dest='dataset.path', action='store')
-    parser.add_argument('-t', '--dat_type', dest='dataset.type', action='store')
+    parser.add_argument('-t', dest='dataset_name', action='store')
+    parser.add_argument('-p', dest='pre_type', action='store')
+    parser.add_argument('-s', dest='seeds', nargs='+', type=int)
 
-    # Preprocessing
-    parser.add_argument('--pre_name', dest='preprocessing.name', action='store', default='no')
+    # SBM
+    parser.add_argument('--sbm_bs', dest='sbm_bs', nargs='+', type=int)
+    parser.add_argument('--sbm_ps', dest='sbm_ps', nargs='+', type=float)
+    parser.add_argument('--sbm_qs', dest='sbm_qs', nargs='+', type=float)
 
-    # Algorithm
-    parser.add_argument('--alg_name', dest='algorithm.name', action='store')
+    # KL algorithm
+    parser.add_argument('--KL_nb', dest='KL_nb', action='store', type=int)
+    parser.add_argument('--KL_frac', dest='KL_frac', nargs='+', type=int)
+
+    # Plotting
+    parser.add_argument('--plot_tangles', dest='plot_tangles', action='store', type=bool)
+    parser.add_argument('--plot_cuts', dest='plot_cuts', action='store', type=bool)
 
     return parser
 

@@ -118,7 +118,7 @@ def plot_graph_cuts(xs, cuts, orders, type, path):
         pos = nx.spring_layout(xs, pos=pos, k=.5, iterations=100)
 
     for i, cut in enumerate(cuts):
-        fig, ax = plt.subplots(1, 1)
+        fig, ax = plt.subplots(1, 1, figsize=(15, 15))
         ax.axis('off')
         ax.grid(b=None)
 

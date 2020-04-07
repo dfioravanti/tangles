@@ -46,11 +46,13 @@ VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS
 PREPROCESSING_FEATURES = "fea"
 PREPROCESSING_KMODES = "kmodes"
 PREPROCESSING_KARNIG_LIN = "karnig_lin"
+PREPROCESSING_COARSENING = "coarsening"
 
 VALID_PREPROCESSING = [
     PREPROCESSING_FEATURES,
     PREPROCESSING_KARNIG_LIN,
-    PREPROCESSING_KMODES
+    PREPROCESSING_KMODES,
+    PREPROCESSING_COARSENING
 ]
 
 # Algorithm
@@ -62,27 +64,29 @@ VALID_ALGORITHM = [
 ]
 
 
-def load_validate_settings(root_dir):
+def load_validate_settings(args_parser, root_dir):
     main_cfg_file = 'settings.yaml'
+
     main_cfg = load_settings(f'{root_dir}/{main_cfg_file}')
-    experiment_type = main_cfg['experiment']['type']
 
-    if experiment_type not in VALID_EXPERIMENTS:
-        raise ValueError(f'The experiment type must be in: {VALID_EXPERIMENTS}')
-    elif experiment_type == EXPERIMENT_SINGLE:
-        auxiliary_cfg_file = 'settings_single.yaml'
-    elif experiment_type == EXPERIMENT_BATCH:
-        auxiliary_cfg_file = 'settings_batch.yaml'
-    auxiliary_cfg = load_settings(f'{root_dir}/{auxiliary_cfg_file}')
-
-    cfg = merge_config(main_cfg, auxiliary_cfg)
+    cfg = merge_config(args_parser, main_cfg)
     args = dict_to_namespace(cfg)
     args = validate_settings(args)
+
+    args.prefix = get_prefix(args)
 
     return args
 
 
-def merge_config(main_cfg, auxiliary_cfg):
+def get_prefix(args):
+
+    if args.experiment.dataset_name == DATASET_SBM:
+        prefix = f'SMB_{len(args.dataset.sbm.block_sizes)}'
+
+    return prefix
+
+
+def merge_config(args_parser, main_cfg):
     """
     Updates the default configuration with the experiment specific one
 
@@ -91,15 +95,27 @@ def merge_config(main_cfg, auxiliary_cfg):
     :return:
     """
 
-    for k in auxiliary_cfg.keys():
-        if k not in main_cfg.keys():
-            main_cfg[k] = auxiliary_cfg[k]
-        else:
-            if isinstance(auxiliary_cfg[k], dict):
-                assert isinstance(main_cfg[k], dict)
-                merge_config(main_cfg[k], auxiliary_cfg[k])
-            else:
-                main_cfg[k] = auxiliary_cfg[k]
+    if args_parser.seeds is not None:
+        main_cfg['seeds'] = args_parser.seeds
+
+    if args_parser.dataset_name == DATASET_SBM:
+        if args_parser.sbm_bs is not None:
+            main_cfg['dataset']['sbm']['block_sizes'] = args_parser.sbm_bs
+        if args_parser.sbm_ps is not None:
+            main_cfg['dataset']['sbm']['ps'] = args_parser.sbm_ps
+        if args_parser.sbm_qs is not None:
+            main_cfg['dataset']['sbm']['qs'] = args_parser.sbm_qs
+
+    if args_parser.pre_type == PREPROCESSING_KARNIG_LIN:
+        if args_parser.KL_frac is not None:
+            main_cfg['preprocessing']['karnig_lin']['nb_cuts'] = args_parser.KL_nb
+        if args_parser.KL_frac is not None:
+            main_cfg['preprocessing']['karnig_lin']['fractions'] = args_parser.KL_frac
+
+    if args_parser.plot_tangles is not None:
+        main_cfg['dataset']['plot']['tangles'] = args_parser.plot_tangles
+    if args_parser.plot_cuts is not None:
+        main_cfg['dataset']['plot']['cuts'] = args_parser.plot_cuts
 
     return main_cfg
 
@@ -133,7 +149,7 @@ def namespace_to_dict(namespace):
 
     result = {}
     for attr in dir(namespace):
-        if attr[:2] != '__':
+        if attr[:1] != '_':
             if isinstance(getattr(namespace, attr), Namespace):
                 result.update({attr: namespace_to_dict(getattr(namespace, attr))})
             else:
@@ -147,9 +163,6 @@ def load_settings(file):
 
 
 def validate_settings(args):
-
-    if args.experiment.type not in VALID_EXPERIMENTS:
-        raise ValueError(f'The experiment type must be in: {VALID_EXPERIMENTS}')
 
     if args.experiment.dataset_name not in VALID_DATASETS:
         raise ValueError(f'The dataset name must be in: {VALID_DATASETS}')
@@ -169,7 +182,9 @@ def validate_settings(args):
 
 
 def set_up_dirs(args, root_dir):
-    args.output.dir = Path(f"{root_dir / args.output.dir}")
-    args.output.dir.mkdir(parents=True, exist_ok=True)
+    args.root_dir = Path(f"{root_dir / 'output' / args.prefix}")
+    args.plot_dir = Path(f"{args.root_dir / 'plots'}")
+
+    args.root_dir.mkdir(parents=True, exist_ok=True)
 
     return args

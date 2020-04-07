@@ -2,13 +2,13 @@ big5:
   path: datasets/big5.csv
 
 sbm:
-  block_sizes: [20, 30, 40, 50]
-  p: 0.5
-  q: 0.03
+  block_sizes: [100, 100, 100]
+  p: 0.3
+  q: 0.1
 
 knn_blobs:
-  blob_sizes: [10, 30, 60, 90]
-  blob_centers: [[-3, -3], [-1, -1], [1, 1], [3, 3]]
+  blob_sizes: [20, 20, 20, 20]
+  blob_centers: [[-1.5, -1.5], [1.5, -1.5], [-1.5, 1.5], [1.5, 1.5]]
   k: 6
 
 multilevel:

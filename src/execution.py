@@ -1,11 +1,12 @@
 from copy import deepcopy
 
 import numpy as np
+import pandas as pd
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-from src.config import ALGORITHM_CORE
+from src.config import ALGORITHM_CORE, PREPROCESSING_COARSENING, DATASET_SBM
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
-from src.cuts import find_kmodes_cuts, kernighan_lin
+from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions
 from src.tangles import core_algorithm
@@ -41,6 +42,9 @@ def compute_cuts(data, preprocessing, verbose):
                              fractions=preprocessing.karnig_lin.fractions, verbose=verbose)
     elif preprocessing.name == PREPROCESSING_KMODES:
         cuts = find_kmodes_cuts(xs=data['xs'], max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
+    elif preprocessing.name == PREPROCESSING_COARSENING:
+        cuts = coarsening_cuts(A=data['A'], nb_cuts=preprocessing.coarsening.nb_cuts,
+                               n_max=preprocessing.coarsening.n_max)
 
     return cuts
 
@@ -146,10 +150,10 @@ def compute_evaluation(ys, predictions):
     return evaluation
 
 
-def get_dataset_cuts_order(args):
+def get_dataset_cuts_order(args, paramenters):
     if args.verbose >= 2:
         print("Load data\n", flush=True)
-    data, order_function = get_dataset_and_order_function(args, args.seed)
+    data, order_function = get_dataset_and_order_function(args.experiment.dataset_name, paramenters)
 
     if args.verbose >= 2:
         print("Find cuts", flush=True)
@@ -174,7 +178,7 @@ def get_dataset_cuts_order(args):
         G = data.get('G', None)
 
         if G is not None:
-            plot_graph_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.experiment.dataset_type, args.output.dir)
+            plot_graph_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.experiment.dataset_type, args.plot_dir)
 
     return data, orders, all_cuts
 
@@ -226,8 +230,27 @@ def plotting(args, data, predictions_of_order):
     G = data.get('G', None)
 
     if G is not None:
-        plot_predictions_graph(G=G, ys=ys, predictions_of_order=predictions_of_order, path=args.output.dir)
+        plot_predictions_graph(G=G, ys=ys, predictions_of_order=predictions_of_order, path=args.plot_dir)
     if xs is not None:
-        plot_predictions(xs=xs, ys=ys, predictions_of_order=predictions_of_order, path=args.output.dir)
+        plot_predictions(xs=xs, ys=ys, predictions_of_order=predictions_of_order, path=args.plot_dir)
     if args.verbose >= 2:
         print('Done plotting', flush=True)
+
+
+def get_parameters(args):
+
+    parameters = {}
+    if args.experiment.dataset_name == DATASET_SBM:
+        parameters['seed'] = args.seeds
+        parameters['block_sizes'] = [args.dataset.sbm.block_sizes]
+        parameters['p'] = args.dataset.sbm.ps
+        parameters['q'] = args.dataset.sbm.qs
+
+    return parameters
+
+
+def get_series(args, parameters, evaluation):
+
+    series = pd.Series({**parameters, **evaluation})
+
+    return h, c,
