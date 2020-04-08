@@ -102,6 +102,9 @@ def merge_config(args_parser, main_cfg):
     if args_parser.seeds is not None:
         main_cfg['seeds'] = args_parser.seeds
 
+    if args_parser.dataset_name is not None:
+        main_cfg['experiment']['dataset_name'] = args_parser.dataset_name
+
     if args_parser.dataset_name == DATASET_SBM:
         if args_parser.sbm_bs is not None:
             main_cfg['dataset'][DATASET_SBM]['block_sizes'] = args_parser.sbm_bs
@@ -117,6 +120,9 @@ def merge_config(args_parser, main_cfg):
             main_cfg['dataset'][DATASET_KNN_BLOBS]['blobs_centers'] = [centers]
         if args_parser.gauss_ks is not None:
             main_cfg['dataset'][DATASET_KNN_BLOBS]['ks'] = args_parser.gauss_ks
+
+    if args_parser.pre_type is not None:
+        main_cfg['preprocessing']['name'] = args_parser.pre_type
 
     if args_parser.pre_type == PREPROCESSING_KARNIG_LIN:
         if args_parser.KL_frac is not None:
