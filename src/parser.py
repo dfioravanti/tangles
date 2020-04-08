@@ -29,11 +29,11 @@ def make_parser():
     parser.add_argument('--KL_frac', dest='KL_frac', nargs='+', type=int)
 
     # Plotting
-    parser.add_argument('--plot_tangles', dest='plot_tangles', action='store_true')
-    parser.add_argument('--no_plot_tangles', dest='plot_tangles', action='store_false')
+    parser.add_argument('--plot_tangles', dest='plot_tangles', action='store_true', default=None)
+    parser.add_argument('--no_plot_tangles', dest='plot_tangles', action='store_false', default=None)
 
-    parser.add_argument('--plot_cuts', dest='plot_cuts', action='store_true')
-    parser.add_argument('--no_plot_cuts', dest='plot_cuts', action='store_false')
+    parser.add_argument('--plot_cuts', dest='plot_cuts', action='store_true', default=None)
+    parser.add_argument('--no_plot_cuts', dest='plot_cuts', action='store_false', default=None)
 
     return parser
 
