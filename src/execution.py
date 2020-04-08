@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-from src.config import ALGORITHM_CORE, PREPROCESSING_COARSENING, DATASET_SBM
+from src.config import ALGORITHM_CORE, PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
 from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts
 from src.loading import get_dataset_and_order_function
@@ -245,12 +245,10 @@ def get_parameters(args):
         parameters['block_sizes'] = [args.dataset.sbm.block_sizes]
         parameters['p'] = args.dataset.sbm.ps
         parameters['q'] = args.dataset.sbm.qs
+    elif args.experiment.dataset_name == DATASET_KNN_BLOBS:
+        parameters['seed'] = args.seeds
+        parameters['blob_sizes'] = [args.dataset.knn_blobs.blob_sizes]
+        parameters['blobs_center'] = args.dataset.knn_blobs.blobs_centers
+        parameters['k'] = args.dataset.knn_blobs.ks
 
     return parameters
-
-
-def get_series(args, parameters, evaluation):
-
-    series = pd.Series({**parameters, **evaluation})
-
-    return h, c,

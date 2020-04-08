@@ -1,6 +1,8 @@
 from pathlib import Path
 from argparse import Namespace
 
+import numpy as np
+
 import yaml
 
 # Global constants for validations of inputs
@@ -82,6 +84,8 @@ def get_prefix(args):
 
     if args.experiment.dataset_name == DATASET_SBM:
         prefix = f'SMB_{len(args.dataset.sbm.block_sizes)}'
+    elif args.experiment.dataset_name == DATASET_KNN_BLOBS:
+        prefix = f'knn_blobs_{len(args.dataset.knn_blobs.blob_sizes)}'
 
     return prefix
 
@@ -100,11 +104,19 @@ def merge_config(args_parser, main_cfg):
 
     if args_parser.dataset_name == DATASET_SBM:
         if args_parser.sbm_bs is not None:
-            main_cfg['dataset']['sbm']['block_sizes'] = args_parser.sbm_bs
+            main_cfg['dataset'][DATASET_SBM]['block_sizes'] = args_parser.sbm_bs
         if args_parser.sbm_ps is not None:
-            main_cfg['dataset']['sbm']['ps'] = args_parser.sbm_ps
+            main_cfg['dataset'][DATASET_SBM]['ps'] = args_parser.sbm_ps
         if args_parser.sbm_qs is not None:
-            main_cfg['dataset']['sbm']['qs'] = args_parser.sbm_qs
+            main_cfg['dataset'][DATASET_SBM]['qs'] = args_parser.sbm_qs
+    elif args_parser.dataset_name == DATASET_KNN_BLOBS:
+        if args_parser.gauss_bs is not None:
+            main_cfg['dataset'][DATASET_KNN_BLOBS]['blob_sizes'] = args_parser.gauss_bs
+        if args_parser.gauss_cs is not None:
+            centers = np.array(args_parser.gauss_cs).reshape(2, -1).tolist()
+            main_cfg['dataset'][DATASET_KNN_BLOBS]['blobs_centers'] = [centers]
+        if args_parser.gauss_ks is not None:
+            main_cfg['dataset'][DATASET_KNN_BLOBS]['ks'] = args_parser.gauss_ks
 
     if args_parser.pre_type == PREPROCESSING_KARNIG_LIN:
         if args_parser.KL_frac is not None:

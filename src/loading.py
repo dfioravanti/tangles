@@ -84,8 +84,10 @@ def get_dataset_and_order_function(dataset_name, parameters):
         data['G'] = G
         order_function = partial(cut_order, A)
     elif dataset_name== DATASET_KNN_BLOBS:
-        xs, ys, A, G = load_knn_blobs(blob_sizes=args.knn_blobs.blob_sizes, blob_centers=args.knn_blobs.blob_centers,
-                                      k=args.knn_blobs.k, seed=args.seed)
+        xs, ys, A, G = load_knn_blobs(blob_sizes=parameters['blob_sizes'],
+                                      blob_centers=parameters['blobs_center'],
+                                      k=parameters['k'],
+                                      seed=parameters['seed'])
 
         data['xs'] = xs
         data['ys'] = ys
