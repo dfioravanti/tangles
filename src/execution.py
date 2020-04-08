@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-from src.config import ALGORITHM_CORE, PREPROCESSING_COARSENING, DATASET_SBM
+from src.config import ALGORITHM_CORE, PREPROCESSING_COARSENING, DATASET_SBM, PREPROCESSING_FID_MAT
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
-from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts
+from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions
 from src.tangles import core_algorithm
@@ -45,6 +45,8 @@ def compute_cuts(data, preprocessing, verbose):
     elif preprocessing.name == PREPROCESSING_COARSENING:
         cuts = coarsening_cuts(A=data['A'], nb_cuts=preprocessing.coarsening.nb_cuts,
                                n_max=preprocessing.coarsening.n_max)
+    elif preprocessing.name == PREPROCESSING_FID_MAT:
+        cuts = fid_mat(xs=data['A'], nb_cuts=preprocessing.fid_mat.nb_cuts, ratio=preprocessing.fid_mat.ratio)
 
     return cuts
 

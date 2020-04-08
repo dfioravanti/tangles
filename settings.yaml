@@ -9,9 +9,9 @@ big5:
 
 dataset:
   sbm:
-    block_sizes: [100, 100, 100]
-    ps: [0.3]
-    qs: [0.1]
+    block_sizes: [10, 10]
+    ps: [0.8]
+    qs: [0.2]
 
   knn_blobs:
     blob_sizes: [20, 20, 20, 20]
@@ -29,7 +29,7 @@ algorithm:
   name: core
 
 preprocessing:
-  name: karnig_lin
+  name: fid_mat
 
   karnig_lin:
     nb_cuts: 100
@@ -39,6 +39,10 @@ preprocessing:
     nb_cuts: 300
     n_max: 20
 
+  fid_mat:
+    nb_cuts: 100
+    ratio: 0.1
+
 tangles:
   percentage_orders: 25
 
@@ -46,11 +50,11 @@ tangles:
 plot:
   tangles: True
   cuts: True
-  nb_cuts: 10
+  nb_cuts: -1
 
 # 0, 1, 2, 3 allowed
 # 0: Nothing
 # 1: Only batch info
 # 2: All but cuts finding infos
 # #: All
-verbose: 1
+verbose: 3
