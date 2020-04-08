@@ -240,15 +240,18 @@ def plotting(args, data, predictions_of_order):
 def get_parameters(args):
 
     parameters = {}
+    parameters['seed'] = args.seeds
+
     if args.experiment.dataset_name == DATASET_SBM:
-        parameters['seed'] = args.seeds
         parameters['block_sizes'] = [args.dataset.sbm.block_sizes]
         parameters['p'] = args.dataset.sbm.ps
         parameters['q'] = args.dataset.sbm.qs
     elif args.experiment.dataset_name == DATASET_KNN_BLOBS:
-        parameters['seed'] = args.seeds
         parameters['blob_sizes'] = [args.dataset.knn_blobs.blob_sizes]
         parameters['blobs_center'] = args.dataset.knn_blobs.blobs_centers
         parameters['k'] = args.dataset.knn_blobs.ks
+
+    if args.preprocessing.name == PREPROCESSING_KARNIG_LIN:
+        parameters['nb_cuts'] = [args.preprocessing.karnig_lin.nb_cuts]
 
     return parameters
