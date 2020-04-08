@@ -6,12 +6,13 @@ multi_parameters = {}
 parameters['-t'] = DATASET_SBM
 parameters['-p'] = PREPROCESSING_KARNIG_LIN
 
-parameters['--KL_nb'] = 100
-
+#multi_parameters['-s'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 multi_parameters['-s'] = [42]
+multi_parameters['--KL_nb'] = [100, 200, 300]
+
 if parameters['-t'] == DATASET_SBM:
-    multi_parameters['--sbm_bs'] = [[100, 100], [100, 100, 100], [100, 100, 100],
-                                    [100, 100, 100, 100], [100, 100, 100, 100, 100]]
+
+    multi_parameters['--sbm_bs'] = [[100, 100], [100, 100, 100], [100, 100, 100, 100], [100, 100, 100, 100, 100]]
 
     multi_parameters['--sbm_bs'] += [[50, 100], [60, 100], [70, 100],
                                      [80, 100], [90, 100]]
