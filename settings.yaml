@@ -2,7 +2,7 @@ seeds: [21, 42]
 
 # allowed types: single, batch
 experiment:
-  dataset_name: sbm
+  dataset_name: knn_blobs
 
 big5:
   path: datasets/big5.csv
@@ -15,8 +15,8 @@ dataset:
 
   knn_blobs:
     blob_sizes: [20, 20, 20, 20]
-    blob_centers: [[-1.5, -1.5], [1.5, -1.5], [-1.5, 1.5], [1.5, 1.5]]
-    k: 6
+    blobs_centers: [[[-1.5, -1.5], [1.5, -1.5], [-1.5, 1.5], [1.5, 1.5]]]
+    ks: [6]
 
   q_syn:
     n_samples: 100

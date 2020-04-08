@@ -24,6 +24,11 @@ def make_parser():
     parser.add_argument('--sbm_ps', dest='sbm_ps', nargs='+', type=float)
     parser.add_argument('--sbm_qs', dest='sbm_qs', nargs='+', type=float)
 
+    # Gaussian + KNN
+    parser.add_argument('--gauss_bs', dest='gauss_bs', nargs='+', type=int)
+    parser.add_argument('--gauss_cs', dest='gauss_cs', nargs='+', type=float)
+    parser.add_argument('--gauss_ks', dest='gauss_ks', nargs='+', type=int)
+
     # KL algorithm
     parser.add_argument('--KL_nb', dest='KL_nb', action='store', type=int)
     parser.add_argument('--KL_frac', dest='KL_frac', nargs='+', type=int)
