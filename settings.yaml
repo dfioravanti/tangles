@@ -2,16 +2,16 @@ seeds: [21, 42]
 
 # allowed types: single, batch
 experiment:
-  dataset_name: knn_blobs
+  dataset_name: sbm
 
 big5:
   path: datasets/big5.csv
 
 dataset:
   sbm:
-    block_sizes: [10, 10]
-    ps: [0.8]
-    qs: [0.2]
+    block_sizes: [40, 80]
+    ps: [0.2]
+    qs: [0.02]
 
   knn_blobs:
     blob_sizes: [20, 20, 20, 20]
@@ -25,7 +25,7 @@ dataset:
     tolerance: 0.10
 
 algorithm:
-  agreement: 10
+  agreement: 5
   name: core
 
 preprocessing:
@@ -40,8 +40,8 @@ preprocessing:
     n_max: 20
 
   fid_mat:
-    nb_cuts: 100
-    ratio: 0.1
+    nb_cuts: 20
+    ratio: 0.2
 
 tangles:
   percentage_orders: 25
