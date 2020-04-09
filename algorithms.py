@@ -121,9 +121,9 @@ def compute_spectral_wcut(A, w=None, K=2, max_iter=50):
         else:
             psi_old = psi_new
         R = (U @ U_tilde).T
-    if K==2:
-        X = X[:, 0]
-    return X
+#     if K==2:
+#         X = X[:, 0]
+    return X.T
 
 def temperature_merging(A, node_weights=None, temperature=.6):
     """ Sample each edge with probability proportional to edge weight, scaled by the temperature.
