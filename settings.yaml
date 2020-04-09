@@ -2,16 +2,16 @@ seeds: [21, 42]
 
 # allowed types: single, batch
 experiment:
-  dataset_name: knn_blobs
+  dataset_name: sbm
 
 big5:
   path: datasets/big5.csv
 
 dataset:
   sbm:
-    block_sizes: [100, 100, 100]
-    ps: [0.3]
-    qs: [0.1]
+    block_sizes: [40, 80]
+    ps: [0.2]
+    qs: [0.02]
 
   knn_blobs:
     blob_sizes: [20, 20, 20, 20]
@@ -25,11 +25,11 @@ dataset:
     tolerance: 0.10
 
 algorithm:
-  agreement: 10
+  agreement: 5
   name: core
 
 preprocessing:
-  name: karnig_lin
+  name: fid_mat
 
   karnig_lin:
     nb_cuts: 100
@@ -39,6 +39,10 @@ preprocessing:
     nb_cuts: 300
     n_max: 20
 
+  fid_mat:
+    nb_cuts: 20
+    ratio: 0.2
+
 tangles:
   percentage_orders: 25
 
@@ -46,11 +50,11 @@ tangles:
 plot:
   tangles: True
   cuts: True
-  nb_cuts: 10
+  nb_cuts: -1
 
 # 0, 1, 2, 3 allowed
 # 0: Nothing
 # 1: Only batch info
 # 2: All but cuts finding infos
 # #: All
-verbose: 1
+verbose: 3
