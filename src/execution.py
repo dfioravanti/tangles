@@ -1,11 +1,9 @@
 from copy import deepcopy
 
 import numpy as np
-import pandas as pd
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-
-from src.config import ALGORITHM_CORE, PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_FID_MAT
+from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_FID_MAT
 from src.config import PREPROCESSING_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
 from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat
 from src.loading import get_dataset_and_order_function
@@ -13,7 +11,7 @@ from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictio
 from src.tangles import core_algorithm
 
 
-def compute_cuts(data, preprocessing, verbose):
+def compute_cuts(data, args, verbose):
     """
     Given a set of points or an adjacency matrix this function returns the set of cuts that we will use
     to compute tangles.
@@ -36,18 +34,24 @@ def compute_cuts(data, preprocessing, verbose):
         The bipartitions that we will use to compute tangles
     """
 
-    if preprocessing.name == PREPROCESSING_FEATURES:
+    if args['experiment']['preprocessing_name'] == PREPROCESSING_FEATURES:
         cuts = (data['xs'] == True).T
-    elif preprocessing.name == PREPROCESSING_KARNIG_LIN:
-        cuts = kernighan_lin(A=data['A'], nb_cuts=preprocessing.karnig_lin.nb_cuts,
-                             fractions=preprocessing.karnig_lin.fractions, verbose=verbose)
-    elif preprocessing.name == PREPROCESSING_KMODES:
-        cuts = find_kmodes_cuts(xs=data['xs'], max_nb_clusters=preprocessing.kmodes.max_nb_clusters)
-    elif preprocessing.name == PREPROCESSING_COARSENING:
-        cuts = coarsening_cuts(A=data['A'], nb_cuts=preprocessing.coarsening.nb_cuts,
-                               n_max=preprocessing.coarsening.n_max)
-    elif preprocessing.name == PREPROCESSING_FID_MAT:
-        cuts = fid_mat(xs=data['A'], nb_cuts=preprocessing.fid_mat.nb_cuts, ratio=preprocessing.fid_mat.ratio)
+    elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
+        cuts = kernighan_lin(A=data['A'],
+                             nb_cuts=args['preprocessing']['nb_cuts'],
+                             fractions=args['preprocessing']['fractions'],
+                             verbose=verbose)
+    elif args['experiment']['preprocessing_name'] == PREPROCESSING_KMODES:
+        cuts = find_kmodes_cuts(xs=data['xs'],
+                                max_nb_clusters=args['preprocessing'][',ax_nb_clusters'])
+    elif args['experiment']['preprocessing_name'] == PREPROCESSING_COARSENING:
+        cuts = coarsening_cuts(A=data['A'],
+                               nb_cuts=args['preprocessing']['coarsening.nb_cuts'],
+                               n_max=args['preprocessing']['coarsening.n_max'])
+    elif args['experiment']['preprocessing_name'] == PREPROCESSING_FID_MAT:
+        cuts = fid_mat(xs=data['A'],
+                       nb_cuts=args['preprocessing']['nb_cuts'],
+                       ratio=args['preprocessing']['ratio'])
 
     cuts = np.unique(cuts, axis=0)
     return cuts
@@ -80,34 +84,6 @@ def order_cuts(cuts, order_function):
     idx = np.argsort(cost_cuts)
 
     return cuts[idx], cost_cuts[idx]
-
-
-def compute_tangles(tangles, current_cuts, idx_current_cuts, min_size, algorithm):
-    """
-    Select with tangle algorithm to use. For now only one algorithm is supported.
-
-    Parameters
-    ----------
-    tangles: list
-        The list of all FULL tangles computed up until now
-    current_cuts: list
-        The list of cuts that we need to try to add to the tangles. They are ordered by order
-    idx_current_cuts: list
-        The list of indexes of the current cuts in the list of all cuts
-    min_size: int
-        Minimum triplet size for a tangle to be a tangle.
-    algorithm: SimpleNamespace
-        The parameters of the algorithm
-
-    Returns
-    -------
-
-    """
-
-    if algorithm.name == ALGORITHM_CORE:
-        tangles = core_algorithm(tangles, current_cuts, idx_current_cuts, min_size)
-
-    return tangles
 
 
 def compute_clusters(tangles_by_orders, all_cuts, verbose):
@@ -154,43 +130,43 @@ def compute_evaluation(ys, predictions):
     return evaluation
 
 
-def get_dataset_cuts_order(args, paramenters):
-    if args.verbose >= 2:
+def get_dataset_cuts_order(args):
+    if args['verbose'] >= 2:
         print("Load data\n", flush=True)
-    data, order_function = get_dataset_and_order_function(args.experiment.dataset_name, paramenters)
+    data, order_function = get_dataset_and_order_function(args)
 
-    if args.verbose >= 2:
+    if args['verbose'] >= 2:
         print("Find cuts", flush=True)
-    all_cuts = compute_cuts(data, args.preprocessing, verbose=args.verbose)
+    all_cuts = compute_cuts(data, args, verbose=args['verbose'])
 
-    if args.verbose >= 2:
+    if args['verbose'] >= 2:
         print(f"\tI found {len(all_cuts)} cuts\n")
         print("Compute order", flush=True)
     all_cuts, orders = order_cuts(all_cuts, order_function)
 
-    mask_orders_to_pick = orders <= np.percentile(orders, q=args.tangles.percentage_orders)
+    mask_orders_to_pick = orders <= np.percentile(orders, q=args['experiment']['percentile_orders'])
     orders = orders[mask_orders_to_pick]
     all_cuts = all_cuts[mask_orders_to_pick, :]
 
     max_considered_order = orders[-1]
-    if args.verbose >= 2:
+    if args['verbose'] >= 2:
         print(f"\tI will stop at order: {max_considered_order}")
         print(f'\tI will use {len(all_cuts)} cuts\n', flush=True)
 
-    if args.plot.cuts:
+    if args['plot']['cuts']:
         xs = data.get('xs', None)
+        ys = data.get('ys', None)
         G = data.get('G', None)
 
         if G is not None:
-            plot_graph_cuts(G, all_cuts[:args.plot.nb_cuts], orders, args.experiment.dataset_type, args.plot_dir)
+            plot_graph_cuts(G, ys, all_cuts[:args['plot']['nb_cuts']], orders, args['plot_dir'])
 
     return data, orders, all_cuts
 
 
-def tangle_computation(args, all_cuts, orders):
-    agreement = args.algorithm.agreement
+def tangle_computation(all_cuts, orders, agreement, verbose):
 
-    if args.verbose >= 2:
+    if verbose >= 2:
         print(f"Using agreement = {agreement} \n")
         print("Start tangle computation", flush=True)
 
@@ -204,18 +180,20 @@ def tangle_computation(args, all_cuts, orders):
         idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order], axis=0))[0]
 
         if len(idx_cuts_order_i) > 0:
-            if args.verbose >= 2:
+            if verbose >= 2:
                 print(f"\tCompute tangles of order {order}", flush=True)
 
             cuts_order_i = all_cuts[idx_cuts_order_i]
-            tangles = compute_tangles(tangles, cuts_order_i, idx_cuts_order_i,
-                                      min_size=agreement, algorithm=args.algorithm)
-            if args.verbose >= 2:
+            tangles = core_algorithm(tangles,
+                                     current_cuts=cuts_order_i,
+                                     idx_current_cuts=idx_cuts_order_i,
+                                     agreement=agreement)
+            if verbose >= 2:
                 print(f"\t\tI found {len(tangles)} tangles of order {order}", flush=True)
 
             if not tangles:
                 max_considered_order = orders[-1]
-                if args.verbose >= 2:
+                if verbose >= 2:
                     print(f'Stopped computation at order {order} instead of {max_considered_order}', flush=True)
                 break
 
@@ -224,9 +202,9 @@ def tangle_computation(args, all_cuts, orders):
     return tangles_of_order
 
 
-def plotting(args, data, predictions_of_order):
+def plotting(data, predictions_by_order, verbose, path):
 
-    if args.verbose >= 2:
+    if verbose >= 2:
         print('Start plotting', flush=True)
 
     xs = data.get('xs', None)
@@ -234,10 +212,10 @@ def plotting(args, data, predictions_of_order):
     G = data.get('G', None)
 
     if G is not None:
-        plot_predictions_graph(G=G, ys=ys, predictions_of_order=predictions_of_order, path=args.plot_dir)
+        plot_predictions_graph(G=G, ys=ys, predictions_of_order=predictions_by_order, path=path)
     if xs is not None:
-        plot_predictions(xs=xs, ys=ys, predictions_of_order=predictions_of_order, path=args.plot_dir)
-    if args.verbose >= 2:
+        plot_predictions(xs=xs, ys=ys, predictions_of_order=predictions_by_order, path=path)
+    if verbose >= 2:
         print('Done plotting', flush=True)
 
 
@@ -255,7 +233,7 @@ def get_parameters(args):
         parameters['blobs_center'] = args.dataset.knn_blobs.blobs_centers
         parameters['k'] = args.dataset.knn_blobs.ks
 
-    if args.preprocessing.name == PREPROCESSING_KARNIG_LIN:
-        parameters['nb_cuts'] = [args.preprocessing.karnig_lin.nb_cuts]
+    if args.args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
+        parameters['nb_cuts'] = [args.args['preprocessing'].nb_cuts]
 
     return parameters

@@ -4,7 +4,7 @@ import numpy as np
 from src.oriented_cuts import Specification
 
 
-def core_algorithm(tangles, current_cuts, idx_current_cuts, min_size):
+def core_algorithm(tangles, current_cuts, idx_current_cuts, agreement):
     """
     Algorithm to compute the tangles by using the core heuristic.
     The algorithm can be outlined as follows
@@ -21,7 +21,7 @@ def core_algorithm(tangles, current_cuts, idx_current_cuts, min_size):
         The list of cuts that we need to try to add to the tangles. They are ordered by order
     idx_current_cuts: list
         The list of indexes of the current cuts in the list of all cuts
-    min_size: int
+    agreement: int
         Minimum triplet size for a tangle to be a tangle.
 
     Returns
@@ -36,13 +36,13 @@ def core_algorithm(tangles, current_cuts, idx_current_cuts, min_size):
         new_tangles = []
 
         if old_tangles == []:
-            if np.sum(cut) >= min_size:
+            if np.sum(cut) >= agreement:
                 array = ba.bitarray(list(cut))
                 new_tangles.append(Specification(cuts=[array],
                                                  core=[array],
                                                  specification={i: True})
                                    )
-            if np.sum(~cut) >= min_size:
+            if np.sum(~cut) >= agreement:
                 array = ba.bitarray(list(~cut))
                 new_tangles.append(Specification(cuts=[array],
                                                  core=[array],
@@ -54,13 +54,13 @@ def core_algorithm(tangles, current_cuts, idx_current_cuts, min_size):
                 tau = old_tangles.pop(0)
                 new_tangle = tau.add(new_cut=ba.bitarray(list(cut)),
                                      new_specification={i: True},
-                                     min_size=min_size)
+                                     min_size=agreement)
                 if new_tangle is not None:
                     new_tangles.append(new_tangle)
 
                 new_tangle = tau.add(new_cut=ba.bitarray(list(~cut)),
                                      new_specification={i: False},
-                                     min_size=min_size)
+                                     min_size=agreement)
                 if new_tangle is not None:
                     new_tangles.append(new_tangle)
 

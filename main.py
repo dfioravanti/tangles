@@ -5,9 +5,8 @@ import pandas as pd
 
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
-from src.execution import get_parameters,compute_clusters, compute_evaluation, \
+from src.execution import compute_clusters, compute_evaluation, \
     get_dataset_cuts_order, tangle_computation, plotting
-from src.utils import dict_product
 
 
 def main(args):
@@ -32,29 +31,36 @@ def main(args):
     -------
     """
 
-    all_parameters = get_parameters(args)
-    unique_id = hash(json.dumps(all_parameters, sort_keys=True))
+    foundamental_parameters = {**args['experiment'], **args['dataset'], **args['preprocessing']}
 
+    unique_id = hash(json.dumps(foundamental_parameters, sort_keys=True))
     df_output = pd.DataFrame()
 
-    for parameters in dict_product(all_parameters):
+    if args['verbose'] >= 1:
+        print(f'Working with parameters = {foundamental_parameters}', flush=True)
 
-        if args.verbose >= 1:
-            print(f'Working on parameters = {parameters}', flush=True)
+    data, orders, all_cuts = get_dataset_cuts_order(args)
 
-            data, orders, all_cuts = get_dataset_cuts_order(args, parameters)
+    tangles_by_order = tangle_computation(all_cuts=all_cuts,
+                                          orders=orders,
+                                          agreement=args['experiment']['agreement'],
+                                          verbose=args['verbose'])
 
-            tangles_of_order = tangle_computation(args, all_cuts, orders)
-            predictions_of_order = compute_clusters(tangles_of_order, all_cuts, verbose=args.verbose)
+    predictions_by_order = compute_clusters(tangles_by_orders=tangles_by_order,
+                                            all_cuts=all_cuts,
+                                            verbose=args['verbose'])
 
-            evaluation = compute_evaluation(data['ys'], predictions_of_order)
-            new_row = pd.Series({**parameters, **evaluation})
-            df_output = df_output.append(new_row, ignore_index=True)
+    evaluation = compute_evaluation(data['ys'], predictions_by_order)
+    if args['verbose'] >= 1:
+        print(f'Best result \n\t {evaluation}', flush=True)
 
-            if args.plot.tangles:
-                plotting(args, data, predictions_of_order)
+    new_row = pd.Series({**foundamental_parameters, **evaluation})
+    df_output = df_output.append(new_row, ignore_index=True)
 
-    path = args.root_dir / f'evaluation_{unique_id}.csv'
+    if args['plot']['tangles']:
+        plotting(data, predictions_by_order, verbose=args['verbose'], path=args['plot_dir'])
+
+    path = args['root_dir'] / f'evaluation_{unique_id}.csv'
     df_output.to_csv(path)
 
 

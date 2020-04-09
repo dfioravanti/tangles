@@ -77,18 +77,8 @@ def plot_predictions_graph(G, ys, predictions_of_order, path=None):
     if path is not None:
         output_path = path / 'graph prediction'
         output_path.mkdir(parents=True, exist_ok=True)
-       
-    pos = nx.random_layout(G)
-    ncls = np.max(ys) + 1
-    xoff = np.sin(2 * np.pi * ys / ncls) * 2
-    yoff = np.cos(2 * np.pi * ys / ncls) * 2
-    for v in G:
-            pos[v][0] += xoff[v]
-            pos[v][1] += yoff[v]
-        pos = nx.spring_layout(G, pos=pos, iterations=1)
-    if nx.is_connected(G):
-        pos = nx.spectral_layout(G)
-        pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
+
+    pos = get_position(G, ys)
 
     cmap = plt.cm.get_cmap('tab10')
 
@@ -112,7 +102,26 @@ def plot_predictions_graph(G, ys, predictions_of_order, path=None):
         plt.close(f)
 
 
-def plot_graph_cuts(xs, cuts, orders, type, path):
+def get_position(G, ys):
+    if ys is not None:
+        pos = nx.random_layout(G)
+        ncls = np.max(ys) + 1
+        xoff = np.sin(2 * np.pi * ys / ncls) * 2
+        yoff = np.cos(2 * np.pi * ys / ncls) * 2
+        for v in G:
+            pos[v][0] += xoff[v]
+            pos[v][1] += yoff[v]
+        pos = nx.spring_layout(G, pos=pos, iterations=1)
+    elif nx.is_connected(G):
+        pos = nx.spectral_layout(G)
+        pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
+    else:
+        pos = nx.kamada_kawai_layout(G)
+        pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
+    return pos
+
+
+def plot_graph_cuts(G, ys, cuts, orders, path):
     plt.style.use('ggplot')
     plt.ioff()
 
@@ -122,9 +131,7 @@ def plot_graph_cuts(xs, cuts, orders, type, path):
 
     _, nb_points = cuts.shape
 
-    if type == 'graph':
-        pos = nx.spectral_layout(xs)
-        pos = nx.spring_layout(xs, pos=pos, k=.5, iterations=100)
+    pos = get_position(G, ys)
 
     for i, cut in enumerate(cuts):
         fig, ax = plt.subplots(1, 1, figsize=(15, 15))
@@ -136,9 +143,8 @@ def plot_graph_cuts(xs, cuts, orders, type, path):
         colors = np.zeros(nb_points)
         colors[cut] = (i % 9) + 1
 
-        if type == 'graph':
-            nx.draw_networkx(xs, pos=pos, ax=ax, node_color=colors, cmap='tab10',
-                             edge_color=COLOR_SILVER)
+        nx.draw_networkx(G, pos=pos, ax=ax, node_color=colors, cmap='tab10',
+                         edge_color=COLOR_SILVER)
 
         if path is not None:
             plt.savefig(path_cuts / f"cut number {i}.svg")

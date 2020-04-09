@@ -1,5 +1,4 @@
 import argparse
-from types import SimpleNamespace
 
 
 def make_parser():
@@ -16,18 +15,20 @@ def make_parser():
     parser = argparse.ArgumentParser(description='Program to compute tangles')
 
     parser.add_argument('-t', dest='dataset_name', action='store')
-    parser.add_argument('-p', dest='pre_type', action='store')
-    parser.add_argument('-s', dest='seeds', nargs='+', type=int)
+    parser.add_argument('-p', dest='preprocessing_name', action='store')
+    parser.add_argument('-a', dest='agreement', action='store', type=int)
+    parser.add_argument('-o', dest='percentile_orders', action='store', type=int)
+    parser.add_argument('-s', dest='seed', action='store', type=int)
 
     # SBM
     parser.add_argument('--sbm_bs', dest='sbm_bs', nargs='+', type=int)
-    parser.add_argument('--sbm_ps', dest='sbm_ps', nargs='+', type=float)
-    parser.add_argument('--sbm_qs', dest='sbm_qs', nargs='+', type=float)
+    parser.add_argument('--sbm_p', dest='sbm_p', action='store', type=float)
+    parser.add_argument('--sbm_q', dest='sbm_q', action='store', type=float)
 
     # Gaussian + KNN
     parser.add_argument('--gauss_bs', dest='gauss_bs', nargs='+', type=int)
     parser.add_argument('--gauss_cs', dest='gauss_cs', nargs='+', type=float)
-    parser.add_argument('--gauss_ks', dest='gauss_ks', nargs='+', type=int)
+    parser.add_argument('--gauss_s', dest='gauss_k', action='store', type=int)
 
     # KL algorithm
     parser.add_argument('--KL_nb', dest='KL_nb', action='store', type=int)
@@ -41,106 +42,3 @@ def make_parser():
     parser.add_argument('--no_plot_cuts', dest='plot_cuts', action='store_false', default=None)
 
     return parser
-
-
-def validate_args(parser):
-    """
-    TODO: To this function
-
-    Given a parser we validate the parameters of the program
-
-    Parameters
-    ----------
-     parser: ArgumentParser
-        The parser
-
-    Returns
-    -------
-    args: SimpleNamespace
-        The parameters of the program parsed and validated into a SimpleNamespace
-    """
-
-    pass
-
-
-def get(namespace, key):
-    """
-    Returns the value associated to key in the namespace. If key does not exists returns None.
-
-    Parameters
-    ----------
-    namespace: SimpleNamespace
-        The namespace we are examining for the key
-    key: String
-        The key we are interested in
-
-    Returns
-    -------
-    value: Object
-        The value associated with the key. None if not present
-    """
-
-    value = namespace.__dict__.get(key)
-    return value
-
-
-def add_value(namespace, key, value):
-    """
-    Add a couple (key, value) to a namespace.
-    We assume that that the key is in the form k1.k2...kn where only the last node has a value
-
-    Parameters
-    ----------
-    namespace: SimpleNamespace
-        The namespace we want to add a value to
-    key: String
-        The key associated with the value
-    value: Object
-        The value to add to the namespace
-
-    Returns
-    -------
-    namespace: SimpleNamespace
-        The namespace with the added (key, value)
-
-    """
-
-    key_str = key.split('.')
-    current_key = key_str[0]
-    remaning_keys = '.'.join(key_str[1:])
-    current_value = get(namespace, current_key)
-
-    if len(remaning_keys) == 0:
-        new_value = value
-    else:
-        if current_value is None:
-            new_value = add_value(SimpleNamespace(), remaning_keys, value)
-        else:
-            new_value = add_value(current_value, remaning_keys, value)
-
-    setattr(namespace, current_key, new_value)
-    return namespace
-
-
-def to_SimpleNamespace(args):
-    """
-    Transforms a argparse.Namespace into a SimpleNamespace.
-    We assume that that all the keys are in the form k1.k2...kn where only the last node has a value
-
-    Parameters
-    ----------
-    args: argparse.Namespace
-        The namespace we want to convert
-
-    Returns
-    -------
-    namespace: SimpleNamespace
-        The converted namespace
-    """
-
-    namespace = SimpleNamespace()
-
-    for key, value in vars(args).items():
-        namespace = add_value(namespace, key, value)
-
-    return namespace
