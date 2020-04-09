@@ -49,6 +49,7 @@ def compute_cuts(data, preprocessing, verbose):
     elif preprocessing.name == PREPROCESSING_FID_MAT:
         cuts = fid_mat(xs=data['A'], nb_cuts=preprocessing.fid_mat.nb_cuts, ratio=preprocessing.fid_mat.ratio)
 
+    cuts = np.unique(cuts, axis=0)
     return cuts
 
 
