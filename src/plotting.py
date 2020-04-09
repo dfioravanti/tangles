@@ -77,9 +77,18 @@ def plot_predictions_graph(G, ys, predictions_of_order, path=None):
     if path is not None:
         output_path = path / 'graph prediction'
         output_path.mkdir(parents=True, exist_ok=True)
-
-    pos = nx.spectral_layout(G)
-    pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
+       
+    pos = nx.random_layout(G)
+    ncls = np.max(ys) + 1
+    xoff = np.sin(2 * np.pi * ys / ncls) * 2
+    yoff = np.cos(2 * np.pi * ys / ncls) * 2
+    for v in G:
+            pos[v][0] += xoff[v]
+            pos[v][1] += yoff[v]
+        pos = nx.spring_layout(G, pos=pos, iterations=1)
+    if nx.is_connected(G):
+        pos = nx.spectral_layout(G)
+        pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
 
     cmap = plt.cm.get_cmap('tab10')
 
