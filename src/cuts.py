@@ -144,8 +144,9 @@ def fid_mat(xs, nb_cuts, ratio):
 
 
 def fid_mat_algorithm(xs, r):
+    r = np.random.uniform(r, 0.5)
     nb_cells, _ = xs.shape
-    A, B = initial_partition(xs, np.random.uniform(r, 1-r))
+    A, B = initial_partition(xs, np.random.uniform(r, 0.5))
 
     cell_array = [np.argwhere(row == True).flatten() for row in xs]
 
@@ -233,7 +234,7 @@ def compute_gain_for_net(F, T, other_index):
 
 def choose_cell_greedy(A, B, gain_bucket, r, not_locked, p_max):
 
-    possible_partition = is_balanced(A, B, r)
+    possible_partition = is_balanced(A, B, r, sum(not_locked))
 
     # choose cell that is not locked, does not harm the ratio and maximizes the gain
     for index in np.arange(p_max, -p_max-1, -1):
@@ -245,16 +246,16 @@ def choose_cell_greedy(A, B, gain_bucket, r, not_locked, p_max):
     return None, 0
 
 
-def is_balanced(A, B, r):
-    cardinalityA_1 = sum(A) - 1
-    cardinalityB_1= sum(B) + 1
+def is_balanced(A, B, r, smax):
+    sumA = sum(A)
+    cardinalityA_1 = sumA - 1
+    cardinalityA_2 = sumA + 1
 
-    cardinalityA_2 = sum(A) + 1
-    cardinalityB_2 = sum(B) - 1
+    W = len(A)
 
-    W_1 = cardinalityA_1 + cardinalityB_1
-    W_2 = cardinalityA_2 + cardinalityB_2
-    return [r*W_1 <= cardinalityA_1 <= W_1 - r*W_1, r*W_2 <= cardinalityA_2 <= W_2 - r*W_2]
+    leftbound = r*W
+    rightbound = W - r*W
+    return [leftbound <= cardinalityA_1 <= rightbound, leftbound <= cardinalityA_2 <= rightbound]
 
 
 

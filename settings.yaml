@@ -1,4 +1,4 @@
-seeds: [21, 42]
+seeds: [21]
 
 # allowed types: single, batch
 experiment:
@@ -9,14 +9,14 @@ big5:
 
 dataset:
   sbm:
-    block_sizes: [40, 80]
-    ps: [0.2]
-    qs: [0.02]
+    block_sizes: [90, 100]
+    ps: [0.1]
+    qs: [0.01]
 
   knn_blobs:
-    blob_sizes: [20, 20, 20, 20]
-    blobs_centers: [[[-1.5, -1.5], [1.5, -1.5], [-1.5, 1.5], [1.5, 1.5]]]
-    ks: [6]
+    blob_sizes: [50, 50, 50, 50]
+    blobs_centers: [[[-2, 0], [0, -2], [0, 2], [2, 0]]]
+    ks: [15]
 
   q_syn:
     n_samples: 100
@@ -25,7 +25,7 @@ dataset:
     tolerance: 0.10
 
 algorithm:
-  agreement: 5
+  agreement: 10
   name: core
 
 preprocessing:
@@ -41,7 +41,7 @@ preprocessing:
 
   fid_mat:
     nb_cuts: 20
-    ratio: 0.2
+    ratio: 0.1
 
 tangles:
   percentage_orders: 25
@@ -49,7 +49,7 @@ tangles:
 # -1 in nb_cuts means all
 plot:
   tangles: True
-  cuts: True
+  cuts: False
   nb_cuts: -1
 
 # 0, 1, 2, 3 allowed
