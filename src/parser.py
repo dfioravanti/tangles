@@ -28,7 +28,7 @@ def make_parser():
     # Gaussian + KNN
     parser.add_argument('--gauss_bs', dest='gauss_bs', nargs='+', type=int)
     parser.add_argument('--gauss_cs', dest='gauss_cs', nargs='+', type=float)
-    parser.add_argument('--gauss_s', dest='gauss_k', action='store', type=int)
+    parser.add_argument('--gauss_k', dest='gauss_k', action='store', type=int)
 
     # KL algorithm
     parser.add_argument('--KL_nb', dest='KL_nb', action='store', type=int)
