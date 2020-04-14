@@ -39,7 +39,7 @@ def compute_cuts(data, args, verbose):
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(A=data['A'],
                              nb_cuts=args['preprocessing']['nb_cuts'],
-                             fractions=args['preprocessing']['fractions'],
+                             lb_f=args['preprocessing']['lb_f'],
                              verbose=verbose)
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KMODES:
         cuts = find_kmodes_cuts(xs=data['xs'],
@@ -51,7 +51,8 @@ def compute_cuts(data, args, verbose):
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_FID_MAT:
         cuts = fid_mat(xs=data['A'],
                        nb_cuts=args['preprocessing']['nb_cuts'],
-                       ratio=args['preprocessing']['ratio'])
+                       lb_f=args['preprocessing']['lb_f'],
+                       verbose=verbose)
 
     cuts = np.unique(cuts, axis=0)
     return cuts
@@ -140,7 +141,7 @@ def get_dataset_cuts_order(args):
     all_cuts = compute_cuts(data, args, verbose=args['verbose'])
 
     if args['verbose'] >= 2:
-        print(f"\tI found {len(all_cuts)} cuts\n")
+        print(f"\tI found {len(all_cuts)} unique cuts\n")
         print("Compute order", flush=True)
     all_cuts, orders = order_cuts(all_cuts, order_function)
 

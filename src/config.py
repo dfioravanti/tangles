@@ -146,10 +146,15 @@ def merge_config(args_parser, main_cfg):
             main_cfg['dataset'][DATASET_KNN_BLOBS]['k'] = args_parser.gauss_k
 
     if args_parser.preprocessing_name == PREPROCESSING_KARNIG_LIN:
-        if args_parser.KL_frac is not None:
-            main_cfg['preprocessing']['karnig_lin']['nb_cuts'] = args_parser.KL_nb
-        if args_parser.KL_frac is not None:
-            main_cfg['preprocessing']['karnig_lin']['fractions'] = args_parser.KL_frac
+        if args_parser.nb_cuts is not None:
+            main_cfg['preprocessing']['karnig_lin']['nb_cuts'] = args_parser.nb_cuts
+        if args_parser.lb_f is not None:
+            main_cfg['preprocessing']['karnig_lin']['lb_f'] = args_parser.lb_f
+    elif args_parser.preprocessing_name == PREPROCESSING_FID_MAT:
+        if args_parser.nb_cuts is not None:
+            main_cfg['preprocessing']['fid_mat']['nb_cuts'] = args_parser.nb_cuts
+        if args_parser.lb_f is not None:
+            main_cfg['preprocessing']['fid_mat']['lb_f'] = args_parser.lb_f
 
     if args_parser.plot_tangles is not None:
         main_cfg['plot']['tangles'] = args_parser.plot_tangles

@@ -12,6 +12,7 @@ import src.coarsening as coarsening
 # This is now fully vectorized. Everything still seems to work. Somebody should review this, though.
 # ----------------------------------------------------------------------------------------------------------------------
 
+
 def initial_partition(xs, fraction=0.5):
     nb_vertices, _ = xs.shape
 
@@ -64,15 +65,15 @@ def maximize(xs, A, B, D):
     return g_max, a_res, b_res
 
 
-def kernighan_lin(A, nb_cuts, fractions, verbose):
+def kernighan_lin(A, nb_cuts, lb_f, verbose):
     cuts = []
 
-    for f in fractions:
+    for i in range(nb_cuts):
+        f = np.random.uniform(lb_f, 0.5)
         if verbose >= 3:
-            print(f"\t Calculating cuts for a fraction of: 1/{f}")
-        for c in range(nb_cuts):
-            cut = kernighan_lin_algorithm(A, 1 / f)
-            cuts.append(cut)
+            print(f'\tlooking for cut {i+1}/{nb_cuts} with f={f:.02}')
+        cut = kernighan_lin_algorithm(A, f)
+        cuts.append(cut)
 
     cuts = np.array(cuts)
 
@@ -130,12 +131,13 @@ def kernighan_lin_algorithm(xs, fraction):
 #
 # ----------------------------------------------------------------------------------------------------------------------
 
-def fid_mat(xs, nb_cuts, ratio):
+def fid_mat(xs, nb_cuts, lb_f, verbose):
     cuts = []
 
-    for c in range(nb_cuts):
-        print("calculating cut: ", c)
-        cut = fid_mat_algorithm(xs, ratio)
+    for i in range(nb_cuts):
+        if verbose >= 3:
+            print(f'\tlooking for cut {i + 1}/{nb_cuts}')
+        cut = fid_mat_algorithm(xs, lb_f, verbose)
         cuts.append(cut)
 
     cuts = np.array(cuts)
@@ -143,7 +145,7 @@ def fid_mat(xs, nb_cuts, ratio):
     return cuts
 
 
-def fid_mat_algorithm(xs, r):
+def fid_mat_algorithm(xs, r, verbose):
     r = np.random.uniform(r, 0.5)
     nb_cells, _ = xs.shape
     A, B = initial_partition(xs, np.random.uniform(r, 0.5))
@@ -191,8 +193,8 @@ def fid_mat_algorithm(xs, r):
             np.logical_not(A, out=B)
         else:
             break
-
-    print("final ratio: ", sum(A) / nb_cells)
+    if verbose >= 3:
+        print(f"\tfinal ratio: {sum(A) / nb_cells:.02}")
 
     return A
 
