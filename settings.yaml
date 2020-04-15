@@ -3,9 +3,9 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: sbm
-  preprocessing_name: karnig_lin
-  agreement: 50
+  dataset_name: pol_books
+  preprocessing_name: fid_mat
+  agreement: 3
   percentile_orders: 100
 
 dataset:
@@ -25,21 +25,25 @@ dataset:
     n_mindsets: 5
     tolerance: 0.10
 
+  pol_books:
+    path_edges: datasets/pol_books/political-books-edges.csv
+    path_nodes: datasets/pol_books/political-books-nodes.csv
+
   big5:
     path: datasets/big5.csv
 
 preprocessing:
   karnig_lin:
-    nb_cuts: 100
-    lb_f: 0.25
+    nb_cuts: 400
+    lb_f: 0.10
 
   coarsening:
     nb_cuts: 300
     n_max: 20
 
   fid_mat:
-    nb_cuts: 100
-    lb_f: 0.15
+    nb_cuts: 300
+    lb_f: 0
 
 # -1 in nb_cuts means all
 plot:

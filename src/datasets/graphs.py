@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 import networkx as nx
 
@@ -11,19 +12,16 @@ def load_FLORENCE():
     return A, None, G
 
 
-def load_ROC(nb_cliques, clique_size):
+def load_POLI_BOOKS(path_nodes, path_edges):
 
-    nb_nodes = nb_cliques * clique_size
+    nodes = pd.read_csv(path_nodes)
+    ys = nodes['political_ideology'].astype('category').cat.codes.values
 
-    A = np.zeros((nb_nodes, nb_nodes), dtype=bool)
-    ys = np.zeros(nb_nodes, dtype=int)
-    G = nx.ring_of_cliques(nb_cliques, clique_size)
-
-    for node, ad in G.adjacency():
-        A[node, list(ad.keys())] = True
-
-    for cls in range(nb_cliques):
-        ys[cls*clique_size:(cls+1)*clique_size] = cls
+    file_edges = open(path_edges, 'rb')
+    file_edges.readline()
+    G = nx.read_edgelist(file_edges, delimiter=',', nodetype=int, data=(('weight', int),))
+    A = nx.adjacency_matrix(G).todense()
+    A = np.asarray(A)
 
     return A, ys, G
 

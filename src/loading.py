@@ -1,9 +1,9 @@
 from functools import partial
 
 from src.config import DATASET_QUESTIONNAIRE_SYNTHETIC, DATASET_SBM, \
-    DATASET_RING_OF_CLIQUES, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS
+    DATASET_POLITICAL_BOOKS, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS
 from src.datasets.big5 import load_BIG5
-from src.datasets.graphs import load_RPG, load_ROC, load_FLORENCE
+from src.datasets.graphs import load_RPG, load_POLI_BOOKS, load_FLORENCE
 from src.datasets.kNN import load_knn_blobs
 from src.datasets.questionnaire import make_synthetic_questionnaire
 from src.order_functions import implicit_order, cut_order
@@ -69,9 +69,9 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['G'] = G
         order_function = partial(cut_order, A)
-    elif args['experiment']['dataset_name'] == DATASET_RING_OF_CLIQUES:
-        A, ys, G = load_ROC(nb_cliques=args['dataset']['nb_cliques'],
-                            clique_size=args['dataset']['clique_size'])
+    elif args['experiment']['dataset_name'] == DATASET_POLITICAL_BOOKS:
+        A, ys, G = load_POLI_BOOKS(path_nodes=args['dataset']['path_nodes'],
+                                   path_edges=args['dataset']['path_edges'])
 
         data['A'] = A
         data['ys'] = ys

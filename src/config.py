@@ -23,7 +23,7 @@ DATASET_BINARY_IRIS = "iris"
 DATASET_SBM = "sbm"
 DATASET_KNN_BLOBS = "knn_blobs"
 DATASET_MULTILEVEL = "multilevel"
-DATASET_RING_OF_CLIQUES = "roc"
+DATASET_POLITICAL_BOOKS = "pol_books"
 DATASET_FLORENCE = "flo"
 DATASET_BIG5 = 'big5'
 
@@ -37,7 +37,7 @@ GRAPH_DATASETS = [
     DATASET_SBM,
     DATASET_KNN_BLOBS,
     DATASET_MULTILEVEL,
-    DATASET_RING_OF_CLIQUES,
+    DATASET_POLITICAL_BOOKS,
     DATASET_FLORENCE,
 ]
 
@@ -80,6 +80,7 @@ def load_validate_settings(args_parser, root_dir):
 
     args['prefix'] = get_prefix(args)
 
+
     return args
 
 
@@ -104,6 +105,8 @@ def get_prefix(args):
         prefix = f'SMB_{len(args["dataset"]["block_sizes"])}'
     elif args['experiment']['dataset_name'] == DATASET_KNN_BLOBS:
         prefix = f'knn_blobs_{len(args["dataset"]["blob_sizes"])}'
+    else:
+        prefix = args['experiment']['dataset_name']
 
     return prefix
 

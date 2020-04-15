@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import SpectralClustering
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-from src.datasets.graphs import load_ROC, load_RPG
+from src.datasets.graphs import load_POLI_BOOKS, load_RPG
 from src.order_functions import cut_order
 from src.preprocessing import neighbours_in_same_cluster, build_cover_graph
 
