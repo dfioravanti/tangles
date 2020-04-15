@@ -5,8 +5,8 @@ import pandas as pd
 
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
-from src.execution import compute_clusters, compute_evaluation, \
-    get_dataset_cuts_order, tangle_computation, plotting
+from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting, \
+                        compute_maximal_tangles, compute_clusters_maximals
 
 
 def main(args):
@@ -46,9 +46,8 @@ def main(args):
                                           agreement=args['experiment']['agreement'],
                                           verbose=args['verbose'])
 
-    predictions_by_order = compute_clusters(tangles_by_orders=tangles_by_order,
-                                            all_cuts=all_cuts,
-                                            verbose=args['verbose'])
+    maximals = compute_maximal_tangles(tangles_of_order)    
+    predictions = compute_clusters_maximals(maximals, all_cuts)
 
     evaluation = compute_evaluation(data['ys'], predictions_by_order)
     if args['verbose'] >= 1:

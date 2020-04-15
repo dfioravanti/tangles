@@ -111,6 +111,51 @@ def compute_clusters(tangles_by_orders, all_cuts, verbose):
 
     return predictions_by_order
 
+def compute_maximal_tangles(tangles_by_orders):
+    print("Computing maximal tangles")
+    maximals = []
+    orders = sorted(tangles_by_orders.keys())
+
+    for order in orders:
+        tangles = tangles_by_orders[order]
+        new_maximals = tangles.copy()
+        for m in maximals:
+            for tangle in tangles:
+                if all(mspec == tangle.specification[i] for (i, mspec) in m.specification.items()):
+                    break
+            else:
+                new_maximals.append(m)
+        maximals = new_maximals
+
+    return maximals
+
+def compute_clusters_maximals(maximal_tangles, all_cuts):
+    predictions_by_order = {}
+
+    print(f"\tCompute clusters for maximal tangles", flush=True)
+    _, n_points = all_cuts.shape
+    nb_tangles = len(maximal_tangles)
+
+    matching_cuts = np.zeros((nb_tangles, n_points), dtype=float)
+
+    for i, tangle in enumerate(maximal_tangles):
+        cuts = list(tangle.specification.keys())
+        orientations = list(tangle.specification.values())
+
+        matching_cuts[i, :] = np.sum((all_cuts[cuts, :].T == orientations), axis=1) / len(cuts)
+    best = np.amax(matching_cuts, axis=0)
+    predictions = np.zeros(n_points)
+    for p in range(n_points):
+        the_best = matching_cuts[:, p] == best[p]
+        if the_best.sum() == 1:
+            predictions[p] = np.argwhere(the_best)
+        else:
+            predictions[p] = np.nan
+            print(f'Unsure about {p}')
+
+    predictions_by_order[-1] = predictions
+
+    return predictions_by_order
 
 def compute_evaluation(ys, predictions):
     evaluation = {}
