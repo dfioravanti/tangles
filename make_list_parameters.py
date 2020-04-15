@@ -1,11 +1,17 @@
+import datetime
+
 import numpy as np
 
 from src.config import DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_KARNIG_LIN, PREPROCESSING_FID_MAT
 from src.utils import dict_product
 
+ts = int(datetime.datetime.now().timestamp())
+
 parameters = {}
 multi_parameters = {}
+
 parameters['-t'] = DATASET_SBM
+parameters['--id'] = ts
 
 multi_parameters['-p'] = [PREPROCESSING_KARNIG_LIN, PREPROCESSING_FID_MAT]
 
@@ -36,12 +42,13 @@ elif parameters['-t'] == DATASET_KNN_BLOBS:
 
     multi_parameters['--gauss_k'] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
+
 with open('parameters.txt', 'w') as f:
     for current_parameters in dict_product(multi_parameters):
         if parameters['-t'] == DATASET_SBM:
             parameters['-a'] = int(np.floor(min(current_parameters['--sbm_bs']) / 2))
-        elif parameters['-t'] == DATASET_KNN_BLOBS:
-            parameters['--KL_frac'] = list(range(2, len(current_parameters['--gauss_bs']) + 1))
+        if parameters['-t'] == DATASET_KNN_BLOBS:
+            parameters['-a'] = int(np.floor(min(current_parameters['--gauss_bs']) / 2))
         p = {**parameters, **current_parameters}
 
         line = []

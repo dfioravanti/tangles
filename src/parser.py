@@ -33,6 +33,9 @@ def make_parser():
     parser.add_argument('--nb_cuts', dest='nb_cuts', action='store', type=int)
     parser.add_argument('--lb_f', dest='lb_f', action='store', type=int)
 
+    # ID
+    parser.add_argument('--id', dest='unique_id', action='store', default=0)
+
     # Plotting
     parser.add_argument('--plot_tangles', dest='plot_tangles', action='store_true', default=None)
     parser.add_argument('--no_plot_tangles', dest='plot_tangles', action='store_false', default=None)

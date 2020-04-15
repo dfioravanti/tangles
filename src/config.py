@@ -80,7 +80,6 @@ def load_validate_settings(args_parser, root_dir):
 
     args['prefix'] = get_prefix(args)
 
-
     return args
 
 
@@ -164,6 +163,9 @@ def merge_config(args_parser, main_cfg):
     if args_parser.plot_cuts is not None:
         main_cfg['plot']['cuts'] = args_parser.plot_cuts
 
+    if args_parser.unique_id is not None:
+        main_cfg['experiment']['unique_id'] = str(args_parser.unique_id)
+
     return main_cfg
 
 
@@ -189,7 +191,7 @@ def validate_settings(args):
 
 
 def set_up_dirs(args, root_dir):
-    args['root_dir'] = Path(f"{root_dir / 'output' / args['prefix']}")
+    args['root_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id'] / args['prefix']}")
     args['plot_dir'] = Path(f"{args['root_dir'] / 'plots'}")
 
     args['plot_dir'].mkdir(parents=True, exist_ok=True)
