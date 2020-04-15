@@ -31,7 +31,7 @@ def make_parser():
     parser.add_argument('--gauss_k', dest='gauss_k', action='store', type=int)
 
     parser.add_argument('--nb_cuts', dest='nb_cuts', action='store', type=int)
-    parser.add_argument('--lb_f', dest='lb_f', action='store', type=int)
+    parser.add_argument('--lb_f', dest='lb_f', action='store', type=float)
 
     # ID
     parser.add_argument('--id', dest='unique_id', action='store', default=0)
