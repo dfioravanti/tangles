@@ -50,19 +50,19 @@ def main(args):
     predictions_by_order = compute_clusters(tangles_by_orders=tangles_by_order,
                                             all_cuts=all_cuts,
                                             verbose=args['verbose'])
+    if data['ys'] is not None:
+        evaluation = compute_evaluation(data['ys'], predictions_by_order)
+        if args['verbose'] >= 1:
+            print(f'Best result \n\t {evaluation}', flush=True)
 
-    evaluation = compute_evaluation(data['ys'], predictions_by_order)
-    if args['verbose'] >= 1:
-        print(f'Best result \n\t {evaluation}', flush=True)
-
-    new_row = pd.Series({**foundamental_parameters, **evaluation})
-    df_output = df_output.append(new_row, ignore_index=True)
+        new_row = pd.Series({**foundamental_parameters, **evaluation})
+        df_output = df_output.append(new_row, ignore_index=True)
+        path = args['root_dir'] / f'evaluation_{unique_id}.csv'
+        df_output.to_csv(path)
 
     if args['plot']['tangles']:
         plotting(data, predictions_by_order, verbose=args['verbose'], path=args['plot_dir'])
 
-    path = args['root_dir'] / f'evaluation_{unique_id}.csv'
-    df_output.to_csv(path)
 
 
 if __name__ == '__main__':
