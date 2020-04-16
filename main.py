@@ -46,8 +46,10 @@ def main(args):
                                           agreement=args['experiment']['agreement'],
                                           verbose=args['verbose'])
 
-    maximals = compute_maximal_tangles(tangles_of_order)    
-    predictions = compute_clusters_maximals(maximals, all_cuts)
+    # max_tangles = compute_maximal_tangles(tangles_by_order)
+    predictions_by_order = compute_clusters(tangles_by_orders=tangles_by_order,
+                                            all_cuts=all_cuts,
+                                            verbose=args['verbose'])
 
     evaluation = compute_evaluation(data['ys'], predictions_by_order)
     if args['verbose'] >= 1:

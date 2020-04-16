@@ -11,7 +11,6 @@ from src.order_functions import implicit_order, cut_order
 
 def get_dataset_and_order_function(args):
     """
-    TODO: MOVE A LOT OF THESE args['dataset'] OUT AND GET THEM VIA COMMAND LINE
 
     Function that returns the desired dataset and the order function in the format that we expect.
     Datasets are always in the format of
@@ -46,7 +45,7 @@ def get_dataset_and_order_function(args):
         xs, ys, cs = make_synthetic_questionnaire(n_samples=args['dataset']['n_samples'],
                                                   n_features=args['dataset']['n_features'],
                                                   n_mindsets=args['dataset']['n_mindsets'],
-                                                  tolerance=args['dataset']['tolerance'],
+                                                  n_mistakes=args['dataset']['n_mistakes'],
                                                   seed=args['experiment']['seed'],
                                                   centers=True)
 

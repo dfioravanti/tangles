@@ -1,5 +1,3 @@
-import pathlib
-from datetime import datetime
 import itertools
 
 import numpy as np
@@ -8,23 +6,15 @@ from scipy.linalg import hadamard
 
 def make_centers(n_features=20, n_mindsets=2):
 
-    output = np.zeros((n_mindsets, n_features), dtype=bool)
+    centers = np.zeros((n_mindsets, n_features), dtype=bool)
+    idxs = np.array_split(np.arange(n_features), n_mindsets)
+    idxs = idxs
 
-    k = np.int(np.ceil(np.log2(n_features)))
-    n_blocks, len_final_block = divmod(n_features, k)
+    for i, idx in enumerate(idxs):
 
-    block = np.array([list(i) for i in itertools.product([0, 1], repeat=k)])
-    block = block[:n_mindsets]
+        centers[i, idx] = True
 
-    if len_final_block > 0:
-        output[:, :-len_final_block] = np.tile(block, n_blocks)
-        final_block = np.array([list(i) for i in itertools.product([0, 1], repeat=k)])
-        final_block = final_block[:n_mindsets, :len_final_block]
-        output[:, -len_final_block:] = final_block
-    else:
-        output = np.tile(block, n_blocks)
-
-    return output
+    return centers
 
 
 def make_centers2(n_features=20, n_mindsets=2):
@@ -62,7 +52,7 @@ def make_centers2(n_features=20, n_mindsets=2):
     return c
 
 
-def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tolerance=0.2,
+def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, n_mistakes=2,
                                  seed=None, centers=True):
     """
 
@@ -80,7 +70,7 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
         The number of features.
     n_mindsets : int, optional (default=2)
         The number of classes, we call them "mindsets", that we should generate.
-    tolerance: float, optional (default=0.2)
+    nb_mistakes: float, optional (default=0.2)
         The percentage of deviation, computed respected to the 0-1 loss, that we allow
          inside a mindset. Must be in [0,1].
     seed: Int, optional (default=None)
@@ -104,13 +94,8 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
     # TODO: We need some check on the number of mindsets vs number of samples and features.
     #       think how to implement that.
 
-    if not 0 < tolerance < 1:
-        raise ValueError("tolerance must be in [0,1]")
-
     if seed is not None:
         np.random.seed(seed)
-
-    max_n_errors = np.floor(n_features * tolerance).astype(int)
 
     cs = make_centers(n_features, n_mindsets)
     xs, ys = np.empty((n_samples, n_features), dtype=np.bool), np.empty(n_samples, dtype=np.int)
@@ -120,7 +105,7 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, tol
         xs[ids, :] = cs[mindset]
         ys[ids] = mindset
 
-    id_errors = np.random.choice(n_features, size=(n_samples, max_n_errors))
+    id_errors = np.random.choice(n_features, size=(n_samples, n_mistakes))
     xs_to_flip = xs[np.arange(len(id_errors)), id_errors.T]
     xs[np.arange(len(id_errors)), id_errors.T] = np.flip(xs_to_flip)
 

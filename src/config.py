@@ -45,14 +45,14 @@ VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS
 
 # Preprocessing
 
-PREPROCESSING_FEATURES = "fea"
+PREPROCESSING_NO = "feat"
 PREPROCESSING_KMODES = "kmodes"
 PREPROCESSING_KARNIG_LIN = "karnig_lin"
 PREPROCESSING_FID_MAT = "fid_mat"
 PREPROCESSING_COARSENING = "coarsening"
 
 VALID_PREPROCESSING = [
-    PREPROCESSING_FEATURES,
+    PREPROCESSING_NO,
     PREPROCESSING_KARNIG_LIN,
     PREPROCESSING_KMODES,
     PREPROCESSING_COARSENING,
@@ -67,6 +67,7 @@ VALID_ALGORITHM = [
     ALGORITHM_CORE
 ]
 
+NAN = -9999
 
 def load_validate_settings(args_parser, root_dir):
     main_cfg_file = 'settings.yaml'
@@ -91,10 +92,12 @@ def delete_useless_parameters(args):
     args['dataset'] = value
 
     preprocessing_name = args['experiment']['preprocessing_name']
-    value = args['preprocessing'][preprocessing_name]
-    args['preprocessing'].clear()
-    args['preprocessing'] = value
-
+    if preprocessing_name != PREPROCESSING_NO:
+        value = args['preprocessing'][preprocessing_name]
+        args['preprocessing'].clear()
+        args['preprocessing'] = value
+    else:
+        args['preprocessing'].clear()
     return args
 
 

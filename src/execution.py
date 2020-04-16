@@ -4,10 +4,11 @@ import numpy as np
 from sklearn.metrics import homogeneity_completeness_v_measure
 
 from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_FID_MAT
-from src.config import PREPROCESSING_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
+from src.config import PREPROCESSING_NO, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
+from src.config import NAN
 from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat
 from src.loading import get_dataset_and_order_function
-from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions
+from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions, plot_cuts
 from src.tangles import core_algorithm
 
 
@@ -17,7 +18,7 @@ def compute_cuts(data, args, verbose):
     to compute tangles.
     This different types of preprocessing are available
 
-     1. PREPROCESSING_FEATURES: consider the features as cuts
+     1. PREPROCESSING_NO: consider the features as cuts
      2. PREPROCESSING_MAKE_SUBMODULAR: consider the features as cuts and then make them submodular
      3. PREPROCESSING_RANDOM_COVER: Given an adjacency matrix build a cover of the graph and use that as starting
                                           point for creating the cuts
@@ -34,7 +35,7 @@ def compute_cuts(data, args, verbose):
         The bipartitions that we will use to compute tangles
     """
 
-    if args['experiment']['preprocessing_name'] == PREPROCESSING_FEATURES:
+    if args['experiment']['preprocessing_name'] == PREPROCESSING_NO:
         cuts = (data['xs'] == True).T
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(A=data['A'],
@@ -107,9 +108,15 @@ def compute_clusters(tangles_by_orders, all_cuts, verbose):
             matching_cuts[i, :] = np.sum((all_cuts[cuts, :].T == orientations), axis=1)
 
         predictions = np.argmax(matching_cuts, axis=0)
+        best_values = np.max(matching_cuts, axis=0)
+
+        nb_best_values = np.sum(matching_cuts == best_values, axis=0)
+        predictions[nb_best_values > 1] = NAN
+
         predictions_by_order[order] = predictions
 
     return predictions_by_order
+
 
 def compute_maximal_tangles(tangles_by_orders):
     print("Computing maximal tangles")
@@ -128,6 +135,7 @@ def compute_maximal_tangles(tangles_by_orders):
         maximals = new_maximals
 
     return maximals
+
 
 def compute_clusters_maximals(maximal_tangles, all_cuts):
     predictions_by_order = {}
@@ -156,6 +164,7 @@ def compute_clusters_maximals(maximal_tangles, all_cuts):
     predictions_by_order[-1] = predictions
 
     return predictions_by_order
+
 
 def compute_evaluation(ys, predictions):
     evaluation = {}
@@ -206,6 +215,8 @@ def get_dataset_cuts_order(args):
 
         if G is not None:
             plot_graph_cuts(G, ys, all_cuts[:args['plot']['nb_cuts']], orders, args['plot_dir'])
+        if xs is not None:
+            plot_cuts(xs, ys, all_cuts[:args['plot']['nb_cuts']], orders, args['plot_dir'])
 
     return data, orders, all_cuts
 

@@ -56,7 +56,7 @@ def implicit_order(xs, n_samples, cut):
     orders = dist.pairwise(in_cut, out_cut)
     expected_order = np.average(orders) * 100
 
-    return expected_order
+    return int(np.floor(expected_order))
 
 
 def cut_order(A, cut):
