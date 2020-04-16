@@ -53,11 +53,13 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_BIG5:
-        xs, ys = load_BIG5(args['dataset']['path'])
+        xs, ys, A, G = load_BIG5(args['dataset']['path'])
 
         data['xs'] = xs
         data['ys'] = ys
-        order_function = partial(implicit_order, xs, 100)
+        data['A'] = A
+        data['G'] = G
+        order_function = partial(cut_order, A)
     elif args['experiment']['dataset_name'] == DATASET_SBM:
         A, ys, G = load_RPG(block_sizes=args['dataset']['block_sizes'],
                             p_in=args['dataset']['p'],

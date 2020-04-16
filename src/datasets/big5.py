@@ -1,30 +1,30 @@
+import networkx as nx
 import numpy as np
 import pandas as pd
+from sklearn.neighbors import kneighbors_graph
 
 
 def load_BIG5(path):
 
     df = pd.read_csv(path, header=0, sep='\t')
     df = df.drop(['race', 'age', 'engnat', 'gender', 'hand', 'source', 'country'], axis=1)
-    df = df.astype('category')
-    binarized_xs = pd.get_dummies(df).astype('bool').to_numpy()
 
-    nb_users, nb_features = binarized_xs.shape
-    compressed_xs = np.zeros((nb_users, nb_features // 5 * 3), dtype=bool)
+    name_columns = df.columns.values
+    first_char = lambda s: s[0]
+    f = np.vectorize(first_char)
+    ys_cat = f(name_columns)
+    ys = np.zeros_like(ys_cat, dtype=int)
 
-    i = i_compressed = 0
-    while i < nb_features:
-        if i % 5 == 0 or i % 5 == 3:
-            compressed_xs[:, i_compressed] = binarized_xs[:, i] + binarized_xs[:, i+1]
-            i += 2
-        else:
-            compressed_xs[:, i_compressed] = binarized_xs[:, i]
-            i += 1
-        i_compressed += 1
+    ys[ys_cat == 'O'] = 0
+    ys[ys_cat == 'C'] = 1
+    ys[ys_cat == 'E'] = 2
+    ys[ys_cat == 'A'] = 3
+    ys[ys_cat == 'N'] = 4
 
     xs = df.to_numpy()
-    idx = np.random.choice(len(xs), size=2000, replace=False)
-    xs = xs[idx].T
-    ys = np.zeros(len(xs), dtype=int)
+    xs = xs.T
 
-    return xs, ys
+    A = kneighbors_graph(xs, 5, metric='hamming').toarray().astype(int)
+    G = nx.from_numpy_matrix(A)
+
+    return xs, ys, A, G

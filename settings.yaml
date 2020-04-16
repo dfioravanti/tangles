@@ -3,8 +3,8 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: q_syn
-  preprocessing_name: feat
+  dataset_name: big5
+  preprocessing_name: karnig_lin
   agreement: 5
   percentile_orders: 100
 
@@ -34,7 +34,7 @@ dataset:
 
 preprocessing:
   karnig_lin:
-    nb_cuts: 10
+    nb_cuts: 300
     lb_f: 0.2
 
   coarsening:
@@ -43,7 +43,7 @@ preprocessing:
 
   fid_mat:
     nb_cuts: 300
-    lb_f: 0
+    lb_f: 0.1
 
 # -1 in nb_cuts means all
 plot:
