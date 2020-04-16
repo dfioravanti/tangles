@@ -4,9 +4,9 @@
 experiment:
   seed: 42
   dataset_name: big5
-  preprocessing_name: karnig_lin
-  agreement: 5
-  percentile_orders: 100
+  preprocessing_name: feat
+  agreement: 20
+  percentile_orders: 40
 
 dataset:
   sbm:
