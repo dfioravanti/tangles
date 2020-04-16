@@ -3,9 +3,9 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: pol_books
-  preprocessing_name: fid_mat
-  agreement: 3
+  dataset_name: q_syn
+  preprocessing_name: feat
+  agreement: 5
   percentile_orders: 100
 
 dataset:
@@ -21,9 +21,9 @@ dataset:
 
   q_syn:
     n_samples: 100
-    n_features: 30
-    n_mindsets: 5
-    tolerance: 0.10
+    n_features: 60
+    n_mindsets: 6
+    n_mistakes: 5
 
   pol_books:
     path_edges: datasets/pol_books/political-books-edges.csv
@@ -34,8 +34,8 @@ dataset:
 
 preprocessing:
   karnig_lin:
-    nb_cuts: 400
-    lb_f: 0.10
+    nb_cuts: 10
+    lb_f: 0.2
 
   coarsening:
     nb_cuts: 300
@@ -55,5 +55,5 @@ plot:
 # 0: Nothing
 # 1: Only batch info
 # 2: All but cuts finding infos
-# 3s: All
+# 3: All
 verbose: 3

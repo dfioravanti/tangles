@@ -1,9 +1,14 @@
 import numpy as np
 import networkx as nx
 
+import matplotlib as mpl
 from matplotlib import pyplot as plt
+from sklearn.manifold import TSNE
 
-COLOR_SILVER = '#C2C2C2'
+from src.config import NAN
+
+COLOR_SILVER = '#C0C0C0'
+COLOR_SILVER_RGB = (192 / 255, 192 / 255, 192 / 255) + (1,)
 
 
 def plot_predictions(xs, ys, predictions_of_order, path=None):
@@ -29,6 +34,9 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
     plt.style.use('ggplot')
     plt.ioff()
     cmap = plt.cm.get_cmap('tab10')
+    normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
+
+    xs_embedded = TSNE(n_components=2).fit_transform(xs)
 
     if path is not None:
         output_path = path / 'points prediction'
@@ -36,12 +44,38 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
 
     for order, prediction in predictions_of_order.items():
 
+        normalise_pred = mpl.colors.Normalize(vmin=0, vmax=np.max(prediction))
+
         f, (ax_true, ax_pred) = plt.subplots(nrows=1, ncols=2, figsize=(15, 15))
         ax_true.axis('off'), ax_true.grid(b=None), ax_true.set_title("True clusters")
         ax_pred.axis('off'), ax_pred.grid(b=None), ax_pred.set_title("Predicted clusters")
 
-        ax_true.scatter(xs[:, 0], xs[:, 1], c=ys, cmap=cmap)
-        ax_pred.scatter(xs[:, 0], xs[:, 1], c=prediction, cmap=cmap)
+        for y in np.unique(ys):
+
+            xs_current = xs_embedded[ys == y]
+            color = cmap(normalise_ys(y))
+            color = np.array(color).reshape((1, -1))
+            label = f'cluster {y}'
+
+            ax_true.scatter(xs_current[:, 0], xs_current[:, 1],
+                            c=color, label=label)
+        ax_true.legend()
+
+        for y in np.unique(prediction):
+
+            xs_current = xs_embedded[prediction == y]
+            if y != NAN:
+                color = cmap(normalise_pred(y))
+                label = f'cluster {y}'
+            else:
+                color = COLOR_SILVER_RGB
+                label = f'no cluster'
+
+            color = np.array(color).reshape((1, -1))
+            ax_pred.scatter(xs_current[:, 0], xs_current[:, 1],
+                            c=color, label=label)
+
+        ax_pred.legend()
 
         if path is None:
             plt.show()
@@ -119,6 +153,35 @@ def get_position(G, ys):
         pos = nx.kamada_kawai_layout(G)
         pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
     return pos
+
+
+def plot_cuts(xs, ys, cuts, orders, path):
+    plt.style.use('ggplot')
+    plt.ioff()
+
+    if path is not None:
+        path_cuts = path / 'points_cuts'
+        path_cuts.mkdir(parents=True, exist_ok=True)
+
+    _, nb_points = cuts.shape
+    xs_embedded = TSNE(n_components=2).fit_transform(xs)
+
+    for i, cut in enumerate(cuts):
+        fig, ax = plt.subplots(1, 1, figsize=(15, 15))
+        ax.axis('off')
+        ax.grid(b=None)
+
+        ax.set_title(f"cut of order {orders[i]}")
+
+        colors = np.zeros(nb_points)
+        colors[cut] = (i % 9) + 1
+
+        ax.scatter(xs_embedded[:, 0], xs_embedded[:, 1], c=colors, cmap='tab10')
+
+        if path is not None:
+            plt.savefig(path_cuts / f"cut number {i}.svg")
+
+        plt.close(fig)
 
 
 def plot_graph_cuts(G, ys, cuts, orders, path):
