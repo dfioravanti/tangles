@@ -1,6 +1,6 @@
 from itertools import combinations
-from copy import deepcopy
 
+import numpy as np
 from bitarray.util import subset
 
 
@@ -72,11 +72,16 @@ class Specification(dict):
             if new_cut.count() < min_size:
                 return None
         elif len(core) == 1:
-            if (core[0] & new_cut).count() < min_size:
+            c1 = np.unpackbits(np.frombuffer(core[0], dtype=np.uint8), count=len(core[0]))
+            c2 = np.unpackbits(np.frombuffer(new_cut, dtype=np.uint8), count=len(new_cut))
+            if np.einsum('i,i', c1, c2) < min_size:
                 return None
         else:
+            c3 = np.unpackbits(np.frombuffer(new_cut, dtype=np.uint8), count=len(new_cut))
             for core1, core2 in combinations(core, 2):
-                if (core1 & core2 & new_cut).count() < min_size:
+                c1 = np.unpackbits(np.frombuffer(core1, dtype=np.uint8), count=len(core1))
+                c2 = np.unpackbits(np.frombuffer(core2, dtype=np.uint8), count=len(core2))
+                if np.einsum('i,i,i', c1, c2, c3) < min_size:
                     return None
 
         cuts.append(new_cut)
