@@ -3,10 +3,11 @@ from copy import deepcopy
 import numpy as np
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_FID_MAT
+from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_FID_MAT, \
+    PREPROCESSING_SUBMODULAR
 from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
 from src.config import NAN
-from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat
+from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, make_submodular
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions, plot_cuts
 from src.tangles import core_algorithm
@@ -37,6 +38,9 @@ def compute_cuts(data, args, verbose):
 
     if args['experiment']['preprocessing_name'] == PREPROCESSING_USE_FEATURES:
         cuts = (data['xs'] == True).T
+    elif args['experiment']['preprocessing_name'] == PREPROCESSING_SUBMODULAR:
+        cuts = (data['xs'] == True).T
+        cuts = make_submodular(cuts)
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(A=data['A'],
                              nb_cuts=args['preprocessing']['nb_cuts'],
@@ -78,10 +82,10 @@ def order_cuts(cuts, order_function):
         The cost of the corresponding cut
     """
 
-    cost_cuts = np.zeros(len(cuts), dtype=int)
+    cost_cuts = np.zeros(len(cuts), dtype=float)
 
     for i_cut, cut in enumerate(cuts):
-        cost_cuts[i_cut] = int(np.floor(order_function(cut)))
+        cost_cuts[i_cut] = order_function(cut)
 
     idx = np.argsort(cost_cuts)
 
@@ -255,7 +259,7 @@ def tangle_computation(all_cuts, orders, agreement, verbose):
                 break
 
             tangles_of_order[order] = deepcopy(tangles)
-            
+
     return tangles_of_order
 
 

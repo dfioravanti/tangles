@@ -1,5 +1,4 @@
 from pathlib import Path
-from argparse import Namespace
 
 import numpy as np
 
@@ -52,13 +51,15 @@ PREPROCESSING_KMODES = "kmodes"
 PREPROCESSING_KARNIG_LIN = "karnig_lin"
 PREPROCESSING_FID_MAT = "fid_mat"
 PREPROCESSING_COARSENING = "coarsening"
+PREPROCESSING_SUBMODULAR = 'sub'
 
 VALID_PREPROCESSING = [
     PREPROCESSING_USE_FEATURES,
     PREPROCESSING_KARNIG_LIN,
     PREPROCESSING_KMODES,
     PREPROCESSING_COARSENING,
-    PREPROCESSING_FID_MAT
+    PREPROCESSING_FID_MAT,
+    PREPROCESSING_SUBMODULAR
 ]
 
 # Algorithm
@@ -94,7 +95,7 @@ def delete_useless_parameters(args):
     args['dataset'] = value
 
     preprocessing_name = args['experiment']['preprocessing_name']
-    if preprocessing_name != PREPROCESSING_USE_FEATURES:
+    if preprocessing_name not in [PREPROCESSING_USE_FEATURES, PREPROCESSING_SUBMODULAR]:
         value = args['preprocessing'][preprocessing_name]
         args['preprocessing'].clear()
         args['preprocessing'] = value
