@@ -1,6 +1,6 @@
 from itertools import combinations
+from copy import deepcopy
 
-import numpy as np
 from bitarray.util import subset
 
 
@@ -56,9 +56,9 @@ class Specification(dict):
             If it is possible to add we return the new specification otherwise we return None
         """
 
-        cuts = [c for c in self.cuts]
-        core = [c for c in self.core]
-        specification = {k: v for (k, v) in self.specification.items()}
+        cuts = deepcopy(self.cuts)
+        core = deepcopy(self.core)
+        specification = deepcopy(self.specification)
 
         for i, core_cut in enumerate(core):
             if subset(core_cut, new_cut):
@@ -72,16 +72,11 @@ class Specification(dict):
             if new_cut.count() < min_size:
                 return None
         elif len(core) == 1:
-            c1 = np.unpackbits(np.frombuffer(core[0], dtype=np.uint8), count=len(core[0]))
-            c2 = np.unpackbits(np.frombuffer(new_cut, dtype=np.uint8), count=len(new_cut))
-            if np.einsum('i,i', c1, c2) < min_size:
+            if (core[0] & new_cut).count() < min_size:
                 return None
         else:
-            c3 = np.unpackbits(np.frombuffer(new_cut, dtype=np.uint8), count=len(new_cut))
             for core1, core2 in combinations(core, 2):
-                c1 = np.unpackbits(np.frombuffer(core1, dtype=np.uint8), count=len(core1))
-                c2 = np.unpackbits(np.frombuffer(core2, dtype=np.uint8), count=len(core2))
-                if np.einsum('i,i,i', c1, c2, c3) < min_size:
+                if (core1 & core2 & new_cut).count() < min_size:
                     return None
 
         cuts.append(new_cut)

@@ -254,8 +254,8 @@ def tangle_computation(all_cuts, orders, agreement, verbose):
                     print(f'Stopped computation at order {order} instead of {max_considered_order}', flush=True)
                 break
 
-            tangles_of_order[order] = [t for t in tangles]
-
+            tangles_of_order[order] = deepcopy(tangles)
+            
     return tangles_of_order
 
 
