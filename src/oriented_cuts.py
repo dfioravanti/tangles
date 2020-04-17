@@ -56,9 +56,9 @@ class Specification(dict):
             If it is possible to add we return the new specification otherwise we return None
         """
 
-        cuts = deepcopy(self.cuts)
-        core = deepcopy(self.core)
-        specification = deepcopy(self.specification)
+        cuts = [c for c in self.cuts]
+        core = [c for c in self.core]
+        specification = {k: v for (k, v) in self.specification.items()}
 
         for i, core_cut in enumerate(core):
             if subset(core_cut, new_cut):

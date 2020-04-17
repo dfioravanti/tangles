@@ -45,14 +45,14 @@ VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS
 
 # Preprocessing
 
-PREPROCESSING_NO = "feat"
+PREPROCESSING_USE_FEATURES = "features"
 PREPROCESSING_KMODES = "kmodes"
 PREPROCESSING_KARNIG_LIN = "karnig_lin"
 PREPROCESSING_FID_MAT = "fid_mat"
 PREPROCESSING_COARSENING = "coarsening"
 
 VALID_PREPROCESSING = [
-    PREPROCESSING_NO,
+    PREPROCESSING_USE_FEATURES,
     PREPROCESSING_KARNIG_LIN,
     PREPROCESSING_KMODES,
     PREPROCESSING_COARSENING,
@@ -92,7 +92,7 @@ def delete_useless_parameters(args):
     args['dataset'] = value
 
     preprocessing_name = args['experiment']['preprocessing_name']
-    if preprocessing_name != PREPROCESSING_NO:
+    if preprocessing_name != PREPROCESSING_USE_FEATURES:
         value = args['preprocessing'][preprocessing_name]
         args['preprocessing'].clear()
         args['preprocessing'] = value

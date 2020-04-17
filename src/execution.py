@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics import homogeneity_completeness_v_measure
 
 from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_FID_MAT
-from src.config import PREPROCESSING_NO, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
+from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
 from src.config import NAN
 from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat
 from src.loading import get_dataset_and_order_function
@@ -18,7 +18,7 @@ def compute_cuts(data, args, verbose):
     to compute tangles.
     This different types of preprocessing are available
 
-     1. PREPROCESSING_NO: consider the features as cuts
+     1. PREPROCESSING_USE_FEATURES: consider the features as cuts
      2. PREPROCESSING_MAKE_SUBMODULAR: consider the features as cuts and then make them submodular
      3. PREPROCESSING_RANDOM_COVER: Given an adjacency matrix build a cover of the graph and use that as starting
                                           point for creating the cuts
@@ -35,7 +35,7 @@ def compute_cuts(data, args, verbose):
         The bipartitions that we will use to compute tangles
     """
 
-    if args['experiment']['preprocessing_name'] == PREPROCESSING_NO:
+    if args['experiment']['preprocessing_name'] == PREPROCESSING_USE_FEATURES:
         cuts = (data['xs'] == True).T
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(A=data['A'],
@@ -78,10 +78,10 @@ def order_cuts(cuts, order_function):
         The cost of the corresponding cut
     """
 
-    cost_cuts = np.zeros(len(cuts))
+    cost_cuts = np.zeros(len(cuts), dtype=int)
 
     for i_cut, cut in enumerate(cuts):
-        cost_cuts[i_cut] = order_function(cut)
+        cost_cuts[i_cut] = int(np.floor(order_function(cut)))
 
     idx = np.argsort(cost_cuts)
 
@@ -238,7 +238,7 @@ def tangle_computation(all_cuts, orders, agreement, verbose):
 
         if len(idx_cuts_order_i) > 0:
             if verbose >= 2:
-                print(f"\tCompute tangles of order {order}", flush=True)
+                print(f"\tCompute tangles of order {order} with {len(idx_cuts_order_i)} new cuts", flush=True)
 
             cuts_order_i = all_cuts[idx_cuts_order_i]
             tangles = core_algorithm(tangles,
@@ -254,7 +254,7 @@ def tangle_computation(all_cuts, orders, agreement, verbose):
                     print(f'Stopped computation at order {order} instead of {max_considered_order}', flush=True)
                 break
 
-            tangles_of_order[order] = deepcopy(tangles)
+            tangles_of_order[order] = [t for t in tangles]
 
     return tangles_of_order
 

@@ -21,10 +21,19 @@ def load_BIG5(path):
     ys[ys_cat == 'A'] = 3
     ys[ys_cat == 'N'] = 4
 
-    xs = df.to_numpy()
-    xs = xs.T
+    df_binarize = pd.DataFrame()
+    for column in df.columns.values:
+        for i in range(2, 6):
+            new_col = df[column].copy()
+            new_col[:] = 0
+            new_col[df[column].between(i, 5)] = 1
+            name = f'{new_col.name}_{i}_5'
 
-    A = kneighbors_graph(xs, 5, metric='hamming').toarray().astype(int)
-    G = nx.from_numpy_matrix(A)
+            df_binarize[name] = new_col
 
-    return xs, ys, A, G
+    xs = df_binarize.to_numpy().astype(bool)
+    idx = np.random.choice(len(xs), size=300, replace=False)
+    xs = xs[idx]
+    ys = None
+
+    return xs, ys

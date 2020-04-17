@@ -12,7 +12,6 @@ COLOR_SILVER_RGB = (192 / 255, 192 / 255, 192 / 255) + (0.5,)
 COLOR_INDIGO_RGB = (55 / 255, 0 / 255, 175 / 255) + (0.5,)
 
 
-
 def plot_predictions(xs, ys, predictions_of_order, path=None):
 
     """
