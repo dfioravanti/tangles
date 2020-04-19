@@ -4,10 +4,10 @@ import numpy as np
 from sklearn.metrics import homogeneity_completeness_v_measure
 
 from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_FID_MAT, \
-    PREPROCESSING_SUBMODULAR
+    PREPROCESSING_SUBMODULAR, PREPROCESSING_BINARIZED_LIKERT
 from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
 from src.config import NAN
-from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, make_submodular
+from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, make_submodular, binarize_likert_scale
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions, plot_cuts
 from src.tangles import core_algorithm
@@ -41,6 +41,9 @@ def compute_cuts(data, args, verbose):
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_SUBMODULAR:
         cuts = (data['xs'] == True).T
         cuts = make_submodular(cuts)
+    elif args['experiment']['preprocessing_name'] == PREPROCESSING_BINARIZED_LIKERT:
+        cuts, _ = binarize_likert_scale(xs=data['xs'],
+                                        range_answers=args['preprocessing']['range_answers'])
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
         cuts = kernighan_lin(A=data['A'],
                              nb_cuts=args['preprocessing']['nb_cuts'],

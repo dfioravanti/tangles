@@ -1,12 +1,12 @@
 from functools import partial
 
-from src.config import DATASET_QUESTIONNAIRE_SYNTHETIC, DATASET_SBM, \
+from src.config import DATASET_BINARY_QUESTIONNAIRE, DATASET_SBM, DATASET_QUESTIONNAIRE, \
     DATASET_POLITICAL_BOOKS, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS, DATASET_CANCER
 from src.datasets.big5 import load_BIG5
 from src.datasets.cancer import load_CANCER
 from src.datasets.graphs import load_RPG, load_POLI_BOOKS, load_FLORENCE
 from src.datasets.kNN import load_knn_blobs
-from src.datasets.questionnaire import make_synthetic_questionnaire
+from src.datasets.questionnaire import make_binary_questionnaire, make_questionnaire
 from src.order_functions import implicit_order, cut_order
 
 
@@ -42,13 +42,23 @@ def get_dataset_and_order_function(args):
 
     data = {}
 
-    if args['experiment']['dataset_name'] == DATASET_QUESTIONNAIRE_SYNTHETIC:
-        xs, ys, cs = make_synthetic_questionnaire(n_samples=args['dataset']['n_samples'],
-                                                  n_features=args['dataset']['n_features'],
-                                                  n_mindsets=args['dataset']['n_mindsets'],
-                                                  n_mistakes=args['dataset']['n_mistakes'],
-                                                  seed=args['experiment']['seed'],
-                                                  centers=True)
+    if args['experiment']['dataset_name'] == DATASET_BINARY_QUESTIONNAIRE:
+        xs, ys, cs = make_binary_questionnaire(n_samples=args['dataset']['n_samples'],
+                                               n_features=args['dataset']['n_features'],
+                                               n_mindsets=args['dataset']['n_mindsets'],
+                                               n_mistakes=args['dataset']['n_mistakes'],
+                                               seed=args['experiment']['seed'],
+                                               centers=True)
+
+        data['xs'] = xs
+        data['ys'] = ys
+        order_function = partial(implicit_order, xs, None)
+    elif args['experiment']['dataset_name'] == DATASET_QUESTIONNAIRE:
+        xs, ys = make_questionnaire(n_samples=args['dataset']['n_samples'],
+                                               n_features=args['dataset']['n_features'],
+                                               n_mindsets=args['dataset']['n_mindsets'],
+                                               range_answers=args['dataset']['range_answers'],
+                                               seed=args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys

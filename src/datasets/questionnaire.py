@@ -1,7 +1,9 @@
-import itertools
-
 import numpy as np
+import pandas as pd
+
 from scipy.linalg import hadamard
+
+from sklearn.datasets import make_blobs
 
 
 def make_centers(n_features=20, n_mindsets=2):
@@ -52,8 +54,8 @@ def make_centers2(n_features=20, n_mindsets=2):
     return c
 
 
-def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, n_mistakes=2,
-                                 seed=None, centers=True):
+def make_binary_questionnaire(n_samples=100, n_features=20, n_mindsets=2, n_mistakes=2,
+                              seed=None, centers=True):
     """
 
     This function simulates a synthetic questionnaire.
@@ -113,3 +115,22 @@ def make_synthetic_questionnaire(n_samples=100, n_features=20, n_mindsets=2, n_m
         return xs, ys, cs
     else:
         return xs, ys
+
+
+def make_questionnaire(n_samples, n_features, n_mindsets, range_answers, seed=None):
+
+    min_answer = range_answers[0]
+    max_answer = range_answers[1]
+
+    if seed is not None:
+        np.random.seed(seed)
+
+    xs, ys = make_blobs(n_samples=n_samples, n_features=n_features, centers=n_mindsets)
+    for i in np.unique(ys):
+        xs_mindset = xs[ys == i]
+        xs_mindset = np.interp(xs_mindset, (xs_mindset.min(), xs_mindset.max()), (min_answer, max_answer))
+        xs[ys == i] = np.floor(xs_mindset).astype(int)
+
+    xs = xs.astype(int)
+
+    return xs, ys

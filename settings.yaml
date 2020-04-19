@@ -2,9 +2,9 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: cancer
-  preprocessing_name: features
-  agreement: 150
+  dataset_name: q
+  preprocessing_name: bin_lik
+  agreement: 20
   percentile_orders: 100
 
 dataset:
@@ -18,7 +18,13 @@ dataset:
     blob_centers: [[-2, -2], [2, -2], [-2, 2], [2, 2]]
     k: 10
 
-  q_syn:
+  q:
+    n_samples: 300
+    n_features: 30
+    n_mindsets: 8
+    range_answers: [1, 5]
+
+  q_binary:
     n_samples: 100
     n_features: 60
     n_mindsets: 6
@@ -35,6 +41,9 @@ dataset:
     path: datasets/big5.csv
 
 preprocessing:
+  bin_lik:
+    range_answers: [1, 5]
+
   karnig_lin:
     nb_cuts: 5
     lb_f: 0.3
@@ -50,7 +59,7 @@ preprocessing:
 # -1 in nb_cuts means all
 plot:
   tangles: True
-  cuts: False
+  cuts: True
   nb_cuts: 10
 
 # 0, 1, 2, 3 allowed
