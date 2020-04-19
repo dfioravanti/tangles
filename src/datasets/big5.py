@@ -21,26 +21,30 @@ def load_BIG5(path):
     ys[ys_cat == 'A'] = 3
     ys[ys_cat == 'N'] = 4
 
-    ys = np.repeat(ys, 5)
 
     xs = df.to_numpy()
     xs = xs.T
 
-    # binary_xs = binarize(xs)[:, np.random.choice(np.arange(xs.shape[1]), 2000, False)]
-    binary_xs = binarize(xs)
+    binary_xs, repeater = binarize(xs)
 
-    A = kneighbors_graph(binary_xs.T, 5, metric='hamming').toarray().astype(int)
+    binary_xs = binary_xs[:, np.random.choice(np.arange(xs.shape[1]), 2000, False)]
+
+    ys = np.repeat(ys, repeater)
+
+    A = kneighbors_graph(binary_xs, 15, metric='hamming').toarray().astype(int)
     G = nx.from_numpy_matrix(A)
 
-    return binary_xs.T, ys, A, G
+    return binary_xs, ys, A, G
 
 
 def binarize(xs):
     rows, cols = xs.shape
-    binary_xs = np.zeros([rows * 5, cols])
+    bounds = [1, 2, 3, 4]
+    expand = len(bounds)
+    binary_xs = np.zeros([rows * expand, cols])
 
     for i_row, row in enumerate(xs):
-        for answer in range(5):
-            binary_xs[i_row*5 + answer] = row >= answer
+        for i_answer, answer in enumerate(bounds):
+            binary_xs[i_row * expand + i_answer] = row <= answer
 
-    return binary_xs
+    return binary_xs, expand

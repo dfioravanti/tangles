@@ -5,8 +5,8 @@ experiment:
   seed: 42
   dataset_name: big5
   preprocessing_name: feat
-  agreement: 20
-  percentile_orders: 40
+  agreement: 10
+  percentile_orders: 50
 
 dataset:
   sbm:
@@ -47,8 +47,8 @@ preprocessing:
 
 # -1 in nb_cuts means all
 plot:
-  tangles: True
-  cuts: True
+  tangles: False
+  cuts: False
   nb_cuts: 10
 
 # 0, 1, 2, 3 allowed
