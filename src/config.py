@@ -203,7 +203,8 @@ def validate_settings(args):
 def set_up_dirs(args, root_dir):
     args['root_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id'] / args['prefix']}")
     args['plot_dir'] = Path(f"{args['root_dir'] / 'plots'}")
+    args['answers_dir'] = Path(f"{args['root_dir'] / 'answers'}")
 
-    args['plot_dir'].mkdir(parents=True, exist_ok=True)
+    args['root_dir'].mkdir(parents=True, exist_ok=True)
 
     return args

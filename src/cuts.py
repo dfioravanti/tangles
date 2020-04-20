@@ -31,6 +31,8 @@ def binarize_likert_scale(xs, range_answers):
             df_binarized[short_name] = new_col
 
     cuts = df_binarized.values.T
+    cut_names = np.array(cut_names)
+
     return cuts, cut_names
 
 

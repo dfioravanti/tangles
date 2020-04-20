@@ -6,7 +6,7 @@ import pandas as pd
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
 from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting, \
-                        compute_maximal_tangles, compute_clusters_maximals
+    compute_maximal_tangles, compute_clusters_maximals, print_tangles_names
 
 
 def main(args):
@@ -39,7 +39,7 @@ def main(args):
     if args['verbose'] >= 1:
         print(f'Working with parameters = {foundamental_parameters}', flush=True)
 
-    data, orders, all_cuts = get_dataset_cuts_order(args)
+    data, orders, all_cuts, name_cuts = get_dataset_cuts_order(args)
 
     tangles_by_order = tangle_computation(all_cuts=all_cuts,
                                           orders=orders,
@@ -50,8 +50,10 @@ def main(args):
     predictions_by_order = compute_clusters(tangles_by_orders=tangles_by_order,
                                             all_cuts=all_cuts,
                                             verbose=args['verbose'])
+
     if data['ys'] is not None:
         evaluation = compute_evaluation(data['ys'], predictions_by_order)
+        order_best = evaluation['order_best']
         if args['verbose'] >= 1:
             print(f'Best result \n\t {evaluation}', flush=True)
 
@@ -59,6 +61,11 @@ def main(args):
         df_output = df_output.append(new_row, ignore_index=True)
         path = args['root_dir'] / f'evaluation_{unique_id}.csv'
         df_output.to_csv(path)
+    else:
+        order_best = None
+
+    if name_cuts is not None:
+        print_tangles_names(name_cuts, tangles_by_order, order_best, path=args['answers_dir'], verbose=args['verbose'])
 
     if args['plot']['tangles']:
         plotting(data, predictions_by_order, verbose=args['verbose'], path=args['plot_dir'])

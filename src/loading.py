@@ -64,11 +64,10 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_CANCER:
-        xs, ys, questions = load_CANCER(args['dataset']['nb_bins'])
+        xs, ys = load_CANCER(args['dataset']['nb_bins'])
 
         data['xs'] = xs
         data['ys'] = ys
-        data['questions'] = questions
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_BIG5:
         xs, ys = load_BIG5(args['dataset']['path'])

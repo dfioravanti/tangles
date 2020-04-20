@@ -4,7 +4,7 @@ experiment:
   seed: 42
   dataset_name: q
   preprocessing_name: bin_lik
-  agreement: 20
+  agreement: 30
   percentile_orders: 100
 
 dataset:
@@ -19,9 +19,9 @@ dataset:
     k: 10
 
   q:
-    n_samples: 300
-    n_features: 30
-    n_mindsets: 8
+    n_samples: 500
+    n_features: 40
+    n_mindsets: 5
     range_answers: [1, 5]
 
   q_binary:
@@ -35,7 +35,7 @@ dataset:
     path_nodes: datasets/pol_books/political-books-nodes.csv
 
   cancer:
-    nb_bins: 5
+    nb_bins: 10
 
   big5:
     path: datasets/big5.csv
