@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-
-from sklearn.datasets import load_breast_cancer
+import networkx as nx
 
 
 def load_CANCER10(path):
@@ -12,16 +11,18 @@ def load_CANCER10(path):
     ys = np.array(df["class"])
     xs = df[name_columns[:-1]]
 
-    xs = xs.to_numpy().T
+    xs = xs.to_numpy()
 
-    binary_xs, repeater = binarize(xs)
+    #binary_xs, repeater = binarize(xs.T)
 
-    return binary_xs.T, ys
+    #return binary_xs.T, ys
+
+    return xs, ys
 
 
 def binarize(xs):
     rows, cols = xs.shape
-    bounds = np.arange(2, 10, 2)
+    bounds = np.arange(1, 10, 1)
     expand = len(bounds)
     binary_xs = np.zeros([rows * expand, cols])
 

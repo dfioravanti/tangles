@@ -3,7 +3,7 @@
 experiment:
   seed: 42
   dataset_name: cancer10
-  preprocessing_name: features
+  preprocessing_name: bin_lik
   agreement: 20
   percentile_orders: 100
 
@@ -35,7 +35,7 @@ dataset:
     path_nodes: datasets/pol_books/political-books-nodes.csv
 
   cancer:
-    nb_bins: 10
+    nb_bins: 5
 
   big5:
     path: datasets/big5.csv
@@ -45,7 +45,7 @@ dataset:
 
 preprocessing:
   bin_lik:
-    range_answers: [1, 5]
+    range_answers: [1, 10, 1]
 
   karnig_lin:
     nb_cuts: 5
