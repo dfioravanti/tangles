@@ -13,7 +13,7 @@ def binarize_likert_scale(xs, range_answers):
     max_answer = range_answers[1]
     nb_points, nb_features = xs.shape
 
-    colums_name = [f'q{i}' for i in range(1, nb_features + 1)]
+    colums_name = [f'q{i:02}' for i in range(1, nb_features + 1)]
     df = pd.DataFrame(xs, columns=colums_name)
     cut_values = np.arange(min_answer + 1, max_answer + 1)
     cut_names = []
@@ -26,7 +26,7 @@ def binarize_likert_scale(xs, range_answers):
             new_col[df[column] >= cut_value] = 1
 
             short_name = f'{column}_{cut_value}-{max_answer}'
-            cut_names.append(f'{column} larger than {cut_value}')
+            cut_names.append(f'{column} larger or equal than {cut_value}')
 
             df_binarized[short_name] = new_col
 

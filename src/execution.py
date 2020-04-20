@@ -1,3 +1,4 @@
+import re
 from copy import deepcopy
 
 import numpy as np
@@ -9,10 +10,11 @@ from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS,
     PREPROCESSING_SUBMODULAR, PREPROCESSING_BINARIZED_LIKERT
 from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
 from src.config import NAN
-from src.cuts import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, make_submodular, binarize_likert_scale
+from src.preprocessing import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, make_submodular, binarize_likert_scale
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions, plot_cuts
 from src.tangles import core_algorithm
+from src.utils import change_lower, change_upper
 
 
 def compute_cuts(data, args, verbose):
@@ -73,7 +75,7 @@ def compute_cuts(data, args, verbose):
     return cuts, cuts_names
 
 
-def order_cuts(cuts, order_function):
+def order_cuts(cuts, cuts_names, order_function):
     """
     Compute the order of a series of bipartitions
 
@@ -98,8 +100,10 @@ def order_cuts(cuts, order_function):
         cost_cuts[i_cut] = order_function(cut)
 
     idx = np.argsort(cost_cuts)
+    if cuts_names is not None:
+        cuts_names = cuts_names[idx]
 
-    return cuts[idx], cost_cuts[idx]
+    return cuts[idx], cost_cuts[idx], cuts_names
 
 
 def compute_clusters(tangles_by_orders, all_cuts, verbose):
@@ -211,7 +215,7 @@ def get_dataset_cuts_order(args):
     if args['verbose'] >= 2:
         print(f"\tI found {len(all_cuts)} unique cuts\n")
         print("Compute order", flush=True)
-    all_cuts, orders = order_cuts(all_cuts, order_function)
+    all_cuts, orders, cuts_names = order_cuts(all_cuts, cuts_names, order_function)
 
     mask_orders_to_pick = orders <= np.percentile(orders, q=args['experiment']['percentile_orders'])
     orders = orders[mask_orders_to_pick]
@@ -331,15 +335,49 @@ def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
             for i, tangle in enumerate(tangles):
                 tmp = pd.DataFrame([tangle.specification])
                 answers = answers.append(tmp)
-            answers = answers.astype(str)
+            #answers = answers.astype(str)
 
-            useless_columns = (answers.nunique(axis=0) == 1)
-            answers.loc[:, useless_columns] = 'Ignore'
-
-
+            #useless_columns = (answers.nunique(axis=0) == 1)
+            #answers.loc[:, useless_columns] = 'Ignore'
 
             answers.columns = questions_names
 
             answers.to_csv(path / f'{order:.2f}.csv', index=False)
             if order == order_best:
                 answers.to_csv(path / '..' / 'best.csv', index=False)
+
+
+def tangles_to_questions(tangles, cut_names, interval_values, path):
+
+    # the questions are of the form 'name greater of equal than value'
+    # this regex gets the name and the value
+    template = re.compile(r"(\w+) .+ (\d+)")
+
+    final = pd.DataFrame()
+    for tangle in tangles:
+
+        results = {}
+        for cut, orientation in tangle.specification.items():
+
+            name, value = template.findall(cut_names[cut])[0]
+            value = int(value)
+
+            old = results.get(name, None)
+            if old is None:
+                new = interval_values
+            else:
+                new = old
+
+            if orientation:
+                new = change_lower(new, value)
+            else:
+                new = change_upper(new, value - 1)
+            results[name] = new
+
+        final = final.append(pd.DataFrame([results]))
+
+    f = lambda i: i if i[0] != i[1] else i[0]
+    final = final.applymap(f)
+    final = final.reindex(sorted(final.columns), axis=1)
+
+    final.to_csv(path / 'questions.csv')
