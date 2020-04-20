@@ -172,6 +172,8 @@ def compute_evaluation(ys, predictions):
     evaluation['order_max'] = None
 
     for order, prediction in predictions.items():
+        print("ys", len(ys))
+        print("prediciton", len(prediction))
 
         homogeneity, completeness, v_measure_score = \
             homogeneity_completeness_v_measure(ys, prediction)

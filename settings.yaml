@@ -3,10 +3,10 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: big5
+  dataset_name: cancer10
   preprocessing_name: feat
-  agreement: 10
-  percentile_orders: 50
+  agreement: 20
+  percentile_orders: 100
 
 dataset:
   sbm:
@@ -31,6 +31,9 @@ dataset:
 
   big5:
     path: datasets/big5.csv
+
+  cancer10:
+    path: datasets/breast_cancer.csv
 
 preprocessing:
   karnig_lin:

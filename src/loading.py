@@ -1,8 +1,9 @@
 from functools import partial
 
 from src.config import DATASET_QUESTIONNAIRE_SYNTHETIC, DATASET_SBM, \
-    DATASET_POLITICAL_BOOKS, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS
+    DATASET_POLITICAL_BOOKS, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS, DATASET_CANCER10
 from src.datasets.big5 import load_BIG5
+from src.datasets.cancer10 import load_CANCER10
 from src.datasets.graphs import load_RPG, load_POLI_BOOKS, load_FLORENCE
 from src.datasets.kNN import load_knn_blobs
 from src.datasets.questionnaire import make_synthetic_questionnaire
@@ -59,6 +60,12 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
+        order_function = partial(implicit_order, xs, None)
+    elif args['experiment']['dataset_name'] == DATASET_CANCER10:
+        xs, ys = load_CANCER10(args['dataset']['path'])
+
+        data['xs'] = xs
+        data['ys'] = ys
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_SBM:
         A, ys, G = load_RPG(block_sizes=args['dataset']['block_sizes'],
