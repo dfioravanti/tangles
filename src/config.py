@@ -1,5 +1,4 @@
 from pathlib import Path
-from argparse import Namespace
 
 import numpy as np
 
@@ -18,7 +17,8 @@ VALID_EXPERIMENTS = [
 
 # Datasets
 
-DATASET_QUESTIONNAIRE_SYNTHETIC = "q_syn"
+DATASET_BINARY_QUESTIONNAIRE = "q_binary"
+DATASET_QUESTIONNAIRE = "q"
 DATASET_BINARY_IRIS = "iris"
 DATASET_SBM = "sbm"
 DATASET_KNN_BLOBS = "knn_blobs"
@@ -27,12 +27,15 @@ DATASET_POLITICAL_BOOKS = "pol_books"
 DATASET_FLORENCE = "flo"
 DATASET_BIG5 = 'big5'
 DATASET_CANCER10 = 'cancer10'
+DATASET_CANCER = 'cancer'
 
 DISCRETE_DATASETS = [
-    DATASET_QUESTIONNAIRE_SYNTHETIC,
+    DATASET_BINARY_QUESTIONNAIRE,
+    DATASET_QUESTIONNAIRE,
     DATASET_BINARY_IRIS,
     DATASET_BIG5,
-    DATASET_CANCER10
+    DATASET_CANCER10,
+    DATASET_CANCER
 ]
 
 GRAPH_DATASETS = [
@@ -47,18 +50,22 @@ VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS
 
 # Preprocessing
 
-PREPROCESSING_NO = "feat"
+PREPROCESSING_USE_FEATURES = "features"
 PREPROCESSING_KMODES = "kmodes"
 PREPROCESSING_KARNIG_LIN = "karnig_lin"
 PREPROCESSING_FID_MAT = "fid_mat"
 PREPROCESSING_COARSENING = "coarsening"
+PREPROCESSING_SUBMODULAR = 'sub'
+PREPROCESSING_BINARIZED_LIKERT = 'bin_lik'
 
 VALID_PREPROCESSING = [
-    PREPROCESSING_NO,
+    PREPROCESSING_USE_FEATURES,
     PREPROCESSING_KARNIG_LIN,
     PREPROCESSING_KMODES,
     PREPROCESSING_COARSENING,
-    PREPROCESSING_FID_MAT
+    PREPROCESSING_FID_MAT,
+    PREPROCESSING_SUBMODULAR,
+    PREPROCESSING_BINARIZED_LIKERT
 ]
 
 # Algorithm
@@ -94,7 +101,7 @@ def delete_useless_parameters(args):
     args['dataset'] = value
 
     preprocessing_name = args['experiment']['preprocessing_name']
-    if preprocessing_name != PREPROCESSING_NO:
+    if preprocessing_name not in [PREPROCESSING_USE_FEATURES, PREPROCESSING_SUBMODULAR]:
         value = args['preprocessing'][preprocessing_name]
         args['preprocessing'].clear()
         args['preprocessing'] = value
@@ -198,7 +205,8 @@ def validate_settings(args):
 def set_up_dirs(args, root_dir):
     args['root_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id'] / args['prefix']}")
     args['plot_dir'] = Path(f"{args['root_dir'] / 'plots'}")
+    args['answers_dir'] = Path(f"{args['root_dir'] / 'answers'}")
 
-    args['plot_dir'].mkdir(parents=True, exist_ok=True)
+    args['root_dir'].mkdir(parents=True, exist_ok=True)
 
     return args

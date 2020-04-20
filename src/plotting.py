@@ -12,7 +12,6 @@ COLOR_SILVER_RGB = (192 / 255, 192 / 255, 192 / 255) + (0.5,)
 COLOR_INDIGO_RGB = (55 / 255, 0 / 255, 175 / 255) + (0.5,)
 
 
-
 def plot_predictions(xs, ys, predictions_of_order, path=None):
 
     """
@@ -33,6 +32,7 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
 
     """
 
+    path.mkdir(parents=True, exist_ok=True)
     plt.style.use('ggplot')
     plt.ioff()
     cmap = plt.cm.get_cmap('tab10')
@@ -114,6 +114,7 @@ def plot_predictions_graph(G, ys, predictions_of_order, path=None):
 
     """
 
+    path.mkdir(parents=True, exist_ok=True)
     plt.style.use('ggplot')
     plt.ioff()
     cmap = plt.cm.get_cmap('tab10')
@@ -188,6 +189,7 @@ def get_position(G, ys):
 
 def plot_cuts(xs, ys, cuts, orders, path):
 
+    path.mkdir(parents=True, exist_ok=True)
     plt.style.use('ggplot')
     plt.ioff()
     cmap = plt.cm.get_cmap('tab10')
@@ -235,6 +237,8 @@ def plot_cuts(xs, ys, cuts, orders, path):
 
 
 def plot_graph_cuts(G, ys, cuts, orders, path):
+
+    path.mkdir(parents=True, exist_ok=True)
     plt.style.use('ggplot')
     plt.ioff()
 
@@ -268,6 +272,7 @@ def plot_graph_cuts(G, ys, cuts, orders, path):
 
 def plot_evaluation(evaluations, path):
 
+    path.mkdir(parents=True, exist_ok=True)
     plt.style.use('ggplot')
     plt.ioff()
 

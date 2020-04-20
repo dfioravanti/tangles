@@ -1,7 +1,103 @@
 import numpy as np
+import pandas as pd
+
 from kmodes.kmodes import KModes
 
+
 import src.coarsening as coarsening
+
+
+def binarize_likert_scale(xs, range_answers):
+
+    min_answer = range_answers[0]
+    max_answer = range_answers[1]
+    nb_points, nb_features = xs.shape
+
+    colums_name = [f'q{i}' for i in range(1, nb_features + 1)]
+    df = pd.DataFrame(xs, columns=colums_name)
+    cut_values = np.arange(min_answer + 1, max_answer + 1)
+    cut_names = []
+
+    df_binarized = pd.DataFrame()
+    for column in df.columns:
+        for cut_value in cut_values:
+            new_col = np.zeros(nb_points, dtype=bool)
+            new_col[df[column] < cut_value] = 0
+            new_col[df[column] >= cut_value] = 1
+
+            short_name = f'{column}_{cut_value}-{max_answer}'
+            cut_names.append(f'{column} larger than {cut_value}')
+
+            df_binarized[short_name] = new_col
+
+    cuts = df_binarized.values.T
+    cut_names = np.array(cut_names)
+
+    return cuts, cut_names
+
+
+def make_submodular(cuts):
+    """
+    Given a set of cuts we make it submodular.
+    A set of cuts S is submodular if for any two orientation A,B of cuts in S we have that
+    either A union B or A intersection B is in S.
+    We achieve this by adding all the expressions composed by unions.
+    The algorithm is explained in the paper.
+
+    All the hashing stuff is necessary because numpy arrays are not hashable.
+
+    # TODO: It does not scale up very well. We might need to rethink this
+
+    Parameters
+    ----------
+    cuts: array of shape [n_cuts, n_users]
+        The original cuts that we need to make submodular
+
+    Returns
+    -------
+    new_cuts: array of shape [?, n_users]
+        The submodular cuts
+    """
+
+    if len(cuts) == 1:
+        return cuts
+
+    unions = {}
+
+    for current_cut in cuts:
+        v = current_cut
+        k = hash(v.tostring())
+        current_unions = {k: v}
+
+        for cut in unions.values():
+            v = cut | current_cut
+            k = hash(v.tostring())
+            current_unions.setdefault(k, v)
+
+            v = current_cut | ~cut
+            k = hash(v.tostring())
+            current_unions.setdefault(k, v)
+
+            v = ~(~cut & current_cut)
+            k = hash(v.tostring())
+            current_unions.setdefault(k, v)
+
+            v = ~(~cut & current_cut)
+            k = hash(v.tostring())
+            current_unions.setdefault(k, v)
+
+        unions.update(current_unions)
+
+    # Remove empty cut and all cut
+    empty, all = np.zeros_like(current_cut, dtype=bool), np.ones_like(current_cut, dtype=bool)
+    hash_empty, hash_all = hash(empty.tostring()), hash(all.tostring())
+    unions.pop(hash_empty, None)
+    unions.pop(hash_all, None)
+
+    new_cuts = np.array(list(unions.values()), dtype='bool')
+
+    return new_cuts
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Kernighan-Lin algorithm
@@ -85,7 +181,8 @@ def kernighan_lin_algorithm(xs, fraction):
 
     A, B = initial_partition(xs, fraction)
 
-    while True:
+    i = 0
+    while i < 10:
         A_copy = A.copy()
         B_copy = B.copy()
         xs_copy = xs.copy()
@@ -124,6 +221,8 @@ def kernighan_lin_algorithm(xs, fraction):
         else:
             break
 
+        i += 1
+
     return A
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -156,7 +255,8 @@ def fid_mat_algorithm(xs, r, verbose):
     p_max = np.max(np.sum(xs, axis=1))
 
     # while not converged
-    while True:
+    i = 0
+    while i < 10:
         A_copy = A.copy()
         B_copy = B.copy()
         not_locked = np.full([nb_cells], True)
@@ -193,6 +293,9 @@ def fid_mat_algorithm(xs, r, verbose):
             np.logical_not(A, out=B)
         else:
             break
+
+        i += 1
+
     if verbose >= 3:
         print(f"\tfinal ratio: {sum(A) / nb_cells:.02}")
 
