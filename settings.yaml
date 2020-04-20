@@ -50,7 +50,7 @@ preprocessing:
 
 # -1 in nb_cuts means all
 plot:
-  tangles: False
+  tangles: True
   cuts: False
   nb_cuts: 10
 

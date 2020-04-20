@@ -7,23 +7,21 @@ from sklearn.datasets import load_breast_cancer
 def load_CANCER10(path):
 
     df = pd.read_csv(path, header=0)
-
-    ys = np.array(df["class"])
-
     name_columns = df.columns.values
 
-    xs = df[name_columns[:-1]].to_numpy()
+    ys = np.array(df["class"])
+    xs = df[name_columns[:-1]]
+
+    xs = xs.to_numpy().T
 
     binary_xs, repeater = binarize(xs)
 
-    ys = np.repeat(ys, repeater)
-
-    return binary_xs, ys
+    return binary_xs.T, ys
 
 
 def binarize(xs):
     rows, cols = xs.shape
-    bounds = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    bounds = np.arange(2, 10, 2)
     expand = len(bounds)
     binary_xs = np.zeros([rows * expand, cols])
 

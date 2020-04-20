@@ -54,9 +54,9 @@ def implicit_order(xs, n_samples, cut):
     dist = DistanceMetric.get_metric('hamming')
 
     orders = dist.pairwise(in_cut, out_cut)
-    expected_order = np.sum(orders) * len(cut)
+    expected_order = 1 / np.average(orders) * 100
 
-    return int(expected_order)
+    return np.round(expected_order, 2)
 
 
 def cut_order(A, cut):
