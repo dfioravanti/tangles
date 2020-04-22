@@ -253,7 +253,7 @@ def fid_mat_algorithm(xs, r, verbose):
     cell_array = [np.argwhere(row == True).flatten() for row in xs]
 
     # p_max is the maximal degree and thus the maximal gain a vertex can have for a single move
-    p_max = np.max(np.sum(xs, axis=1))
+    p_max = int(np.max(np.sum(xs, axis=1)))
 
     # while not converged
     i = 0
