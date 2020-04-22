@@ -126,10 +126,17 @@ def make_questionnaire(n_samples, n_features, n_mindsets, range_answers, seed=No
         np.random.seed(seed)
 
     xs, ys = make_blobs(n_samples=n_samples, n_features=n_features, centers=n_mindsets)
+    cs = []
     for i in np.unique(ys):
         xs_mindset = xs[ys == i]
+
         xs_mindset = np.interp(xs_mindset, (xs_mindset.min(), xs_mindset.max()), (min_answer, max_answer))
+        c = np.floor(np.average(xs_mindset, axis=0)).astype(int)
+        cs.append(c)
         xs[ys == i] = np.floor(xs_mindset).astype(int)
+
+    for c in cs:
+        print(c)
 
     xs = xs.astype(int)
 

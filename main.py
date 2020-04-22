@@ -6,7 +6,7 @@ import pandas as pd
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
 from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting, \
-    compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, tangles_to_questions
+                          compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, tangles_to_questions
 
 
 def main(args):

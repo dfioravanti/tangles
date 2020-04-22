@@ -136,3 +136,4 @@ results
 plots
 *.svg
 *.png
+.vscode

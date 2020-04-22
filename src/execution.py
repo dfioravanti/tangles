@@ -251,7 +251,7 @@ def tangle_computation(all_cuts, orders, agreement, verbose):
 
     unique_orders = np.unique(orders)
 
-    for idx_order, order in enumerate(unique_orders):
+    for order in unique_orders:
 
         idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order], axis=0))[0]
 
@@ -332,7 +332,7 @@ def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
             questions_names = name_cuts[questions]
 
             answers = pd.DataFrame()
-            for i, tangle in enumerate(tangles):
+            for tangle in tangles:
                 tmp = pd.DataFrame([tangle.specification])
                 answers = answers.append(tmp)
             #answers = answers.astype(str)
