@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import SpectralClustering
 from sklearn.metrics import homogeneity_completeness_v_measure
 
-from src.datasets.graphs import load_POLI_BOOKS, load_RPG
+from src.datasets.graphs import load_POLI_BOOKS, load_SBM
 from src.order_functions import cut_order
 from src.preprocessing import neighbours_in_same_cluster, build_cover_graph
 
@@ -56,7 +56,7 @@ def clustering(A, ys, nb_neigh, max_k):
 
 fig, (ax1, ax2) = plt.subplots(1, 2)
 
-A, ys = load_RPG(block_size=100, nb_blocks=2, p_in=.9, p_out=.2)
+A, ys = load_SBM(block_size=100, nb_blocks=2, p_in=.9, p_out=.2)
 max_k = 6
 ks = np.arange(2, max_k)
 for nb_neigh in range(1, 10):

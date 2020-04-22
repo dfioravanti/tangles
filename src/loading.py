@@ -4,7 +4,7 @@ from src.config import DATASET_BINARY_QUESTIONNAIRE, DATASET_SBM, DATASET_QUESTI
     DATASET_POLITICAL_BOOKS, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS, DATASET_CANCER
 from src.datasets.big5 import load_BIG5
 from src.datasets.cancer import load_CANCER
-from src.datasets.graphs import load_RPG, load_POLI_BOOKS, load_FLORENCE
+from src.datasets.graphs import load_SBM, load_POLI_BOOKS, load_FLORENCE
 from src.datasets.kNN import load_knn_blobs
 from src.datasets.questionnaire import make_binary_questionnaire, make_questionnaire
 from src.order_functions import implicit_order, cut_order
@@ -76,7 +76,7 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         order_function = partial(implicit_order, xs, 600)
     elif args['experiment']['dataset_name'] == DATASET_SBM:
-        A, ys, G = load_RPG(block_sizes=args['dataset']['block_sizes'],
+        A, ys, G = load_SBM(block_sizes=args['dataset']['block_sizes'],
                             p_in=args['dataset']['p'],
                             p_out=args['dataset']['q'],
                             seed=args['experiment']['seed'])
