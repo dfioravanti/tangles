@@ -2,7 +2,10 @@ import numpy as np
 import pandas as pd
 
 
-def make_mindsets(args):
+def make_mindsets(args, seed):
+
+    if seed is not None:
+        np.random.seed(seed)
 
     sizes = args['mindset_sizes']
     n = sum(sizes)

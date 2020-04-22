@@ -69,7 +69,7 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_MINDSETS:
-        xs, ys = make_mindsets(args['dataset'])
+        xs, ys = make_mindsets(args['dataset'], args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys
