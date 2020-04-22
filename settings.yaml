@@ -2,9 +2,9 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: cancer10
-  preprocessing_name: bin_lik
-  agreement: 20
+  dataset_name: mindsets
+  preprocessing_name: features
+  agreement: 50
   percentile_orders: 100
 
 dataset:
@@ -42,6 +42,16 @@ dataset:
 
   cancer10:
     path: datasets/breast_cancer.csv
+
+  mushrooms:
+    path_csv: datasets/mushrooms.csv
+    path_yaml: datasets/mushrooms.yaml
+
+  mindsets:
+    mindset_sizes: [100, 100, 100, 100, 100]
+    questions: 50
+    noise: 0.1
+    noise_questions: 2
 
 preprocessing:
   bin_lik:

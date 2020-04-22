@@ -35,7 +35,7 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
     path.mkdir(parents=True, exist_ok=True)
     plt.style.use('ggplot')
     plt.ioff()
-    cmap = plt.cm.get_cmap('tab10')
+    cmap = plt.cm.get_cmap('tab20')
 
     if ys is not None:
         normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))

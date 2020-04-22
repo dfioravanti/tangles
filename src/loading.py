@@ -2,12 +2,15 @@ from functools import partial
 
 
 from src.config import DATASET_BINARY_QUESTIONNAIRE, DATASET_SBM, DATASET_QUESTIONNAIRE, \
-    DATASET_POLITICAL_BOOKS, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS, DATASET_CANCER, DATASET_CANCER10
+    DATASET_POLITICAL_BOOKS, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
+    DATASET_MUSHROOMS, DATASET_MINDSETS
 from src.datasets.big5 import load_BIG5
 from src.datasets.cancer import load_CANCER
 from src.datasets.cancer10 import load_CANCER10
 from src.datasets.graphs import load_RPG, load_POLI_BOOKS, load_FLORENCE
 from src.datasets.kNN import load_knn_blobs
+from src.datasets.mindsets import make_mindsets
+from src.datasets.mushrooms import load_MUSHROOMS
 from src.datasets.questionnaire import make_binary_questionnaire, make_questionnaire
 from src.order_functions import implicit_order, cut_order
 
@@ -61,6 +64,18 @@ def get_dataset_and_order_function(args):
                                                n_mindsets=args['dataset']['n_mindsets'],
                                                range_answers=args['dataset']['range_answers'],
                                                seed=args['experiment']['seed'])
+
+        data['xs'] = xs
+        data['ys'] = ys
+        order_function = partial(implicit_order, xs, None)
+    elif args['experiment']['dataset_name'] == DATASET_MINDSETS:
+        xs, ys = make_mindsets(args['dataset'])
+
+        data['xs'] = xs
+        data['ys'] = ys
+        order_function = partial(implicit_order, xs, None)
+    elif args['experiment']['dataset_name'] == DATASET_MUSHROOMS:
+        xs, ys = load_MUSHROOMS(args['dataset']['path_csv'], args['dataset']['path_yaml'])
 
         data['xs'] = xs
         data['ys'] = ys
