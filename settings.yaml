@@ -35,10 +35,23 @@ dataset:
     path_nodes: datasets/pol_books/political-books-nodes.csv
 
   cancer:
-    nb_bins: 10
+    nb_bins: 5
 
   big5:
     path: datasets/big5.csv
+
+  cancer10:
+    path: datasets/breast_cancer.csv
+
+  mushrooms:
+    path_csv: datasets/mushrooms.csv
+    path_yaml: datasets/mushrooms.yaml
+
+  mindsets:
+    mindset_sizes: [100, 100, 100, 100, 100]
+    questions: 50
+    noise: 0.1
+    noise_questions: 2
 
 preprocessing:
   bin_lik:
@@ -59,7 +72,7 @@ preprocessing:
 # -1 in nb_cuts means all
 plot:
   tangles: True
-  cuts: True
+  cuts: False
   nb_cuts: 10
 
 # 0, 1, 2, 3 allowed
