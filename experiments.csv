@@ -1,0 +1,7 @@
+id, Type of experiment
+0, Local experiments
+1586947660, KL vs MF algorithms
+1586939612, KnnBlobs experiments
+1586946592, SBM experiments
+1587616865, SBM with 100 cuts fixed p and q testing different a
+1587620068, KL vs MF algorithms on SBM 
