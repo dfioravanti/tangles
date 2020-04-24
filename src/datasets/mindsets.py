@@ -28,7 +28,7 @@ def make_mindsets(mindset_sizes, nb_questions, nb_useless, noise, seed):
         ys.append(ys_mindset)
 
     xs = np.vstack(xs)
-    ys = np.array(ys).reshape(-1)
+    ys = np.concatenate(ys)
 
     # add noise question like gender etc.
     if nb_useless is not None:
