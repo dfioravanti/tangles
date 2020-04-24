@@ -162,6 +162,15 @@ def merge_config(args_parser, main_cfg):
             main_cfg['dataset'][DATASET_KNN_BLOBS]['blob_centers'] = centers
         if args_parser.gauss_k is not None:
             main_cfg['dataset'][DATASET_KNN_BLOBS]['k'] = args_parser.gauss_k
+    elif args_parser.dataset_name == DATASET_MINDSETS:
+        if args_parser.mind_sizes is not None:
+            main_cfg['dataset'][DATASET_MINDSETS]['mindset_sizes'] = args_parser.mind_sizes
+        if args_parser.mind_questions is not None:
+            main_cfg['dataset'][DATASET_MINDSETS]['nb_questions'] = args_parser.mind_questions
+        if args_parser.mind_useless is not None:
+            main_cfg['dataset'][DATASET_MINDSETS]['nb_useless'] = args_parser.mind_useless
+        if args_parser.mind_noise is not None:
+            main_cfg['dataset'][DATASET_MINDSETS]['noise'] = args_parser.mind_noise
 
     if args_parser.preprocessing_name == PREPROCESSING_KARNIG_LIN:
         if args_parser.nb_cuts is not None:

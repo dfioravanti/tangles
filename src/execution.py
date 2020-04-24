@@ -192,7 +192,7 @@ def compute_evaluation(ys, predictions):
     for order, prediction in predictions.items():
 
         clustered = prediction != NAN
-
+        
         homogeneity, completeness, v_measure_score = \
             homogeneity_completeness_v_measure(ys[clustered], prediction[clustered])
             #homogeneity_completeness_v_measure(ys, prediction)

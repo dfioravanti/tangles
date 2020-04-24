@@ -30,6 +30,13 @@ def make_parser():
     parser.add_argument('--gauss_cs', dest='gauss_cs', nargs='+', type=float)
     parser.add_argument('--gauss_k', dest='gauss_k', action='store', type=int)
 
+    # Mindsets
+    parser.add_argument('--mind_sizes', dest='mind_sizes', nargs='+', type=int)
+    parser.add_argument('--mind_questions', dest='mind_questions', action='store', type=int)
+    parser.add_argument('--mind_useless', dest='mind_useless', action='store', type=int)
+    parser.add_argument('--mind_noise', dest='mind_noise', action='store', type=float)
+
+    # Preprocessing
     parser.add_argument('--nb_cuts', dest='nb_cuts', action='store', type=int)
     parser.add_argument('--lb_f', dest='lb_f', action='store', type=float)
 
