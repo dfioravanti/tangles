@@ -47,14 +47,12 @@ def get_dataset_and_order_function(args):
 
     data = {}
 
-    if args['experiment']['dataset_name'] == DATASET_BINARY_QUESTIONNAIRE:
-        xs, ys, cs = make_binary_questionnaire(n_samples=args['dataset']['n_samples'],
-                                               n_features=args['dataset']['n_features'],
-                                               n_mindsets=args['dataset']['n_mindsets'],
-                                               n_mistakes=args['dataset']['n_mistakes'],
-                                               seed=args['experiment']['seed'],
-                                               centers=True)
-
+    if args['experiment']['dataset_name'] == DATASET_MINDSETS:
+        xs, ys = make_mindsets(mindset_sizes=args['dataset']['mindset_sizes'],
+                               nb_questions=args['dataset']['nb_questions'],
+                               nb_useless=args['dataset']['nb_useless'],
+                               noise=args['dataset']['noise'],
+                               seed=args['experiment']['seed'])
         data['xs'] = xs
         data['ys'] = ys
         order_function = partial(implicit_order, xs, None)
@@ -64,12 +62,6 @@ def get_dataset_and_order_function(args):
                                                n_mindsets=args['dataset']['n_mindsets'],
                                                range_answers=args['dataset']['range_answers'],
                                                seed=args['experiment']['seed'])
-
-        data['xs'] = xs
-        data['ys'] = ys
-        order_function = partial(implicit_order, xs, None)
-    elif args['experiment']['dataset_name'] == DATASET_MINDSETS:
-        xs, ys = make_mindsets(args['dataset'], args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys

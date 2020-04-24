@@ -40,6 +40,7 @@ def main(args):
         print(f'Working with parameters = {foundamental_parameters}', flush=True)
 
     data, orders, all_cuts, name_cuts = get_dataset_cuts_order(args)
+    max_order = orders.max()
 
     tangles_by_order = tangle_computation(all_cuts=all_cuts,
                                           orders=orders,
@@ -57,7 +58,7 @@ def main(args):
         if args['verbose'] >= 1:
             print(f'Best result \n\t {evaluation}', flush=True)
 
-        new_row = pd.Series({**foundamental_parameters, **evaluation})
+        new_row = pd.Series({**foundamental_parameters, **evaluation, 'max_order': max_order})
         df_output = df_output.append(new_row, ignore_index=True)
         path = args['root_dir'] / f'evaluation_{unique_id}.csv'
         df_output.to_csv(path)

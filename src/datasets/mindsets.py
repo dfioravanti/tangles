@@ -1,37 +1,38 @@
 import numpy as np
-import pandas as pd
 
-
-def make_mindsets(args, seed):
+def make_mindsets(mindset_sizes, nb_questions, nb_useless, noise, seed):
 
     if seed is not None:
         np.random.seed(seed)
 
-    sizes = args['mindset_sizes']
-    n = sum(sizes)
-    m = args['questions']
-    p = args['noise']
-    p_q = args['noise_questions']
+    nb_points = sum(mindset_sizes)
+    nb_mindsets = len(mindset_sizes)
 
-    mindsets = np.empty([len(sizes), m])
-    ys = np.empty([n,])
-    xs = np.empty([n, m])
+    xs, ys = [], []
 
+    # create ground truth mindset
+    mindsets = np.random.randint(2, size=(nb_mindsets, nb_questions))
 
-    counter = 0
-    for k_iter, size in enumerate(sizes):
-        # create ground truth mindset
-        mindsets[k_iter] = np.random.randint(2, size=m)
-        for _ in range(size):
-            # add noise
-            ys[counter] = k_iter
-            flip = np.random.rand(m)
-            xs[counter] = np.where(flip <= p, mindsets[k_iter], np.logical_not(mindsets[k_iter]))
+    for idx_mindset, size_mindset in enumerate(mindset_sizes):
 
-            counter += 1
+        # Points without noise
+        xs_mindset = np.tile(mindsets[idx_mindset], (size_mindset, 1))
+        ys_mindset = np.repeat(idx_mindset, repeats=size_mindset, axis=0)
+
+        # Add noise
+        noise_per_question = np.random.rand(size_mindset, nb_questions)
+        flip_question = noise_per_question <= noise
+        xs_mindset[flip_question] = np.logical_not(xs_mindset[flip_question])
+
+        xs.append(xs_mindset)
+        ys.append(ys_mindset)
+
+    xs = np.vstack(xs)
+    ys = np.array(ys).reshape(-1)
 
     # add noise question like gender etc.
-    if p_q is not None:
-        xs[:, :p_q] = np.random.randint(2, size=[n, p_q])
+    if nb_useless is not None:
+        useless = np.random.randint(2, size=[nb_points, nb_useless])
+        xs = np.hstack((xs, useless))
 
     return xs, ys
