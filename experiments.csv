@@ -9,3 +9,7 @@ id, Type of experiment
 1587629564, KL vs MF algorithms on SBM 
 1587632158, SBM with fixed p and q and different numbers of cuts
 1587632375, KnnBlobs with fixed k and different numbers of cuts
+1587716525, Mindsets with fixed nb question and different noise and a
+1587723598, Mindsets with 0.1 noise and a=30 with different useless questions
+1587726047, Mindsets with 0.1 noise and a=30 with different nb questions
+1587727638, Mindset with 0.1 and a=30 questions vs useless
