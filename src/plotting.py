@@ -5,6 +5,9 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 from sklearn.manifold import TSNE
 
+import altair as alt
+from altair.expr import datum
+
 from src.config import NAN
 
 COLOR_SILVER = '#C0C0C0'
@@ -301,3 +304,66 @@ def plot_evaluation(evaluations, path):
 
         plt.savefig(path / f"Number of blocks {nb_blocks}.svg")
         plt.close(fig)
+
+# Plots results
+
+def make_v_measure_plot(df, title, x_axis, y_axis, facet_on):
+    
+    chart = alt.Chart(df, width=1000, height=400).mark_rect().encode(
+            alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(field=x_axis, order='ascending'), axis=alt.Axis(grid=True)),
+            alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
+            alt.Color('v_measure_score', type='quantitative', title='v-measure score',scale=alt.Scale(domain=[0, 1])),
+        ).facet(
+            facet=alt.Facet(facet_on, type='nominal', title=None),
+            title=title
+        )  
+
+    return chart
+
+
+def make_full_plot(df, title, x_axis, y_axis, facet_on):
+
+    v_measure_chart = make_v_measure_plot(df, title, x_axis, y_axis, facet_on)
+
+    text = alt.Chart(df, width=1000, height=400).mark_text().encode(
+            alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(field=x_axis, order='ascending'), axis=alt.Axis(grid=True)),
+            alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
+            alt.Text('order'),
+        ).facet(
+            facet=alt.Facet(facet_on, type='nominal', title=None),
+            title='best_order/max_order'
+        )
+
+    chart = alt.vconcat(v_measure_chart, text)
+    chart = graphic_settings(chart)
+
+    return chart
+
+def graphic_settings(chart):
+    chart = chart.configure_title(
+            fontSize=10,
+            font='Courier',
+            anchor='middle',
+            color='gray'
+        ).configure_axis(
+            gridOpacity = 0.0,
+
+            labelFont='Courier',
+            labelColor='black',
+
+            titleFont='Courier',
+            titleColor='gray',
+            grid=False
+        ).configure_axisX(
+            labelAngle=0,
+        ).configure_legend(
+            labelFont='Courier',
+            labelColor='black',
+
+            titleFont='Courier',
+            titleColor='gray',
+            titleAnchor='middle'
+        ).configure_view(strokeOpacity=0)
+
+    return chart
+    
