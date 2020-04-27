@@ -309,7 +309,7 @@ def plot_evaluation(evaluations, path):
 
 def make_v_measure_plot(df, title, x_axis, y_axis, facet_on):
     
-    chart = alt.Chart(df, width=1000, height=400).mark_rect().encode(
+    chart = alt.Chart(df, width=800, height=300).mark_rect().encode(
             alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(field=x_axis, order='ascending'), axis=alt.Axis(grid=True)),
             alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
             alt.Color('v_measure_score', type='quantitative', title='v-measure score',scale=alt.Scale(domain=[0, 1])),
@@ -325,7 +325,7 @@ def make_full_plot(df, title, x_axis, y_axis, facet_on):
 
     v_measure_chart = make_v_measure_plot(df, title, x_axis, y_axis, facet_on)
 
-    text = alt.Chart(df, width=1000, height=400).mark_text().encode(
+    text = alt.Chart(df, width=800, height=300).mark_text().encode(
             alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(field=x_axis, order='ascending'), axis=alt.Axis(grid=True)),
             alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
             alt.Text('order'),
@@ -341,7 +341,7 @@ def make_full_plot(df, title, x_axis, y_axis, facet_on):
 
 def graphic_settings(chart):
     chart = chart.configure_title(
-            fontSize=10,
+            fontSize=20,
             font='Courier',
             anchor='middle',
             color='gray'
