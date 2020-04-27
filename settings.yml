@@ -4,7 +4,7 @@ experiment:
   seed: 42
   dataset_name: mindsets
   preprocessing_name: features
-  agreement: 40
+  agreement: 30
   percentile_orders: 100
 
 dataset:
@@ -19,10 +19,10 @@ dataset:
     k: 10
 
   mindsets:
-    mindset_sizes: [100, 100, 100, 100, 100]
+    mindset_sizes: [100, 100]
     nb_questions: 50
-    nb_useless: 20
-    noise: 0.2
+    nb_useless: 0
+    noise: 0.3
 
   q_binary:
     n_samples: 100
