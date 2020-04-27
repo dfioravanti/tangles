@@ -57,11 +57,11 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_QUESTIONNAIRE:
-        xs, ys = make_questionnaire(n_samples=args['dataset']['n_samples'],
-                                               n_features=args['dataset']['n_features'],
-                                               n_mindsets=args['dataset']['n_mindsets'],
-                                               range_answers=args['dataset']['range_answers'],
-                                               seed=args['experiment']['seed'])
+        xs, ys = make_questionnaire(n_samples=args['dataset']['nb_samples'],
+                                    n_features=args['dataset']['nb_features'],
+                                    n_mindsets=args['dataset']['nb_mindsets'],
+                                    range_answers=args['dataset']['range_answers'],
+                                    seed=args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys

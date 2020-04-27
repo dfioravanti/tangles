@@ -36,6 +36,12 @@ def make_parser():
     parser.add_argument('--mind_useless', dest='mind_useless', action='store', type=int)
     parser.add_argument('--mind_noise', dest='mind_noise', action='store', type=float)
 
+    # Questionaire
+    parser.add_argument('--q_nb_samples', dest='q_nb_samples', action='store', type=int)
+    parser.add_argument('--q_nb_features', dest='q_nb_features', action='store', type=int)
+    parser.add_argument('--q_nb_mindsets', dest='q_nb_mindsets', action='store', type=int)
+    parser.add_argument('--q_range_answers', dest='q_range_answers', nargs='+', type=int)
+
     # Preprocessing
     parser.add_argument('--nb_cuts', dest='nb_cuts', action='store', type=int)
     parser.add_argument('--lb_f', dest='lb_f', action='store', type=float)

@@ -2,9 +2,9 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: mindsets
-  preprocessing_name: features
-  agreement: 30
+  dataset_name: q
+  preprocessing_name: bin_lik
+  agreement: 60
   percentile_orders: 100
 
 dataset:
@@ -24,11 +24,11 @@ dataset:
     nb_useless: 0
     noise: 0.3
 
-  q_binary:
-    n_samples: 100
-    n_features: 60
-    n_mindsets: 6
-    n_mistakes: 5
+  q:
+    nb_samples: 1000
+    nb_features: 60
+    nb_mindsets: 6
+    range_answers: [1, 10]
 
   pol_books:
     path_edges: datasets/pol_books/political-books-edges.csv

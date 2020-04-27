@@ -83,7 +83,7 @@ VALID_ALGORITHM = [
 NAN = -9999
 
 def load_validate_settings(args_parser, root_dir):
-    main_cfg_file = 'settings.yaml'
+    main_cfg_file = 'settings.yml'
 
     main_cfg = load_settings(f'{root_dir}/{main_cfg_file}')
 
@@ -171,17 +171,28 @@ def merge_config(args_parser, main_cfg):
             main_cfg['dataset'][DATASET_MINDSETS]['nb_useless'] = args_parser.mind_useless
         if args_parser.mind_noise is not None:
             main_cfg['dataset'][DATASET_MINDSETS]['noise'] = args_parser.mind_noise
+    elif args_parser.dataset_name == DATASET_QUESTIONNAIRE:
+        if args_parser.q_nb_samples is not None:
+            main_cfg['dataset'][DATASET_QUESTIONNAIRE]['nb_samples'] = args_parser.q_nb_samples
+        if args_parser.q_nb_features is not None:
+            main_cfg['dataset'][DATASET_QUESTIONNAIRE]['nb_features'] = args_parser.q_nb_features
+        if args_parser.q_nb_mindsets is not None:
+            main_cfg['dataset'][DATASET_QUESTIONNAIRE]['nb_mindsets'] = args_parser.q_nb_mindsets
+        if args_parser.q_range_answers is not None:
+            main_cfg['dataset'][DATASET_QUESTIONNAIRE]['range_answers'] = args_parser.q_range_answers
+            main_cfg['preprocessing'][PREPROCESSING_BINARIZED_LIKERT]['range_answers'] = args_parser.q_range_answers
+
 
     if args_parser.preprocessing_name == PREPROCESSING_KARNIG_LIN:
         if args_parser.nb_cuts is not None:
-            main_cfg['preprocessing']['karnig_lin']['nb_cuts'] = args_parser.nb_cuts
+            main_cfg['preprocessing'][PREPROCESSING_KARNIG_LIN]['nb_cuts'] = args_parser.nb_cuts
         if args_parser.lb_f is not None:
-            main_cfg['preprocessing']['karnig_lin']['lb_f'] = args_parser.lb_f
+            main_cfg['preprocessing'][PREPROCESSING_KARNIG_LIN]['lb_f'] = args_parser.lb_f
     elif args_parser.preprocessing_name == PREPROCESSING_FID_MAT:
         if args_parser.nb_cuts is not None:
-            main_cfg['preprocessing']['fid_mat']['nb_cuts'] = args_parser.nb_cuts
+            main_cfg['preprocessing'][PREPROCESSING_FID_MAT]['nb_cuts'] = args_parser.nb_cuts
         if args_parser.lb_f is not None:
-            main_cfg['preprocessing']['fid_mat']['lb_f'] = args_parser.lb_f
+            main_cfg['preprocessing'][PREPROCESSING_FID_MAT]['lb_f'] = args_parser.lb_f
 
     if args_parser.plot_tangles is not None:
         main_cfg['plot']['tangles'] = args_parser.plot_tangles

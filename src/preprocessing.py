@@ -11,19 +11,19 @@ def binarize_likert_scale(xs, range_answers):
 
     min_answer = range_answers[0]
     max_answer = range_answers[1]
-    step_size = range_answers[2]
+
     nb_points, nb_features = xs.shape
 
     colums_name = [f'q{i:02}' for i in range(1, nb_features + 1)]
     df = pd.DataFrame(xs, columns=colums_name)
-    cut_values = np.arange(step_size + (min_answer - 1), max_answer, step_size)
+    cut_values = np.arange(min_answer + 1, max_answer + 1)
     cut_names = []
 
     df_binarized = pd.DataFrame()
     for column in df.columns:
         for cut_value in cut_values:
             new_col = np.zeros(nb_points, dtype=bool)
-            #new_col[df[column] < cut_value] = 0
+            new_col[df[column] < cut_value] = 0 
             new_col[df[column] >= cut_value] = 1
 
             short_name = f'{column}_{cut_value}-{max_answer}'
