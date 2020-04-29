@@ -48,23 +48,26 @@ def get_dataset_and_order_function(args):
     data = {}
 
     if args['experiment']['dataset_name'] == DATASET_MINDSETS:
-        xs, ys = make_mindsets(mindset_sizes=args['dataset']['mindset_sizes'],
+        xs, ys, cs = make_mindsets(mindset_sizes=args['dataset']['mindset_sizes'],
                                nb_questions=args['dataset']['nb_questions'],
                                nb_useless=args['dataset']['nb_useless'],
                                noise=args['dataset']['noise'],
                                seed=args['experiment']['seed'])
         data['xs'] = xs
         data['ys'] = ys
+        data['cs'] = cs
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_QUESTIONNAIRE:
-        xs, ys = make_questionnaire(n_samples=args['dataset']['nb_samples'],
-                                    n_features=args['dataset']['nb_features'],
-                                    n_mindsets=args['dataset']['nb_mindsets'],
+        xs, ys, cs = make_questionnaire(nb_samples=args['dataset']['nb_samples'],
+                                    nb_features=args['dataset']['nb_features'],
+                                    nb_mindsets=args['dataset']['nb_mindsets'],
+                                    centers=args['dataset']['centers'],
                                     range_answers=args['dataset']['range_answers'],
                                     seed=args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys
+        data['cs'] = cs
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_MUSHROOMS:
         xs, ys = load_MUSHROOMS(args['dataset']['path_csv'], args['dataset']['path_yaml'])

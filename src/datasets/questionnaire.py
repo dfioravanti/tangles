@@ -117,27 +117,33 @@ def make_binary_questionnaire(n_samples=100, n_features=20, n_mindsets=2, n_mist
         return xs, ys
 
 
-def make_questionnaire(n_samples, n_features, n_mindsets, range_answers, seed=None):
-
-    min_answer = range_answers[0]
-    max_answer = range_answers[1]
+def make_questionnaire(nb_samples, nb_features, nb_mindsets, centers, range_answers, seed=None):
 
     if seed is not None:
         np.random.seed(seed)
 
-    xs, ys = make_blobs(n_samples=n_samples, n_features=n_features, centers=n_mindsets)
-    cs = []
-    for i in np.unique(ys):
-        xs_mindset = xs[ys == i]
+    min_answer = range_answers[0]
+    max_answer = range_answers[1]
+    
+    xs = np.zeros((nb_samples, nb_features), dtype=int)
+    ys = np.zeros(nb_samples, dtype=int)
 
-        xs_mindset = np.interp(xs_mindset, (xs_mindset.min(), xs_mindset.max()), (min_answer, max_answer))
-        c = np.floor(np.average(xs_mindset, axis=0)).astype(int)
-        cs.append(c)
-        xs[ys == i] = np.floor(xs_mindset).astype(int)
+    idxs = np.array_split(np.arange(nb_samples), nb_mindsets)
 
-    for c in cs:
-        print(c)
+    if not centers:
+        centers = np.random.random_integers(low=min_answer, high=max_answer, size=(nb_mindsets, nb_features))
+    else:
+        raise NotImplementedError
+    
+    for i in np.arange(nb_mindsets):
+        
+        nb_points = len(idxs[i])
+        answers_mindset = np.random.normal(loc=centers[i], size=(nb_points, nb_features))
+        answers_mindset = np.rint(answers_mindset)
+        answers_mindset[answers_mindset > max_answer] = max_answer
+        answers_mindset[answers_mindset < min_answer] = min_answer
 
-    xs = xs.astype(int)
+        xs[idxs[i]] = answers_mindset
+        ys[idxs[i]] = i
 
-    return xs, ys
+    return xs, ys, centers

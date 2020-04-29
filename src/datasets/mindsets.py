@@ -35,4 +35,4 @@ def make_mindsets(mindset_sizes, nb_questions, nb_useless, noise, seed):
         useless = np.random.randint(2, size=[nb_points, nb_useless])
         xs = np.hstack((xs, useless))
 
-    return xs, ys
+    return xs, ys, mindsets
