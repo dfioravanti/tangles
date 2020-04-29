@@ -350,13 +350,13 @@ def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
                 answers.to_csv(path / '..' / 'best.csv', index=False)
 
 
-def tangles_to_questions(tangles, cut_names, interval_values, path):
+def tangles_to_range_answers(tangles, cut_names, interval_values, path):
 
     # the questions are of the form 'name greater of equal than value'
     # this regex gets the name and the value
     template = re.compile(r"(\w+) .+ (\d+)")
 
-    final = pd.DataFrame()
+    range_answers = pd.DataFrame()
     for tangle in tangles:
 
         results = {}
@@ -377,10 +377,12 @@ def tangles_to_questions(tangles, cut_names, interval_values, path):
                 new = change_upper(new, value - 1)
             results[name] = new
 
-        final = final.append(pd.DataFrame([results]))
+        range_answers = range_answers.append(pd.DataFrame([results]))
 
-    f = lambda i: i if i[0] != i[1] else i[0]
-    final = final.applymap(f)
-    final = final.reindex(sorted(final.columns), axis=1)
+    convert_to_interval = lambda i: pd.Interval(left=i[0], right=i[1], closed='both')
+    range_answers = range_answers.applymap(convert_to_interval)
+    range_answers = range_answers.reindex(sorted(range_answers.columns), axis=1)
 
-    final.to_csv(path / 'questions.csv')
+    range_answers.to_csv(path / 'range_answers.csv', index=False)
+
+    return range_answers
