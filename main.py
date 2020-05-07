@@ -6,7 +6,8 @@ import pandas as pd
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
 from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting, \
-                          compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, tangles_to_range_answers
+    compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, tangles_to_range_answers, \
+    compute_fuzzy_clusters, soft_plotting  # , compute_soft_evaluation
 
 
 def main(args):
@@ -52,6 +53,10 @@ def main(args):
                                             all_cuts=all_cuts,
                                             verbose=args['verbose'])
 
+    soft_predictions_by_order = compute_fuzzy_clusters(tangles_by_orders=tangles_by_order,
+                                            all_cuts=all_cuts,
+                                            verbose=args['verbose'])
+
     if data['ys'] is not None:
         evaluation = compute_evaluation(data['ys'], predictions_by_order)
         order_best = evaluation['order_best']
@@ -62,6 +67,10 @@ def main(args):
         df_output = df_output.append(new_row, ignore_index=True)
         path = args['root_dir'] / f'evaluation_{unique_id}.csv'
         df_output.to_csv(path)
+
+        #soft_evaluation = compute_soft_evaluation(data['ys'], data['xs'], data['cs'], soft_predictions_by_order)
+        #if args['verbose'] >= 1:
+        #    print(f'Best result \n\t {soft_evaluation}', flush=True)
     else:
         order_best = None
 
@@ -75,6 +84,7 @@ def main(args):
 
     if args['plot']['tangles']:
         plotting(data, predictions_by_order, verbose=args['verbose'], path=args['plot_dir'])
+        soft_plotting(data, soft_predictions_by_order[order_best], path=args['plot_dir'])
 
 
 
