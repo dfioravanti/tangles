@@ -42,6 +42,8 @@ def main_tree(args):
     print(tree.splitting_tangles)
     print(tree.get_leaves(tree.root))
 
+    print("printing the tree")
+    tree.condensed_tree.traverse_print(tree.condensed_tree.root)
 
 if __name__ == '__main__':
 

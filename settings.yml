@@ -2,14 +2,14 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: mindsets
-  preprocessing_name: features
-  agreement: 30
+  dataset_name: sbm
+  preprocessing_name: fid_mat
+  agreement: 3
   percentile_orders: 100
 
 dataset:
   sbm:
-    block_sizes: [100, 100]
+    block_sizes: [10, 5, 5]
     p: 0.3
     q: 0.1
 
@@ -19,10 +19,10 @@ dataset:
     k: 10
 
   mindsets:
-    mindset_sizes: [100, 100, 100]
-    nb_questions: 50
+    mindset_sizes: [100, 100]
+    nb_questions: 3
     nb_useless: 0
-    noise: 0.3
+    noise: 0.2
 
   q:
     nb_samples: 1000
@@ -60,7 +60,7 @@ preprocessing:
     n_max: 20
 
   fid_mat:
-    nb_cuts: 100
+    nb_cuts: 10
     lb_f: 0.1
 
 # -1 in nb_cuts means all

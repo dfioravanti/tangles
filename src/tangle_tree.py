@@ -1,8 +1,27 @@
 from copy import deepcopy
 import numpy as np
+from pythonlangutil.overload import Overload, signature
+
+class CondensedTangleTreeNode:
+
+    def __init__(self, parent, treenode):
+        self.treenode = treenode
+        self.core = None
+        self.core_cuts = []
+
+        self.parent = parent
+        self.left = None
+        self.right = None
+
+        self.valid = treenode.valid
+        self.splitting_or_leaf = True
+
+        self.coordinate = treenode.coordinate
+        self.oriented_cut = None
 
 
 class TangleTreeNode:
+
     def __init__(self, parent, c, orientation):
         self.core = None
         self.core_cuts = []
@@ -12,7 +31,7 @@ class TangleTreeNode:
         self.right = None
 
         self.valid = False
-        self.is_splitting_tangle = False
+        self.splitting_or_leaf = False
 
         if parent is None:
             self.valid = True
@@ -61,6 +80,7 @@ class TangleTree:
         self.nb_splitting_tangles = None
         self.splitting_tangles = None
         self.copy = False
+        self.condensed_tree = CondensedTangleTree()
 
     # builds the tree by going trough all the cuts and adds them in the right order (given by order function)
     def build(self):
@@ -125,20 +145,19 @@ class TangleTree:
     # calculates all splitting tangles
     def get_splitting_tangles(self, node):
         if node is not None and node.valid:
+            if node.left and node.left.valid and node.right and node.right.valid or node.left is None and node.right is None:
+                self.condensed_tree.add(node)
             right = self.get_splitting_tangles(node.right)
             left = self.get_splitting_tangles(node.left)
-            if node.left is not None and node.left.valid and node.right is not None and node.right.valid:
-                node.is_splitting_tangle = True
+            if node.left and node.left.valid and node.right and node.right.valid:
+                node.splitting_or_leaf = True
                 return 1 + left[0] + right[0], [node.coordinate] + left[1] + right[1]
+            if node.left is None and node.right is None:
+                node.splitting_or_leaf = True
+
             else:
                 return left[0] + right[0], left[1] + right[1]
         return 0, []
-
-    def hard_clustering(self):
-        nb_clusters = self.nb_splitting_tangles + 1
-        nb_cuts = len(self.cuts)
-        splitting = self.splitting_tangles
-        leaves = self.get_leaves(self.root)
 
     def get_leaves(self, node):
         if node.valid and not node.left and not node.right:
@@ -148,15 +167,56 @@ class TangleTree:
 
         return []
 
-    def first_splitting_tangle(self):
-        node = self.root
-        first_tangle = self.splitting_tangles[0]
-        for bool in first_tangle:
-            if bool:
-                node = node.right
+
+class CondensedTangleTree:
+
+    # treenode refers to a node in the original tree while node is the node in the condensed tree
+
+    def __init__(self):
+        self.root = None
+
+    def add(self, treenode):
+        print("want to add the node")
+        print(treenode.coordinate)
+        if self.root:
+            self.add_node(self.root, treenode)
+        else:
+            print("adding the node \n")
+            self.root = CondensedTangleTreeNode(None, treenode)
+
+    def add_node(self, node, treenode):
+        print("parent: ", node.coordinate)
+        coord_node = node.coordinate
+        coord_treenode = treenode.coordinate
+
+        if coord_treenode[:len(coord_node)] != coord_node:
+            print("you went to far")
+            return
+
+        if node.left is not None:
+            print("going left \n")
+            self.add_node(node.left, treenode)
+        if node.right is not None:
+            print("going right \n")
+            self.add_node(node.right, treenode)
+
+        if not node.left or not node.right:
+            print("checking the sides")
+            if coord_treenode[len(coord_node)]:
+                print("adding the node right \n")
+                node.right = CondensedTangleTreeNode(node, treenode)
             else:
-                node = node.left
-        return node
+                print("adding the node left \n")
+                node.left = CondensedTangleTreeNode(node, treenode)
+
+    # traverse the tree in depth first search and print out coordinates and the cut
+    def traverse_print(self, node):
+        if node and node.valid:
+            print(node.coordinate)
+            self.traverse_print(node.right)
+            self.traverse_print(node.left)
+        return
+
 
 #checks if the oriented cut a is a subset of the oriented cut b
 def subset(a, b):
