@@ -9,14 +9,91 @@ import altair as alt
 from altair.expr import datum
 
 from src.config import NAN
+from src.utils import get_points_to_plot
 
+
+# Standard colors for uniform plots
 COLOR_SILVER = '#C0C0C0'
-COLOR_SILVER_RGB = (192 / 255, 192 / 255, 192 / 255) + (0.5,)
+COLOR_SILVER_RGB = (192 / 255, 192 / 255, 192 / 255) + (0.2,)
 COLOR_INDIGO_RGB = (55 / 255, 0 / 255, 175 / 255) + (0.5,)
+COLOR_CARNATION_RGB = np.array((247 / 255, 96 / 255, 114 / 255, 1)).reshape((1, -1))
+CMAP = plt.cm.get_cmap('Blues')
+
+# TODO: Fix the comments in this file
+
+
+def plot_heatmap(xs, ys, cs, tangles, cuts, path=None):
+    """
+    For each tangle print a heatmap that shows how many cuts each point satisfies.
+
+    Parameters
+    ----------
+    all_cuts: array of shape [nb_cuts, nb_points]
+        the collection of all cuts
+    ys: array of shape [n_points]
+        The array of class labels
+    predictions_of_order: dict of list of Specification
+        A dictionary where the key is the order and the value is a list of all the tangles of that order
+    path:
+
+    Returns
+    -------
+
+    """
+
+    if path is not None:
+        output_path = path
+        output_path.mkdir(parents=True, exist_ok=True)
+
+    plt.style.use('ggplot')
+    plt.ioff()
+
+    mpl.rcParams.update({'font.size': 8})
+   
+    nb_points = len(xs)
+    xs_embedded, cs_embedded = get_points_to_plot(xs, cs)
+    if ys is not None:
+        ys_normalized = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
+
+    color_tangles = mpl.colors.Normalize(vmin=0, vmax=np.max(len(tangles)))
+    f, axs = plt.subplots(nrows=1, ncols=len(tangles), figsize=(20, 10), )
+
+    for i, tangle in enumerate(tangles):       
+        ax = axs[i]
+        ax.grid(b=None)
+        ax.set_title(f'Tangle number {i+1}')
+        ax.set_xticks([], [])
+        ax.set_yticks([], [])
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+    
+        ax.set_facecolor(CMAP(0))
+
+        matching_cuts = np.zeros(nb_points, dtype='int')
+        for cut, orr in tangle.specification.items():
+            if np.sum(cuts[cut] == orr) != nb_points:
+                matching_cuts = matching_cuts + (cuts[cut] == orr)
+        
+        ax.hexbin(xs_embedded[:, 0], xs_embedded[:, 1], 
+                  C=matching_cuts, cmap=CMAP, bins='log', gridsize=25)
+
+        if cs is not None:
+            ax.scatter(cs_embedded[:, 0], cs_embedded[:, 1], c=COLOR_CARNATION_RGB, marker='o', s=10)
+
+    f.tight_layout()
+
+    if path is None:
+        plt.show()
+    else:
+        plt.savefig(output_path / f"Best heatmap.svg")
+
+    plt.close(f)
 
 
 def plot_predictions(xs, ys, predictions_of_order, path=None):
-
     """
     For each tangle print a heatmap that shows how many cuts each point satisfies.
 
@@ -53,9 +130,12 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
 
         normalise_pred = mpl.colors.Normalize(vmin=0, vmax=np.max(prediction))
 
-        f, (ax_true, ax_pred) = plt.subplots(nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(b=None), ax_true.set_title("True clusters")
-        ax_pred.axis('off'), ax_pred.grid(b=None), ax_pred.set_title("Predicted clusters")
+        f, (ax_true, ax_pred) = plt.subplots(
+            nrows=1, ncols=2, figsize=(15, 15))
+        ax_true.axis('off'), ax_true.grid(
+            b=None), ax_true.set_title("True clusters")
+        ax_pred.axis('off'), ax_pred.grid(
+            b=None), ax_pred.set_title("Predicted clusters")
 
         if ys is not None:
             for y in np.unique(ys):
@@ -98,7 +178,6 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
 
 
 def plot_predictions_graph(G, ys, predictions_of_order, path=None):
-
     """
     For each tangle print a heatmap that shows how many cuts each point satisfies.
 
@@ -134,9 +213,12 @@ def plot_predictions_graph(G, ys, predictions_of_order, path=None):
 
         normalise_pred = mpl.colors.Normalize(vmin=0, vmax=np.max(prediction))
 
-        f, (ax_true, ax_pred) = plt.subplots(nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(b=None), ax_true.set_title("True clusters")
-        ax_pred.axis('off'), ax_pred.grid(b=None), ax_pred.set_title("Predicted clusters")
+        f, (ax_true, ax_pred) = plt.subplots(
+            nrows=1, ncols=2, figsize=(15, 15))
+        ax_true.axis('off'), ax_true.grid(
+            b=None), ax_true.set_title("True clusters")
+        ax_pred.axis('off'), ax_pred.grid(
+            b=None), ax_pred.set_title("Predicted clusters")
 
         colors = np.zeros((len(ys), 4))
         if ys is not None:
@@ -208,9 +290,12 @@ def plot_cuts(xs, ys, cuts, orders, path):
 
     for i, cut in enumerate(cuts):
 
-        fig, (ax_true, ax_cut) = plt.subplots(nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(b=None), ax_true.set_title("True clusters")
-        ax_cut.axis('off'), ax_cut.grid(b=None), ax_cut.set_title(f"cut of order {orders[i]}")
+        fig, (ax_true, ax_cut) = plt.subplots(
+            nrows=1, ncols=2, figsize=(15, 15))
+        ax_true.axis('off'), ax_true.grid(
+            b=None), ax_true.set_title("True clusters")
+        ax_cut.axis('off'), ax_cut.grid(
+            b=None), ax_cut.set_title(f"cut of order {orders[i]}")
 
         if ys is not None:
             for y in np.unique(ys):
@@ -307,63 +392,69 @@ def plot_evaluation(evaluations, path):
 
 # Plots results
 
-def make_v_measure_plot(df, title, x_axis, y_axis, facet_on):
-    
+
+def make_homogeneity_plot(df, title, x_axis, y_axis, facet_on):
+
     chart = alt.Chart(df, width=800, height=300).mark_rect().encode(
-            alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(field=x_axis, order='ascending'), axis=alt.Axis(grid=True)),
-            alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
-            alt.Color('v_measure_score', type='quantitative', title='v-measure score',scale=alt.Scale(domain=[0, 1])),
-        ).facet(
-            facet=alt.Facet(facet_on, type='nominal', title=None),
-            title=title
-        )  
+        alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(
+            field=x_axis, order='ascending',), axis=alt.Axis(grid=True)),
+        alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(
+            field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
+        alt.Color('homogeneity', type='quantitative',
+                  title='Homogeneity', scale=alt.Scale(domain=[0, 1])),
+    ).properties(
+        title=title
+    )
 
     return chart
 
 
 def make_full_plot(df, title, x_axis, y_axis, facet_on):
 
-    v_measure_chart = make_v_measure_plot(df, title, x_axis, y_axis, facet_on)
+    v_measure_chart = make_homogeneity_plot(
+        df, title, x_axis, y_axis, facet_on)
 
     text = alt.Chart(df, width=800, height=300).mark_text().encode(
-            alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(field=x_axis, order='ascending'), axis=alt.Axis(grid=True)),
-            alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
-            alt.Text('order'),
-        ).facet(
-            facet=alt.Facet(facet_on, type='nominal', title=None),
-            title='best_order/max_order'
-        )
+        alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(
+            field=x_axis, order='ascending'), axis=alt.Axis(grid=True)),
+        alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(
+            field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
+        alt.Text('order'),
+    ).facet(
+        facet=alt.Facet(facet_on, type='nominal', title=None),
+        title='best_order/max_order'
+    )
 
     chart = alt.vconcat(v_measure_chart, text)
     chart = graphic_settings(chart)
 
     return chart
 
+
 def graphic_settings(chart):
     chart = chart.configure_title(
-            fontSize=20,
-            font='Courier',
-            anchor='middle',
-            color='gray'
-        ).configure_axis(
-            gridOpacity = 0.0,
+        fontSize=14,
+        font='Courier',
+        anchor='middle',
+        color='gray'
+    ).configure_axis(
+        gridOpacity=0.0,
 
-            labelFont='Courier',
-            labelColor='black',
+        labelFont='Courier',
+        labelColor='black',
 
-            titleFont='Courier',
-            titleColor='gray',
-            grid=False
-        ).configure_axisX(
-            labelAngle=0,
-        ).configure_legend(
-            labelFont='Courier',
-            labelColor='black',
+        titleFont='Courier',
+        titleColor='gray',
+        grid=False
+    ).configure_axisX(
+        labelAngle=0,
+    ).configure_legend(
+        labelFont='Courier',
+        labelColor='black',
 
-            titleFont='Courier',
-            titleColor='gray',
-            titleAnchor='middle'
-        ).configure_view(strokeOpacity=0)
+        titleFont='Courier',
+        titleColor='gray',
+        titleAnchor='middle'
+    ).configure_view(strokeOpacity=0)
 
     return chart
-    

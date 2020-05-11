@@ -6,7 +6,9 @@ import pandas as pd
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
 from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting, \
-                          compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, tangles_to_range_answers
+                          compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, \
+                          tangles_to_range_answers, centers_in_range_answers
+from src.plotting import plot_heatmap
 
 
 def main(args):
@@ -62,6 +64,12 @@ def main(args):
         df_output = df_output.append(new_row, ignore_index=True)
         path = args['root_dir'] / f'evaluation_{unique_id}.csv'
         df_output.to_csv(path)
+
+        if args['plot']['heatmap']:
+            plot_heatmap(xs=data['xs'], ys=data['ys'], cs=data['cs'],
+                        tangles=tangles_by_order[order_best], cuts=all_cuts, 
+                        path=args['plot_dir'])
+
     else:
         order_best = None
 
@@ -69,6 +77,7 @@ def main(args):
         range_answers = tangles_to_range_answers(tangles_by_order[order_best], name_cuts,
                                                  interval_values=args['preprocessing']['range_answers'],
                                                  path=args['root_dir'])
+        centers_in_range_answers(data['cs'], range_answers)
         print_tangles_names(name_cuts, tangles_by_order, order_best,
                             path=args['answers_dir'],
                             verbose=args['verbose'])
