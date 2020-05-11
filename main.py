@@ -66,9 +66,8 @@ def main(args):
         df_output.to_csv(path)
 
         if args['plot']['heatmap']:
-            plot_heatmap(xs=data['xs'], ys=data['ys'], cs=data['cs'],
-                        tangles=tangles_by_order[order_best], cuts=all_cuts, 
-                        path=args['plot_dir'])
+            plot_heatmap(data=data, tangles=tangles_by_order[order_best], 
+                         cuts=all_cuts, path=args['plot_dir'])
 
     else:
         order_best = None

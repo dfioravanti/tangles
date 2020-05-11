@@ -21,21 +21,21 @@ CMAP = plt.cm.get_cmap('Blues')
 
 # TODO: Fix the comments in this file
 
+def plot_heatmap(data, tangles, cuts, path=None):
 
-def plot_heatmap(xs, ys, cs, tangles, cuts, path=None):
+    if data['xs'] is not None:
+        plot_heatmap(xs=data['xs'], ys=data['ys'], cs=data['cs'],
+                    tangles=tangles, cuts=cuts, 
+                    path=args['plot_dir'])
+
+
+def plot_heatmap_points(xs, ys, cs, tangles, cuts, path=None):
     """
     For each tangle print a heatmap that shows how many cuts each point satisfies.
 
     Parameters
     ----------
-    all_cuts: array of shape [nb_cuts, nb_points]
-        the collection of all cuts
-    ys: array of shape [n_points]
-        The array of class labels
-    predictions_of_order: dict of list of Specification
-        A dictionary where the key is the order and the value is a list of all the tangles of that order
-    path:
-
+    
     Returns
     -------
 
