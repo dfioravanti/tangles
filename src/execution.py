@@ -107,7 +107,26 @@ def order_cuts(cuts, cuts_names, order_function):
 
 
 def compute_clusters(tangles_by_orders, all_cuts, verbose):
+    """ 
+    
+    Given the tangles divided by order and all the cuts it converts the tangles into hard clustering.
+    It does this by creating a cluster for each tangle and then assign each point to the tangle 
+    for which it satisfies the largest number of constrains.
 
+    Parameters
+    ----------
+    tangles_by_orders : dict of Orientations
+        Dictionary with key the order and value the tangles of that order
+    all_cuts : ndarray of shape [nb_cuts]
+        All the cuts
+    verbose : Int
+        The verbosity level
+
+    Returns
+    -------
+    dict of ndarray
+        Dictionary with key the order and value the predicted labels for that order
+    """
     predictions_by_order = {}
 
     for order, tangles in tangles_by_orders.items():
@@ -251,12 +270,16 @@ def tangle_computation(all_cuts, orders, agreement, verbose):
 
     tangles = []
     tangles_of_order = {}
+    old_order = None
 
     unique_orders = np.unique(orders)
 
     for order in unique_orders:
 
-        idx_cuts_order_i = np.where(np.all([order - 1 < orders, orders <= order], axis=0))[0]
+        if old_order is None:
+            idx_cuts_order_i = np.where(orders <= order)[0]
+        else:
+            idx_cuts_order_i = np.where(np.all([orders > old_order, orders <= order], axis=0))[0]
 
         if len(idx_cuts_order_i) > 0:
             if verbose >= 2:
@@ -277,6 +300,8 @@ def tangle_computation(all_cuts, orders, agreement, verbose):
                 break
 
             tangles_of_order[order] = deepcopy(tangles)
+        
+        old_order = order
 
     return tangles_of_order
 
@@ -379,10 +404,29 @@ def tangles_to_range_answers(tangles, cut_names, interval_values, path):
 
         range_answers = range_answers.append(pd.DataFrame([results]))
 
+    prettification = lambda i: i if i.left != i.right else i.left
     convert_to_interval = lambda i: pd.Interval(left=i[0], right=i[1], closed='both')
+
     range_answers = range_answers.applymap(convert_to_interval)
     range_answers = range_answers.reindex(sorted(range_answers.columns), axis=1)
 
-    range_answers.to_csv(path / 'range_answers.csv', index=False)
+    range_answers.applymap(prettification).to_csv(path / 'range_answers.csv', index=False)
 
     return range_answers
+
+
+def centers_in_range_answers(cs, range_answers):
+
+    #name_questions = [f'{q']
+
+    p = []
+    for _, row in range_answers.iterrows():
+        agreement = []
+        for c in cs:
+            l = []
+            for component_c, answer in zip(c, row.tolist()):
+                l.append(component_c in answer)        
+            agreement.append(np.mean(l))
+        p.append(max(agreement))
+
+    print(p)
