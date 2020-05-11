@@ -7,7 +7,10 @@ from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
 from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting, \
     compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, tangles_to_range_answers, \
-    compute_fuzzy_clusters, soft_plotting  # , compute_soft_evaluation
+    compute_fuzzy_clusters, soft_plotting, centers_in_range_answers  # , compute_soft_evaluation
+
+from src.plotting import plot_heatmap
+
 
 
 def main(args):
@@ -71,6 +74,7 @@ def main(args):
         #soft_evaluation = compute_soft_evaluation(data['ys'], data['xs'], data['cs'], soft_predictions_by_order)
         #if args['verbose'] >= 1:
         #    print(f'Best result \n\t {soft_evaluation}', flush=True)
+
     else:
         order_best = None
 
@@ -78,6 +82,7 @@ def main(args):
         range_answers = tangles_to_range_answers(tangles_by_order[order_best], name_cuts,
                                                  interval_values=args['preprocessing']['range_answers'],
                                                  path=args['root_dir'])
+        centers_in_range_answers(data['cs'], range_answers)
         print_tangles_names(name_cuts, tangles_by_order, order_best,
                             path=args['answers_dir'],
                             verbose=args['verbose'])
