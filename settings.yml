@@ -2,12 +2,17 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: q
+  dataset_name: retinal
   preprocessing_name: bin_lik
-  agreement: 50
+  agreement: 200
   percentile_orders: 100
 
 dataset:
+
+  retinal:
+    nb_bins: 10
+    max_idx: 75
+
   sbm:
     block_sizes: [100, 100]
     p: 0.3
