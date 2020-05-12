@@ -75,6 +75,7 @@ def main(args):
         #if args['verbose'] >= 1:
         #    print(f'Best result \n\t {soft_evaluation}', flush=True)
 
+
     else:
         order_best = None
 
@@ -89,7 +90,7 @@ def main(args):
 
     if args['plot']['tangles']:
         plotting(data, predictions_by_order, verbose=args['verbose'], path=args['plot_dir'])
-        soft_plotting(data, soft_predictions_by_order[order_best], path=args['plot_dir'])
+#        soft_plotting(data, soft_predictions_by_order[order_best], path=args['plot_dir'])
 
 
 

@@ -26,8 +26,9 @@ dataset:
 
   q:
     nb_samples: 1000
-    nb_features: 60
-    nb_mindsets: 6
+    nb_features: 70
+    nb_mindsets: 5
+    centers: False
     range_answers: [1, 10]
 
   pol_books:
@@ -66,7 +67,8 @@ preprocessing:
 # -1 in nb_cuts means all
 plot:
   tangles: True
-  cuts: False
+  cuts: True
+  heatmap: True
   nb_cuts: 10
 
 # 0, 1, 2, 3 allowed

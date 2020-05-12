@@ -471,4 +471,4 @@ def centers_in_range_answers(cs, range_answers):
             agreement.append(np.mean(l))
         p.append(max(agreement))
 
-    print(p)
+    print(range_answers)
