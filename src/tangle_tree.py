@@ -2,74 +2,6 @@ from copy import deepcopy
 import numpy as np
 from pythonlangutil.overload import Overload, signature
 
-class CondensedTangleTreeNode:
-
-    def __init__(self, parent, treenode):
-        self.treenode = treenode
-        self.core = None
-        self.core_cuts = []
-
-        self.parent = parent
-        self.left = None
-        self.right = None
-
-        self.valid = treenode.valid
-        self.splitting_or_leaf = True
-
-        self.coordinate = treenode.coordinate
-        self.oriented_cut = None
-
-
-class TangleTreeNode:
-
-    def __init__(self, parent, c, orientation):
-        self.core = None
-        self.core_cuts = []
-
-        self.parent = parent
-        self.left = None
-        self.right = None
-
-        self.valid = False
-        self.splitting_or_leaf = False
-
-        if parent is None:
-            self.valid = True
-            self.coordinate = []
-            self.oriented_cut = None
-        else:
-            self.oriented_cut = c if orientation else [not x for x in c]
-            self.update_core()
-            self.coordinate = parent.coordinate + [orientation]
-
-    def update_core(self):
-        core = deepcopy(self.parent.core)
-        core_cuts = deepcopy(self.parent.core_cuts)
-
-        if core is None:
-            self.core = deepcopy(self.oriented_cut)
-            self.core_cuts += [deepcopy(self.oriented_cut)]
-        else:
-
-            if subset(self.oriented_cut, core):
-                self.core = core
-                self.core_cuts = core_cuts
-            elif subset(core, self.oriented_cut):
-                self.core = deepcopy(self.oriented_cut)
-                self.core_cuts = [deepcopy(self.oriented_cut)]
-            else:
-                delete = []
-                for i, c in enumerate(core_cuts):
-                    if subset(c, self.oriented_cut):
-                        delete += [i]
-                for i in np.flip(delete):
-                    del core_cuts[i]
-
-                core_cuts += [self.oriented_cut]
-
-                self.core = [x and y for x, y in zip(core, self.oriented_cut)]
-                self.core_cuts = core_cuts
-
 
 class TangleTree:
     def __init__(self, agreement, cuts):
@@ -127,6 +59,12 @@ class TangleTree:
 
         return
 
+    def print(self, condensed=False):
+        if condensed:
+            self.condensed_tree.traverse_print(self.condensed_tree.root)
+        else:
+            self.traverse_print(self.root)
+
     # traverse the tree in depth first search and print out coordinates and the cut
     def traverse_print(self, node):
         if node and node.valid:
@@ -167,6 +105,112 @@ class TangleTree:
 
         return []
 
+    def update_p(self, node=-1, right=None):
+        if node:
+            if node == -1:
+                node = self.condensed_tree.root
+            self.calculate_p(node, right)
+            self.update_p(node.left, False)
+            self.update_p(node.right, True)
+
+
+    def calculate_p(self, node, right):
+        if node.right and node.left:
+            node.p = np.zeros(len(self.cuts[0]))
+
+            coord_left = node.left.coordinate
+            coord_right = node.right.coordinate
+
+            print("left", coord_left)
+            print("right", coord_right)
+
+            if len(coord_left) >= len(coord_right):
+                idx = np.arange(len(coord_left))
+                idx = idx[len(node.coordinate):len(coord_right)]
+
+                coord_left = coord_left[len(node.coordinate):len(coord_right)]
+                coord_right = coord_right[len(node.coordinate):]
+            else:
+                idx = np.arange(len(coord_right))
+                idx = idx[len(node.coordinate):len(coord_left)]
+
+                coord_left = coord_left[len(node.coordinate):]
+                coord_right = coord_right[len(node.coordinate):len(coord_left)]
+
+            bool = np.not_equal(coord_left, coord_right)
+
+            for b, i in zip(bool, idx):
+                if b:
+                    node.p += self.cuts[i]
+                else:
+                    node.p += np.flip(self.cuts[i])
+
+            node.p = node.p / sum(bool)
+
+            if node.parent:
+                if right:
+                    node.p = np.multiply(node.parent.p, node.p)
+                else:
+                    node.p = np.multiply((1 - node.parent.p), node.p)
+        else:
+            if right:
+                node.p = node.parent.p
+            else:
+                if node.parent.parent:
+                    node.p = node.parent.parent.p - node.parent.p
+                else:
+                    node.p = 1 - node.parent.p
+
+class TangleTreeNode:
+
+    def __init__(self, parent, c, orientation):
+        self.core = None
+        self.core_cuts = []
+
+        self.parent = parent
+        self.left = None
+        self.right = None
+
+        self.valid = False
+        self.splitting_or_leaf = False
+
+        if parent is None:
+            self.valid = True
+            self.coordinate = []
+            self.oriented_cut = None
+        else:
+            self.oriented_cut = c if orientation else [not x for x in c]
+            self.update_core()
+            self.coordinate = parent.coordinate + [orientation]
+
+    def update_core(self):
+        core = deepcopy(self.parent.core)
+        core_cuts = deepcopy(self.parent.core_cuts)
+
+        if core is None:
+            self.core = deepcopy(self.oriented_cut)
+            self.core_cuts += [deepcopy(self.oriented_cut)]
+        else:
+
+            if subset(self.oriented_cut, core):
+                self.core = core
+                self.core_cuts = core_cuts
+            elif subset(core, self.oriented_cut):
+                self.core = deepcopy(self.oriented_cut)
+                self.core_cuts = [deepcopy(self.oriented_cut)]
+            else:
+                delete = []
+                for i, c in enumerate(core_cuts):
+                    if subset(c, self.oriented_cut):
+                        delete += [i]
+                for i in np.flip(delete):
+                    del core_cuts[i]
+
+                core_cuts += [self.oriented_cut]
+
+                self.core = [x and y for x, y in zip(core, self.oriented_cut)]
+                self.core_cuts = core_cuts
+
 
 class CondensedTangleTree:
 
@@ -176,49 +220,64 @@ class CondensedTangleTree:
         self.root = None
 
     def add(self, treenode):
-        print("want to add the node")
-        print(treenode.coordinate)
+        #print("want to add the node")
+        #print(treenode.coordinate)
         if self.root:
             self.add_node(self.root, treenode)
         else:
-            print("adding the node \n")
+            #print("adding the node \n")
             self.root = CondensedTangleTreeNode(None, treenode)
 
     def add_node(self, node, treenode):
-        print("parent: ", node.coordinate)
+        #print("parent: ", node.coordinate)
         coord_node = node.coordinate
         coord_treenode = treenode.coordinate
 
         if coord_treenode[:len(coord_node)] != coord_node:
-            print("you went to far")
+            #print("you went to far")
             return
 
         if node.left is not None:
-            print("going left \n")
+            #print("going left \n")
             self.add_node(node.left, treenode)
         if node.right is not None:
-            print("going right \n")
+            #print("going right \n")
             self.add_node(node.right, treenode)
 
         if not node.left or not node.right:
-            print("checking the sides")
+            #print("checking the sides")
             if coord_treenode[len(coord_node)]:
-                print("adding the node right \n")
+                #print("adding the node right \n")
                 node.right = CondensedTangleTreeNode(node, treenode)
             else:
-                print("adding the node left \n")
+                #print("adding the node left \n")
                 node.left = CondensedTangleTreeNode(node, treenode)
 
     # traverse the tree in depth first search and print out coordinates and the cut
     def traverse_print(self, node):
-        if node and node.valid:
-            print(node.coordinate)
+        if node:
+            print(node.coordinate, node.p)
             self.traverse_print(node.right)
             self.traverse_print(node.left)
-        return
 
 
-#checks if the oriented cut a is a subset of the oriented cut b
+class CondensedTangleTreeNode:
+
+    def __init__(self, parent, treenode):
+        self.treenode = treenode
+
+        self.parent = parent
+        self.left = None
+        self.right = None
+
+        self.coordinate = treenode.coordinate
+
+        self.p = None
+
+
+
+
+# checks if the oriented cut a is a subset of the oriented cut b
 def subset(a, b):
     return sum([x and y for x, y in zip(a, b)]) == sum(b)
 

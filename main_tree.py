@@ -38,12 +38,11 @@ def main_tree(args):
 
     tree.check_for_splitting_tangles()
 
-    print(tree.nb_splitting_tangles)
-    print(tree.splitting_tangles)
-    print(tree.get_leaves(tree.root))
+    tree.update_p()
 
     print("printing the tree")
-    tree.condensed_tree.traverse_print(tree.condensed_tree.root)
+    tree.print(tree.condensed_tree.root)
+
 
 if __name__ == '__main__':
 
