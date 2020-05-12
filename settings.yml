@@ -8,6 +8,11 @@ experiment:
   percentile_orders: 100
 
 dataset:
+
+  retinal:
+    nb_bins: 10
+    max_idx: 75
+
   sbm:
     block_sizes: [10, 5, 5]
     p: 0.3

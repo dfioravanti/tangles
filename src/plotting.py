@@ -24,9 +24,8 @@ CMAP = plt.cm.get_cmap('Blues')
 def plot_heatmap(data, tangles, cuts, path=None):
 
     if data['xs'] is not None:
-        plot_heatmap(xs=data['xs'], ys=data['ys'], cs=data['cs'],
-                    tangles=tangles, cuts=cuts, 
-                    path=args['plot_dir'])
+        plot_heatmap_points(xs=data['xs'], ys=data['ys'], cs=data['cs'],
+                           tangles=tangles, cuts=cuts, path=path)
 
 
 def plot_heatmap_points(xs, ys, cs, tangles, cuts, path=None):

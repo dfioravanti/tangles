@@ -19,6 +19,7 @@ VALID_EXPERIMENTS = [
 
 DATASET_BINARY_QUESTIONNAIRE = "q_binary"
 DATASET_QUESTIONNAIRE = "q"
+DATASET_RETINAL = "retinal"
 DATASET_BINARY_IRIS = "iris"
 DATASET_SBM = "sbm"
 DATASET_KNN_BLOBS = "knn_blobs"
@@ -32,6 +33,7 @@ DATASET_MUSHROOMS = 'mushrooms'
 DATASET_MINDSETS = 'mindsets'
 
 DISCRETE_DATASETS = [
+    DATASET_RETINAL,
     DATASET_BINARY_QUESTIONNAIRE,
     DATASET_QUESTIONNAIRE,
     DATASET_BINARY_IRIS,
@@ -227,10 +229,12 @@ def validate_settings(args):
 
 
 def set_up_dirs(args, root_dir):
-    args['root_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id'] / args['prefix']}")
-    args['plot_dir'] = Path(f"{args['root_dir'] / 'plots'}")
-    args['answers_dir'] = Path(f"{args['root_dir'] / 'answers'}")
 
-    args['root_dir'].mkdir(parents=True, exist_ok=True)
+    args['root_dir'] = Path(root_dir)
+    args['output_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id'] / args['prefix']}")
+    args['plot_dir'] = Path(f"{args['output_dir'] / 'plots'}")
+    args['answers_dir'] = Path(f"{args['output_dir'] / 'answers'}")
+
+    args['output_dir'].mkdir(parents=True, exist_ok=True)
 
     return args

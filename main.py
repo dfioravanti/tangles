@@ -68,7 +68,7 @@ def main(args):
 
         new_row = pd.Series({**foundamental_parameters, **evaluation, 'max_order': max_order})
         df_output = df_output.append(new_row, ignore_index=True)
-        path = args['root_dir'] / f'evaluation_{unique_id}.csv'
+        path = args['output_dir'] / f'evaluation_{unique_id}.csv'
         df_output.to_csv(path)
 
         #soft_evaluation = compute_soft_evaluation(data['ys'], data['xs'], data['cs'], soft_predictions_by_order)
@@ -82,7 +82,7 @@ def main(args):
     if name_cuts is not None:
         range_answers = tangles_to_range_answers(tangles_by_order[order_best], name_cuts,
                                                  interval_values=args['preprocessing']['range_answers'],
-                                                 path=args['root_dir'])
+                                                 path=args['output_dir'])
         centers_in_range_answers(data['cs'], range_answers)
         print_tangles_names(name_cuts, tangles_by_order, order_best,
                             path=args['answers_dir'],
@@ -93,7 +93,6 @@ def main(args):
 #        soft_plotting(data, soft_predictions_by_order[order_best], path=args['plot_dir'])
 
 
-
 if __name__ == '__main__':
 
     # Make parser, read inputs from command line and resolve paths
@@ -102,7 +101,6 @@ if __name__ == '__main__':
     args_parser = parser.parse_args()
 
     root_dir = Path(__file__).resolve().parent
-    print(root_dir)
     args = load_validate_settings(args_parser, root_dir=root_dir)
     args = set_up_dirs(args, root_dir=root_dir)
 
