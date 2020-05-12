@@ -76,7 +76,8 @@ def main(args):
         range_answers = tangles_to_range_answers(tangles_by_order[order_best], name_cuts,
                                                  interval_values=args['preprocessing']['range_answers'],
                                                  path=args['output_dir'])
-        centers_in_range_answers(data['cs'], range_answers)
+        if data['cs'] is not None:
+            centers_in_range_answers(data['cs'], range_answers)
         print_tangles_names(name_cuts, tangles_by_order, order_best,
                             path=args['answers_dir'],
                             verbose=args['verbose'])
