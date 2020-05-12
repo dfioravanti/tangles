@@ -47,6 +47,11 @@ def get_dataset_and_order_function(args):
     """
 
     data = {}
+    data['xs'] = None
+    data['ys'] = None
+    data['cs'] = None
+    data['A'] = None
+    data['G'] = None
 
     if args['experiment']['dataset_name'] == DATASET_MINDSETS:
         xs, ys, cs = make_mindsets(mindset_sizes=args['dataset']['mindset_sizes'],
