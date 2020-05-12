@@ -3,6 +3,8 @@ import networkx as nx
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+import matplotlib.patches as patches
+
 from sklearn.manifold import TSNE
 
 import altair as alt
@@ -457,3 +459,61 @@ def graphic_settings(chart):
     ).configure_view(strokeOpacity=0)
 
     return chart
+
+def add_lines(values, ax):
+    
+    n, m = values.shape
+    old_i = None
+    for j in np.arange(m):
+        for i in np.arange(n):
+            if values[i, j] == True:
+              
+                if old_i != i:
+                    line = [(j - 0.5, i + 0.5),
+                            (j - 0.5, i - 0.5), 
+                            (j + 0.5, i - 0.5)]
+                else:
+                    line = [
+                            (j - 0.5, i - 0.5), 
+                            (j + 0.5, i - 0.5)]
+                    
+                path = patches.Polygon(line, facecolor='none', edgecolor='red',
+                                       linewidth=2, closed=False, joinstyle='round')
+                ax.add_patch(path)
+                old_i = i
+                break
+
+
+def make_result_heatmap(data, title, ax):
+
+    df = data.pivot(index='q', columns='p', values='homogeneity').round(2).sort_index(ascending=False).sort_index(axis=1)
+    p = df.columns.to_numpy()
+    q = df.index.to_numpy()
+    values = df.to_numpy()
+    im = ax.imshow(values, cmap=plt.cm.get_cmap('Blues'), aspect='auto')
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+
+    ax.set_xticks(np.arange(len(p)))
+    ax.set_xticklabels(p)
+    ax.set_xlabel("p", fontsize=10, labelpad=10)
+
+    ax.set_yticks(np.arange(len(q)))
+    ax.set_yticklabels(q)
+    ax.set_ylabel("q", rotation=0, fontsize=10, labelpad=15)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=0, ha="center",
+             rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(q)):
+        for j in range(len(p)):
+            text = ax.text(j, i, values[i, j],
+                           ha="center", va="center", color="black")
+
+
+    ax.set_title(title, fontsize=20, pad=10)
