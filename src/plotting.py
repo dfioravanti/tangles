@@ -486,16 +486,13 @@ def add_lines(values, ax):
 
 def make_result_heatmap(data, title, ax):
 
+    plt.rc('font', family='serif')
+
     df = data.pivot(index='q', columns='p', values='homogeneity').round(2).sort_index(ascending=False).sort_index(axis=1)
     p = df.columns.to_numpy()
     q = df.index.to_numpy()
     values = df.to_numpy()
     im = ax.imshow(values, cmap=plt.cm.get_cmap('Blues'), aspect='auto')
-
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
-    ax.spines['left'].set_visible(False)
 
     ax.set_xticks(np.arange(len(p)))
     ax.set_xticklabels(p)
@@ -515,5 +512,12 @@ def make_result_heatmap(data, title, ax):
             text = ax.text(j, i, values[i, j],
                            ha="center", va="center", color="black")
 
+    # Turn spines off and create white grid.
+    for edge, spine in ax.spines.items():
+        spine.set_visible(False)
 
+    ax.set_xticks(np.arange(len(p)+1)-.5, minor=True)
+    ax.set_yticks(np.arange(len(q)+1)-.5, minor=True)
+    ax.grid(b=True, which="minor", color="w", linestyle='-', linewidth=5)
+    ax.tick_params(which="minor", bottom=False, left=False)
     ax.set_title(title, fontsize=20, pad=10)
