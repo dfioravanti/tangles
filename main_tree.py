@@ -16,6 +16,7 @@ from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts
     compute_fuzzy_clusters, soft_plotting  # , compute_soft_evaluation
 from src.plotting import get_position
 from src.tangle_tree import TangleTree
+from src.utils import get_points_to_plot
 
 
 def main_tree(args):
@@ -31,6 +32,8 @@ def main_tree(args):
     data, orders, all_cuts, name_cuts = get_dataset_cuts_order(args)
     max_order = orders.max()
 
+    print("got all the data")
+
     # all_cuts = [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     #             [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -45,35 +48,41 @@ def main_tree(args):
     print(" --- Get all the splitting tangles \n")
     tree.check_for_splitting_tangles()
 
-    splitting = tree.splitting_tangles
+    print(" -- printing original tree")
+    tree.print()
+
+    print(" -- printing condensed tree")
+    tree.print(condensed=True)
+
+    splitting = tree.nb_splitting_tangles
     leaves = tree.get_leaves(tree.root)
-    print("# splitting tangles: ", len(splitting), "\n")
+    print("# splitting tangles: ", splitting, "\n")
     print("# leaves: ", len(leaves), "\n")
 
     print("Calculating the p values for each node")
     tree.update_p()
 
-    leaves_probs = tree.condensed_tree.leaves
+    tangle_probs = tree.condensed_tree.tangles
 
-    for l in leaves_probs:
+    for l in tangle_probs:
         print("Orientation: ", l[1], "\n \t probabilities: ", l[0])
 
-    plot = True
+    plot = False
     if plot:
-        G = data["G"]
-        ys = data["ys"]
-        COLOR_SILVER = '#C0C0C0'
-
         plt.set_cmap("Blues")
 
-        for l in leaves_probs:
-            plt.title("layer: " + str(len(l[1])))
-            pos = get_position(G, ys)
-            nx.draw_networkx(G, pos=pos,
-                             node_color=l[0],
-                             edge_color=COLOR_SILVER)
+        #pos, _ = get_points_to_plot(data["xs"], None)
+        pos = get_position(data["G"], data["ys"])
 
-            plt.show()
+        for l in tangle_probs:
+            plt.figure()
+
+            plt.title("layer: " + str(len(l[1])) + " - coordinate: " + str(np.array(l[2]).astype(int)))
+
+            plt.scatter(pos[:, 0], pos[:, 1], c=l[0])
+            plt.clim(0, 1)
+            plt.colorbar()
+            plt.savefig("output/tree/layer_" + str(len(l[1])) + ".png")
 
 
 if __name__ == '__main__':

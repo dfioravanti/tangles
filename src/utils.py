@@ -15,7 +15,7 @@ def get_points_to_plot(xs, cs):
             embeds = TSNE(n_components=2, metric='manhattan', perplexity=10).fit_transform(points_to_embed)
             xs_embedded, cs_embedded = embeds[:-nb_centers], embeds[-nb_centers:]
         else:
-            xs_embedded = TSNE(n_components=2, metric='manhattan').fit_transform(points_to_embed)
+            xs_embedded = TSNE(n_components=2, metric='manhattan').fit_transform(xs)
     else:
         xs_embedded = xs
 

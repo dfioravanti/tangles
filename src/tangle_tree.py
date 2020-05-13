@@ -21,6 +21,7 @@ class TangleTree:
 
     # adds a node to the tree
     def add_cut(self, node, c):
+        print("adding cut: ", c)
         if node.left is None:
             node.left = TangleTreeNode(node, c, False)
             self.is_valid(node.left)
@@ -82,11 +83,13 @@ class TangleTree:
                     print("'I'm a leaf:")
                     print(node.left)
                     print(node.right)
-                else:
+                elif node.left.valid and node.right.valid:
                     print("I'm a splitting tangle")
                     print(node.coordinate)
                     print(node.left.valid)
                     print(node.right.valid)
+                else:
+                    print("i'm something weird")
                 node.splitting_or_leaf = True
                 self.condensed_tree.add(node)
             right = self.get_splitting_tangles(node.right)
@@ -100,7 +103,7 @@ class TangleTree:
 
     def get_leaves(self, node):
         if check(node):
-            if not node.left and not node.right:
+            if (not node.left or not node.left.valid) and (not node.right or not node.right.valid):
                 return [node.coordinate]
             else:
                 return self.get_leaves(node.right) + self.get_leaves(node.left)
@@ -132,7 +135,6 @@ class TangleTree:
                 idx = np.arange(len(coord_right))
                 idx = idx[len(node.coordinate):len(coord_left)]
 
-
             idx = idx[np.not_equal(coord_left[idx], coord_right[idx])]
 
             sides = coord_right[idx]
@@ -158,16 +160,19 @@ class TangleTree:
             node.p_right = np.multiply(node.p, node.p_right)
             node.p_left = node.p - node.p_right
 
-            self.condensed_tree.leaves += [[list(node.p), node.coordinate]]
+            self.condensed_tree.tangles += [[list(node.p), node.coordinate, node.condensed_coordinate]]
         else:
             print("I'm a leaf")
-            print("Coordinate: ", node.coordinate)
-            if side:
-                node.p = node.parent.p_right
-            else:
-                node.p = node.parent.p_left
+            if node.condensed_coordinate:
+                print("Coordinate: ", node.condensed_coordinate)
+                if side:
+                    node.p = node.parent.p_right
+                else:
+                    node.p = node.parent.p_left
 
-            self.condensed_tree.leaves += [[list(node.p), node.coordinate]]
+            else:
+                self.condensed_tree.tangles += [[None, node.coordinate, node.condensed_coordinate]]
+
 
 class TangleTreeNode:
 
@@ -226,7 +231,7 @@ class CondensedTangleTree:
 
     def __init__(self):
         self.root = None
-        self.leaves = []
+        self.tangles = []
 
     def add(self, treenode):
         #print("want to add the node")
@@ -284,6 +289,11 @@ class CondensedTangleTreeNode:
         self.treenode = treenode
 
         self.side = side
+
+        if parent:
+            self.condensed_coordinate = parent.condensed_coordinate + [side]
+        else:
+            self.condensed_coordinate = []
 
         self.parent = parent
         self.left = None
