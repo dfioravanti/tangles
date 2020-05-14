@@ -5,7 +5,6 @@ id, Type of experiment
 1587804052, p vs q algorithms for SBM with 50 cuts for 5 equal size blocks
 1587703699, KnnBlobs experiments with different k and 50 cuts
 1586946592, SBM experiments
-1587639002, SBM with 100 cuts fixed p and q testing different a
 1587621343, KnnBlobs with 100 cuts testing different a
 1587629564, KL vs MF algorithms on SBM 
 1587632158, SBM with fixed p and q and different numbers of cuts
@@ -17,3 +16,5 @@ id, Type of experiment
 1587978724, Questionaire 
 1588572854, p vs q for theoretical bounds
 1589304428, Mindsets 0 noisy questions with different a and nb_questions and noise level
+1589349809, 10 runs of Mindset with 20 useful questions and 0-10-20 useles
+1589434242, SBM with 50 cuts testing different a

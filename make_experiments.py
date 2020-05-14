@@ -3,7 +3,8 @@ import datetime
 import numpy as np
 
 from src.config import DATASET_SBM, DATASET_KNN_BLOBS, DATASET_MINDSETS, PREPROCESSING_KARNIG_LIN, \
-                       PREPROCESSING_FID_MAT, PREPROCESSING_USE_FEATURES, DATASET_QUESTIONNAIRE, PREPROCESSING_BINARIZED_LIKERT
+                       PREPROCESSING_FID_MAT, PREPROCESSING_USE_FEATURES, \
+                       DATASET_QUESTIONNAIRE, PREPROCESSING_BINARIZED_LIKERT, PREPROCESSING_USE_FEATURES
 from src.utils import dict_product
 
 ts = int(datetime.datetime.now().timestamp())
@@ -11,38 +12,33 @@ ts = int(datetime.datetime.now().timestamp())
 parameters = {}
 multi_parameters = {}
 
-parameters['-t'] = DATASET_QUESTIONNAIRE
 parameters['--id'] = ts
-parameters['-p'] = PREPROCESSING_BINARIZED_LIKERT
 
-#multi_parameters['-p'] = [PREPROCESSING_KARNIG_LIN, PREPROCESSING_FID_MAT]
-#multi_parameters['--nb_cuts'] = [50]
-#multi_parameters['--lb_f'] = [0.2, 0.3, 0.4]
+parameters['-t'] = DATASET_SBM
+parameters['-p'] = PREPROCESSING_FID_MAT
+multi_parameters['--nb_cuts'] = [50]
+multi_parameters['--lb_f'] = [0.2, 0.3, 0.4]
+multi_parameters['-a'] = np.arange(4, 20) * 5
+# multi_parameters['-p'] = [PREPROCESSING_KARNIG_LIN, PREPROCESSING_FID_MAT]
+
 
 #multi_parameters['-s'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 multi_parameters['-s'] = [42]
-
-
-
-if parameters['-t'] == DATASET_MINDSETS:
+if parameters['-t'] == DATASET_SBM:
     
-    multi_parameters['--mind_sizes'] = [[100, 100], [100, 100, 100], [100, 100, 100, 100], [100, 100, 100, 100, 100]]
-    multi_parameters['--mind_sizes'] += [[50, 100], [60, 100], [70, 100], [80, 100], [90, 100]]
+    multi_parameters['--sbm_bs'] = [[100, 100]]
+    multi_parameters['--sbm_p'] = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    multi_parameters['--sbm_q'] =[0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
-    multi_parameters['--mind_questions'] = np.arange(1, 11) * 10
-    multi_parameters['--mind_useless'] = np.arange(1, 11) * 10
+elif parameters['-t'] == DATASET_MINDSETS:
+    
+    multi_parameters['--mind_sizes'] = [[100, 100]]
+    multi_parameters['--mind_questions'] = [20]
+    multi_parameters['--mind_useless'] = [0, 10, 20]
+    #multi_parameters['--mind_useless'] = np.arange(0, 30)
 
-    multi_parameters['--mind_noise'] = [0.1]
-
-
-elif parameters['-t'] == DATASET_SBM:
-
-    multi_parameters['--sbm_bs'] = [[100, 100], [100, 100, 100]]
-    multi_parameters['--sbm_bs'] += [[50, 100], [60, 100], [70, 100], [80, 100], [90, 100]]
-
-    multi_parameters['--sbm_p'] = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    multi_parameters['--sbm_q'] = [0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-
+    multi_parameters['--mind_noise'] = np.round(np.linspace(0, 0.5, 20), 2)
+    
 elif parameters['-t'] == DATASET_KNN_BLOBS:
 
     multi_parameters['--gauss_bs'] = [[100, 100]]
