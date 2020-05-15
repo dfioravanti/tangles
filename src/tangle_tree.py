@@ -6,7 +6,6 @@ from pythonlangutil.overload import Overload, signature
 def one(_):
     return 1
 
-
 class TangleTreeModel:
     def __init__(self, agreement, cuts, costs=None, weight_fun=None):
         self.agreement = agreement
@@ -15,7 +14,7 @@ class TangleTreeModel:
         self.nb_points = len(self.cuts[0])
         self.nb_cuts = len(self.cuts)
 
-        self.costs = costs if any(costs) else np.ones(len(cuts))
+        self.costs = (costs - min(costs))/max(costs) if any(costs) else np.ones(len(cuts))
         self.weight_function = weight_fun if weight_fun else one
 
         self.tree = TangleTree()
@@ -33,7 +32,6 @@ class TangleTreeModel:
         self.build_condensed_tree()
 
         print(" --- Found ", str(len(self.tangles)), " interesting tangles.")
-
 
     '''
     function to build the Tangle Tree 
@@ -80,7 +78,6 @@ class TangleTreeModel:
     '''
     function to build the Condensed Tangle Tree 
     '''
-
     def build_condensed_tree(self):
         print("\t --- Calculating all the splitting tangles")
         self.get_splitting_tangles(self.tree.root)
@@ -119,15 +116,17 @@ class TangleTreeModel:
 
             sides = node.right.P[idx]
 
-            normalize= 0
+            normalize = 0
 
             for i, s in zip(idx, sides):
-                if s:
-                    node.p_right += self.cuts[i] * self.weight_function(self.costs[i])
-                else:
-                    node.p_right += np.flip(self.cuts[i]) * self.weight_function(self.costs[i])
+                cost = self.weight_function(self.costs[i])
 
-                normalize += self.weight_function(self.costs[i])
+                if s:
+                    node.p_right += self.cuts[i] * cost
+                else:
+                    node.p_right += np.flip(self.cuts[i]) * cost
+
+                normalize += cost
 
             if normalize > 0:
                 node.p_right = node.p_right / normalize
@@ -143,7 +142,7 @@ class TangleTreeModel:
             node.p_right = np.multiply(node.p, node.p_right)
             node.p_left = node.p - node.p_right
 
-            self.tangles += [[node.p, node.coordinate]]
+            self.tangles += [[node.p, node.coordinate, node.condensed_coordinate]]
 
         else:
             if node.condensed_coordinate:
@@ -151,10 +150,10 @@ class TangleTreeModel:
                     node.p = node.parent.p_right
                 else:
                     node.p = node.parent.p_left
-                self.tangles += [[node.p, node.coordinate]]
+                self.tangles += [[node.p, node.coordinate, node.condensed_coordinate]]
             else:
                 Warning("No tangles just one big cluster!")
-                self.tangles += [[None, node.coordinate]]
+                self.tangles += [[None, node.coordinate, node.condensed_coordinate]]
 
     def define_P_bottom_up(self):
         self.set_P(self.condensed_tree.root)
@@ -312,6 +311,8 @@ class CondensedTangleTreeNode:
             self.condensed_coordinate = parent.condensed_coordinate + [side]
         else:
             self.condensed_coordinate = []
+
+        self.depth = len(self.condensed_coordinate)
 
         # link to parent and children
         self.parent = parent
