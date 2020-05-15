@@ -1,8 +1,31 @@
 import itertools
 
+from numpy import pi, cos, sin, sqrt, arange
+
 import numpy as np
 
 from sklearn.manifold import TSNE
+
+
+def get_positions_from_labels(ys):
+    positions = np.zeros([len(ys), 2])
+    classes = np.unique(ys)
+
+    num_pts = len(classes)
+    indices = np.arange(0, num_pts, dtype=float) + 0.5
+
+    r = np.sqrt(indices / num_pts)
+    theta = np.pi * (1 + 5 ** 0.5) * indices
+
+    means = np.transpose([r * np.cos(theta), r * np.sin(theta)]) * 20
+
+    for i, c in enumerate(classes):
+        number = sum(ys == c)
+        pos = np.random.normal(means[i], [2, 2], [number, 2])
+        positions[ys == c, :] = pos
+
+    return positions
+
 
 def get_points_to_plot(xs, cs):
     _, nb_features = xs.shape

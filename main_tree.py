@@ -4,6 +4,7 @@ from pathlib import Path
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mlp
 
 import json
 import pandas as pd
@@ -15,8 +16,8 @@ from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts
     compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, tangles_to_range_answers, \
     compute_fuzzy_clusters, soft_plotting  # , compute_soft_evaluation
 from src.plotting import get_position
-from src.tangle_tree import TangleTree
-from src.utils import get_points_to_plot
+from src.tangle_tree import TangleTreeModel
+from src.utils import get_points_to_plot, get_positions_from_labels
 
 
 def main_tree(args):
@@ -30,60 +31,39 @@ def main_tree(args):
         print(f'Working with parameters = {foundamental_parameters}', flush=True)
 
     data, orders, all_cuts, name_cuts = get_dataset_cuts_order(args)
-    max_order = orders.max()
 
-    print("got all the data")
+    print("costs correspond to data?: ", np.shape(all_cuts), np.shape(orders))
 
-    # all_cuts = [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-    #             [1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0]]
+    model = TangleTreeModel(agreement=args["experiment"]["agreement"], cuts=all_cuts, costs=orders)
 
-    tree = TangleTree(agreement=args["experiment"]["agreement"], cuts=all_cuts)
+    tangles = np.array(model.tangles)
 
-    print(" --- Built the tree and now trying to find all the splitting tangles \n")
-    print(" --- Get all the splitting tangles \n")
-    tree.check_for_splitting_tangles()
+    probs = tangles[:, 0]
+    cuts_original_tree = tangles[:, 1]
 
-    print(" -- printing original tree")
-    tree.print()
+    #for p, c in zip(probs, cuts_original_tree):
+    #    print("Orientation: ", c, "\n \t probabilities: ", p)
 
-    print(" -- printing condensed tree")
-    tree.print(condensed=True)
-
-    splitting = tree.nb_splitting_tangles
-    leaves = tree.get_leaves(tree.root)
-    print("# splitting tangles: ", splitting, "\n")
-    print("# leaves: ", len(leaves), "\n")
-
-    print("Calculating the p values for each node")
-    tree.update_p()
-
-    tangle_probs = tree.condensed_tree.tangles
-
-    for l in tangle_probs:
-        print("Orientation: ", l[1], "\n \t probabilities: ", l[0])
-
-    plot = False
+    plot = True
     if plot:
-        plt.set_cmap("Blues")
+        pos = get_positions_from_labels(data["ys"])
+        for i, p in enumerate(probs):
+            fig, (ax1, ax2) = plt.subplots(1, 2)
 
-        #pos, _ = get_points_to_plot(data["xs"], None)
-        pos = get_position(data["G"], data["ys"])
+            _ = ax1.scatter(pos[:, 0],
+                            pos[:, 1],
+                            c=data["ys"],
+                            cmap="tab20")
 
-        for l in tangle_probs:
-            plt.figure()
+            col2 = ax2.scatter(pos[:, 0],
+                               pos[:, 1],
+                               c=p,
+                               cmap="Blues")
 
-            plt.title("layer: " + str(len(l[1])) + " - coordinate: " + str(np.array(l[2]).astype(int)))
+            col2.set_clim(0, 1)
 
-            plt.scatter(pos[:, 0], pos[:, 1], c=l[0])
-            plt.clim(0, 1)
-            plt.colorbar()
-            plt.savefig("output/tree/layer_" + str(len(l[1])) + ".png")
-
+            plt.colorbar(col2, ax=ax2)
+            plt.savefig("output/tree/plot_" + str(i) + ".png")
 
 if __name__ == '__main__':
 
