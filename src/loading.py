@@ -85,7 +85,7 @@ def get_dataset_and_order_function(args):
 
         data['xs'] = xs
         data['ys'] = ys
-        order_function = partial(implicit_order, xs, False)
+        order_function = partial(implicit_order, xs, 300)
     elif args['experiment']['dataset_name'] == DATASET_CANCER:
         xs, ys = load_CANCER(args['dataset']['nb_bins'])
 

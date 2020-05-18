@@ -7,9 +7,6 @@ import matplotlib.patches as patches
 
 from sklearn.manifold import TSNE
 
-import altair as alt
-from altair.expr import datum
-
 from src.config import NAN
 from src.utils import get_points_to_plot
 
@@ -121,7 +118,7 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
     if ys is not None:
         normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
 
-    xs_embedded = TSNE(n_components=2).fit_transform(xs)
+    xs_embedded = TSNE(n_components=2, metric='manhattan').fit_transform(xs)
 
     if path is not None:
         output_path = path / 'points prediction'
@@ -391,74 +388,6 @@ def plot_evaluation(evaluations, path):
         plt.savefig(path / f"Number of blocks {nb_blocks}.svg")
         plt.close(fig)
 
-# Plots results
-
-
-def make_homogeneity_plot(df, title, x_axis, y_axis, facet_on):
-
-    chart = alt.Chart(df, width=800, height=300).mark_rect().encode(
-        alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(
-            field=x_axis, order='ascending',), axis=alt.Axis(grid=True)),
-        alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(
-            field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
-        alt.Color('homogeneity', type='quantitative',
-                  title='Homogeneity', scale=alt.Scale(domain=[0, 1])),
-    ).properties(
-        title=title
-    )
-
-    return chart
-
-
-def make_full_plot(df, title, x_axis, y_axis, facet_on):
-
-    v_measure_chart = make_homogeneity_plot(
-        df, title, x_axis, y_axis, facet_on)
-
-    text = alt.Chart(df, width=800, height=300).mark_text().encode(
-        alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(
-            field=x_axis, order='ascending'), axis=alt.Axis(grid=True)),
-        alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(
-            field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
-        alt.Text('order'),
-    ).facet(
-        facet=alt.Facet(facet_on, type='nominal', title=None),
-        title='best_order/max_order'
-    )
-
-    chart = alt.vconcat(v_measure_chart, text)
-    chart = graphic_settings(chart)
-
-    return chart
-
-
-def graphic_settings(chart):
-    chart = chart.configure_title(
-        fontSize=14,
-        font='Courier',
-        anchor='middle',
-        color='gray'
-    ).configure_axis(
-        gridOpacity=0.0,
-
-        labelFont='Courier',
-        labelColor='black',
-
-        titleFont='Courier',
-        titleColor='gray',
-        grid=False
-    ).configure_axisX(
-        labelAngle=0,
-    ).configure_legend(
-        labelFont='Courier',
-        labelColor='black',
-
-        titleFont='Courier',
-        titleColor='gray',
-        titleAnchor='middle'
-    ).configure_view(strokeOpacity=0)
-
-    return chart
 
 def add_lines(values, ax, left=True):
     
@@ -490,7 +419,7 @@ def add_lines(values, ax, left=True):
                 break
 
 
-def make_result_heatmap(data, title, ax, x_column, y_column, values_column):
+def make_result_heatmap(data, ax, x_column, y_column, values_column):
 
     plt.rc('font', family='serif')
 
@@ -527,4 +456,3 @@ def make_result_heatmap(data, title, ax, x_column, y_column, values_column):
     ax.set_yticks(np.arange(len(ys)+1)-.5, minor=True)
     ax.grid(b=True, which="minor", color="w", linestyle='-', linewidth=5)
     ax.tick_params(which="minor", bottom=False, left=False)
-    ax.set_title(title, fontsize=20, pad=10)
