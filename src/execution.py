@@ -4,7 +4,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 
-from sklearn.metrics import homogeneity_completeness_v_measure, adjusted_mutual_info_score
+from sklearn.metrics import adjusted_rand_score
 
 from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_FID_MAT, \
     PREPROCESSING_SUBMODULAR, PREPROCESSING_BINARIZED_LIKERT
@@ -205,7 +205,7 @@ def compute_clusters_maximals(maximal_tangles, all_cuts):
 
 def compute_evaluation(ys, predictions):
     evaluation = {}
-    evaluation['ami'] = None
+    evaluation['ars'] = None
     evaluation['order_best'] = None
 
     for order, prediction in predictions.items():
@@ -213,10 +213,10 @@ def compute_evaluation(ys, predictions):
         #clustered = prediction != NAN
         
         #homogeneity, completeness, v_measure_score = homogeneity_completeness_v_measure(ys[clustered], prediction[clustered])
-        ami = adjusted_mutual_info_score(ys, prediction)
+        ars = adjusted_rand_score(ys, prediction)
 
-        if evaluation['ami'] is None or evaluation['ami'] < ami:
-            evaluation["ami"] = ami
+        if evaluation['ars'] is None or evaluation['ars'] < ars:
+            evaluation["ars"] = ars
             evaluation['order_best'] = order
 
     return evaluation
