@@ -12,9 +12,11 @@ from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROC
 from src.config import NAN
 from src.preprocessing import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, make_submodular, binarize_likert_scale
 from src.loading import get_dataset_and_order_function
-from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions, plot_cuts
+from src.plotting import plot_graph_cuts, plot_predictions_graph, plot_predictions, plot_cuts, plot_soft_predictions
 from src.tangles import core_algorithm
 from src.utils import change_lower, change_upper
+
+import matplotlib.pyplot as plt
 
 
 def compute_cuts(data, args, verbose):
@@ -155,6 +157,36 @@ def compute_clusters(tangles_by_orders, all_cuts, verbose):
     return predictions_by_order
 
 
+def compute_fuzzy_clusters(tangles_by_orders, all_cuts, verbose):
+
+    soft_predictions_by_order = {}
+
+    for order, tangles in tangles_by_orders.items():
+
+        if verbose >= 2:
+            print(f"\tCompute soft clusters for order {order}", flush=True)
+        nb_cuts, n_points = all_cuts.shape
+        nb_tangles = len(tangles)
+
+        matching_cuts = np.zeros((nb_tangles, n_points), dtype=int)
+
+        for i, tangle in enumerate(tangles):
+            cuts = list(tangle.specification.keys())
+            orientations = list(tangle.specification.values())
+
+            matching_cuts[i, :] = np.sum((all_cuts[cuts, :].T == orientations), axis=1)
+
+        soft_predictions = np.zeros((nb_tangles, n_points), dtype=float)
+
+        for k in range(nb_tangles):
+            for i in range(n_points):
+                soft_predictions[k, i] = 1 / sum(((nb_cuts - matching_cuts[k, i]) / (nb_cuts - matching_cuts[:, i]))**4)
+
+        soft_predictions_by_order[order] = soft_predictions
+
+    return soft_predictions_by_order
+
+
 def compute_maximal_tangles(tangles_by_orders):
     print("Computing maximal tangles")
     maximals = []
@@ -210,9 +242,6 @@ def compute_evaluation(ys, predictions):
 
     for order, prediction in predictions.items():
 
-        #clustered = prediction != NAN
-        
-        #homogeneity, completeness, v_measure_score = homogeneity_completeness_v_measure(ys[clustered], prediction[clustered])
         ars = adjusted_rand_score(ys, prediction)
 
         if evaluation['ars'] is None or evaluation['ars'] < ars:
@@ -320,6 +349,15 @@ def plotting(data, predictions_by_order, verbose, path):
         plot_predictions(xs=xs, ys=ys, predictions_of_order=predictions_by_order, path=path)
     if verbose >= 2:
         print('Done plotting', flush=True)
+
+def soft_plotting(data, prediction, path):
+
+    path.mkdir(parents=True, exist_ok=True)
+
+    xs = data.get('xs', None)
+    ys = data.get('ys', None)
+
+    plot_soft_predictions(xs=xs, ys=ys, prediction=prediction)
 
 
 def get_parameters(args):

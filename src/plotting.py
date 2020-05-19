@@ -174,6 +174,62 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
 
         plt.close(f)
 
+def plot_soft_predictions(xs, ys, prediction, path=None):
+
+    plt.style.use('ggplot')
+    plt.ioff()
+    cmap = plt.cm.get_cmap('tab20')
+
+    if ys is not None:
+        normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
+
+    xs_embedded = TSNE(n_components=2).fit_transform(xs)
+
+    if path is not None:
+        output_path = path / 'points prediction'
+        output_path.mkdir(parents=True, exist_ok=True)
+
+
+    normalise_pred = mpl.colors.Normalize(vmin=0, vmax=np.max(prediction))
+
+    f, (ax_true, ax_pred) = plt.subplots(nrows=1, ncols=2, figsize=(15, 15))
+    ax_true.axis('off'), ax_true.grid(b=None), ax_true.set_title("True clusters")
+    ax_pred.axis('off'), ax_pred.grid(b=None), ax_pred.set_title("Predicted clusters")
+
+    if ys is not None:
+        for y in np.unique(ys):
+
+            xs_current = xs_embedded[ys == y]
+            color = cmap(normalise_ys(y))
+            color = np.array(color).reshape((1, -1))
+            label = f'cluster {y}'
+
+            ax_true.scatter(xs_current[:, 0], xs_current[:, 1],
+                                c=color, label=label)
+        ax_true.legend()
+
+        for y in range(prediction.shape[0]):
+
+            xs_current = xs_embedded[prediction[y,:] > 0]
+            if y != NAN:
+                color = cmap(normalise_ys(y))
+                color = np.array(color).reshape((1, -1))
+                label = f'cluster {y}'
+            else:
+                color = COLOR_SILVER_RGB
+                label = f'no cluster'
+
+            color = np.array(color).reshape((1, -1))
+            ax_pred.scatter(xs_current[:, 0], xs_current[:, 1],
+                            c=color, label=label, s=prediction[y]**2)
+
+        ax_pred.legend()
+
+        if path is None:
+            plt.show()
+
+        plt.close(f)
+
 
 def plot_predictions_graph(G, ys, predictions_of_order, path=None):
     """
