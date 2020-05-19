@@ -397,7 +397,7 @@ def add_lines(values, ax, left=True):
         for i in np.arange(n):
             if values[i, j] == True:
                 
-                if old_i != i and old_i is not None:
+                if old_i != i:
                     if left:
                         line = [(j - 0.5, i + 0.5),
                                 (j - 0.5, i - 0.5), 
@@ -407,9 +407,8 @@ def add_lines(values, ax, left=True):
                                 (j - 0.5, i - 0.5), 
                                 (j + 0.5, i - 0.5)]
                 else:
-                        line = [
-                                (j - 0.5, i - 0.5), 
-                                (j + 0.5, i - 0.5)]
+                    line = [(j - 0.5, i - 0.5), 
+                            (j + 0.5, i - 0.5)]
                         
                     
                 path = patches.Polygon(line, facecolor='none', edgecolor='red',
