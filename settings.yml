@@ -1,11 +1,11 @@
 
 # allowed types: single, batch
 experiment:
-  seed: 42
-  dataset_name: sbm
-  preprocessing_name: fid_mat
-  agreement: 3
-  percentile_orders: 100
+  seed: 40
+  dataset_name: microbiome
+  preprocessing_name: karnig_lin
+  agreement: 15
+  percentile_orders: 80
 
 dataset:
 
@@ -14,20 +14,33 @@ dataset:
     max_idx: 75
 
   sbm:
-    block_sizes: [10, 5, 5]
+    block_sizes: [50, 20, 20]
     p: 0.3
     q: 0.1
 
   knn_blobs:
-    blob_sizes: [50, 50, 50, 50]
-    blob_centers: [[-2, -2], [2, -2], [-2, 2], [2, 2]]
+    blob_sizes: [240, 60, 60]
+    blob_centers: [[-1, 0], [3, 1.5], [3, -1.5]]
+    blob_variances: [[2, 2], [1, 1], [1, 1]]
     k: 10
 
+  epsilon_blobs:
+    blob_sizes: [150, 100, 100]
+    blob_centers: [[0, 0], [4, -1.5], [4, 1.5]]
+    blob_variances: [[1, 1], [1, 1], [1, 1]]
+    radius: 1.5
+
+  knn_gauss_blobs:
+    blob_sizes: [150, 100, 100]
+    blob_centers: [[0, 0], [4, -1.5], [4, 1.5]]
+    blob_variances: [[1, 1], [1, 1], [1, 1]]
+    k: 40
+
   mindsets:
-    mindset_sizes: [100, 100]
-    nb_questions: 3
-    nb_useless: 0
-    noise: 0.2
+    mindset_sizes: [120, 60, 60]
+    nb_questions: 20
+    nb_useless: 10
+    noise: 0.15
 
   q:
     nb_samples: 1000
@@ -53,27 +66,31 @@ dataset:
     path_csv: datasets/mushrooms.csv
     path_yaml: datasets/mushrooms.yaml
 
+  microbiome:
+    path: datasets/microbiome.csv
+    k: 10
+
 preprocessing:
   bin_lik:
     range_answers: [1, 10]
 
   karnig_lin:
-    nb_cuts: 100
-    lb_f: 0.3
+    nb_cuts: 200
+    lb_f: 0.1
 
   coarsening:
     nb_cuts: 300
     n_max: 20
 
   fid_mat:
-    nb_cuts: 10
+    nb_cuts: 20
     lb_f: 0.1
 
 # -1 in nb_cuts means all
 plot:
-  tangles: True
-  cuts: True
-  heatmap: True
+  tangles: False
+  cuts: False
+  heatmap: False
   nb_cuts: 10
 
 # 0, 1, 2, 3 allowed

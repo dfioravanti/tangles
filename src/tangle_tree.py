@@ -38,24 +38,25 @@ class TangleTreeModel:
     '''
     def build_tree(self):
         for i, c in enumerate(self.cuts):
-            self.add_cut(self.tree.root, c)
+            print("adding the cut ", str(i))
+            self.add_cut(c)
 
     # adds a node to the tree
-    def add_cut(self, node, c):
-        if node.left is None:
-            node.left = TangleTreeNode(node, c, False)
-            self.set_valid(node.left)
-        elif node.left.valid:
-            self.add_cut(node.left, c)
+    def add_cut(self, c):
+        new_leaves = []
+        for parent in self.tree.current_leaves:
+            parent.left = TangleTreeNode(parent, c, False)
+            self.set_valid(parent.left)
+            if parent.left.valid:
+                new_leaves += [parent.left]
 
-        if node.right is None:
-            node.right = TangleTreeNode(node, c, True)
-            self.set_valid(node.right)
-        elif node.right.valid:
-            self.add_cut(node.right, c)
+            parent.right = TangleTreeNode(parent, c, True)
+            self.set_valid(parent.right)
+            if parent.right.valid:
+                new_leaves += [parent.right]
+        self.tree.current_leaves = new_leaves
 
     # checks for a single node if it is consistent (cuts of each triplet contains more points than agreement)
-
     def set_valid(self, node):
         nb_core_cuts = len(node.core_cuts)
         node.valid = True
@@ -186,6 +187,7 @@ class TangleTreeModel:
 class TangleTree:
     def __init__(self):
         self.root = TangleTreeNode(None, None, None)
+        self.current_leaves = [self.root]
 
     # traverse the tree in depth first search and print out coordinates and the cut
     def traverse_print(self, node):

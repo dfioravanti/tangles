@@ -3,12 +3,16 @@ from functools import partial
 
 from src.config import DATASET_BINARY_QUESTIONNAIRE, DATASET_SBM, DATASET_QUESTIONNAIRE, \
     DATASET_POLITICAL_BOOKS, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
-    DATASET_MUSHROOMS, DATASET_MINDSETS, DATASET_RETINAL
+    DATASET_MUSHROOMS, DATASET_MINDSETS, DATASET_RETINAL, DATASET_MICROBIOME, \
+    DATASET_EPSILON__BLOBS, DATASET_KNN_GAUSS_BLOBS
 from src.datasets.big5 import load_BIG5
 from src.datasets.cancer import load_CANCER
 from src.datasets.cancer10 import load_CANCER10
 from src.datasets.graphs import load_SBM, load_POLI_BOOKS, load_FLORENCE
 from src.datasets.kNN import load_knn_blobs
+from src.datasets.kNN_gaussian import load_knn_gauss_blobs
+from src.datasets.k_epsilon import load_eps_blobs
+from src.datasets.microbiome import load_MICROBIOME
 from src.datasets.mindsets import make_mindsets
 from src.datasets.mushrooms import load_MUSHROOMS
 from src.datasets.questionnaire import make_binary_questionnaire, make_questionnaire
@@ -103,6 +107,14 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
 
         order_function = partial(implicit_order, xs, None)
+    elif args['experiment']['dataset_name'] == DATASET_MICROBIOME:
+        xs, ys, A = load_MICROBIOME(args['dataset']['path'], args['dataset']['k'])
+
+        data["A"] = A
+        data['xs'] = xs
+        data['ys'] = ys
+
+        order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_SBM:
         A, ys, G = load_SBM(block_sizes=args['dataset']['block_sizes'],
                             p_in=args['dataset']['p'],
@@ -131,6 +143,31 @@ def get_dataset_and_order_function(args):
     elif args['experiment']['dataset_name'] == DATASET_KNN_BLOBS:
         xs, ys, A, G = load_knn_blobs(blob_sizes=args['dataset']['blob_sizes'],
                                       blob_centers=args['dataset']['blob_centers'],
+                                      blob_variances=args['dataset']['blob_variances'],
+                                      k=args['dataset']['k'],
+                                      seed=args['experiment']['seed'])
+
+        data['xs'] = xs
+        data['ys'] = ys
+        data['A'] = A
+        data['G'] = G
+        order_function = partial(cut_order, A)
+    elif args['experiment']['dataset_name'] == DATASET_EPSILON__BLOBS:
+        xs, ys, A, G = load_eps_blobs(blob_sizes=args['dataset']['blob_sizes'],
+                                      blob_centers=args['dataset']['blob_centers'],
+                                      blob_variances=args['dataset']['blob_variances'],
+                                      eps=args['dataset']['radius'],
+                                      seed=args['experiment']['seed'])
+
+        data['xs'] = xs
+        data['ys'] = ys
+        data['A'] = A
+        data['G'] = G
+        order_function = partial(cut_order, A)
+    elif args['experiment']['dataset_name'] == DATASET_KNN_GAUSS_BLOBS:
+        xs, ys, A, G = load_knn_gauss_blobs(blob_sizes=args['dataset']['blob_sizes'],
+                                      blob_centers=args['dataset']['blob_centers'],
+                                      blob_variances=args['dataset']['blob_variances'],
                                       k=args['dataset']['k'],
                                       seed=args['experiment']['seed'])
 
