@@ -1,0 +1,2401 @@
+p,q,homogeneity,method
+0.05,0.05,0.0025994543450959277,Spectral Custering
+0.05,0.05,1.2813706015259686e-15,Affinity Propagation
+0.05,0.05,0.0015401545817753381,K-means
+0.05,0.05,0.025462452938691354,Agglomerative Complete Clustering
+0.05,0.05,0.032775023563570045,Agglomerative Average Clustering
+0.05,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.09,0.0,Spectral Custering
+0.05,0.09,0.0501076049803908,Affinity Propagation
+0.05,0.09,0.05953099126912304,K-means
+0.05,0.09,0.05198429930679045,Agglomerative Complete Clustering
+0.05,0.09,0.36058874836949606,Agglomerative Average Clustering
+0.05,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.14,0.0,Spectral Custering
+0.05,0.14,1.2813706015259686e-15,Affinity Propagation
+0.05,0.14,0.9595312960977075,K-means
+0.05,0.14,0.05198429930679045,Agglomerative Complete Clustering
+0.05,0.14,0.5018915349491551,Agglomerative Average Clustering
+0.05,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.18,0.0006493751716557893,Spectral Custering
+0.05,0.18,1.2813706015259686e-15,Affinity Propagation
+0.05,0.18,1.0,K-means
+0.05,0.18,0.030669398254337142,Agglomerative Complete Clustering
+0.05,0.18,0.6019386724331531,Agglomerative Average Clustering
+0.05,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.23,0.002598411432258792,Spectral Custering
+0.05,0.23,0.19143649394784676,Affinity Propagation
+0.05,0.23,1.0,K-means
+0.05,0.23,0.13792538097002868,Agglomerative Complete Clustering
+0.05,0.23,0.681970751119901,Agglomerative Average Clustering
+0.05,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.28,0.0006604808052145911,Spectral Custering
+0.05,0.28,0.3000864301198716,Affinity Propagation
+0.05,0.28,1.0,K-means
+0.05,0.28,0.0964312941999627,Agglomerative Complete Clustering
+0.05,0.28,0.681970751119901,Agglomerative Average Clustering
+0.05,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.32,0.0,Spectral Custering
+0.05,0.32,0.27464798361858367,Affinity Propagation
+0.05,0.32,1.0,K-means
+0.05,0.32,0.13792538097002868,Agglomerative Complete Clustering
+0.05,0.32,0.7367469623402177,Agglomerative Average Clustering
+0.05,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.37,7.27250768754568e-05,Spectral Custering
+0.05,0.37,1.2813706015259686e-15,Affinity Propagation
+0.05,0.37,1.0,K-means
+0.05,0.37,0.13184072559510432,Agglomerative Complete Clustering
+0.05,0.37,0.7815858405886668,Agglomerative Average Clustering
+0.05,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.41,0.002615199354359394,Spectral Custering
+0.05,0.41,1.2813706015259686e-15,Affinity Propagation
+0.05,0.41,1.0,K-means
+0.05,0.41,0.13792538097002868,Agglomerative Complete Clustering
+0.05,0.41,0.7384323013215836,Agglomerative Average Clustering
+0.05,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.46,0.0011544640047966115,Spectral Custering
+0.05,0.46,0.5113380918759002,Affinity Propagation
+0.05,0.46,1.0,K-means
+0.05,0.46,0.025462452938691354,Agglomerative Complete Clustering
+0.05,0.46,0.7815858405886668,Agglomerative Average Clustering
+0.05,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.51,0.0018188848938314884,Spectral Custering
+0.05,0.51,1.2813706015259686e-15,Affinity Propagation
+0.05,0.51,1.0,K-means
+0.05,0.51,0.041202593981277756,Agglomerative Complete Clustering
+0.05,0.51,0.8621189448890668,Agglomerative Average Clustering
+0.05,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.55,0.002598411432258792,Spectral Custering
+0.05,0.55,1.2813706015259686e-15,Affinity Propagation
+0.05,0.55,1.0,K-means
+0.05,0.55,0.007849458234265493,Agglomerative Complete Clustering
+0.05,0.55,0.8320116638589645,Agglomerative Average Clustering
+0.05,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.6,0.0011563165850880098,Spectral Custering
+0.05,0.6,0.869786928913772,Affinity Propagation
+0.05,0.6,1.0,K-means
+0.05,0.6,0.11390636976580797,Agglomerative Complete Clustering
+0.05,0.6,0.9021547608988224,Agglomerative Average Clustering
+0.05,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.64,0.0011563165850880098,Spectral Custering
+0.05,0.64,1.2813706015259686e-15,Affinity Propagation
+0.05,0.64,1.0,K-means
+0.05,0.64,0.10220681824533473,Agglomerative Complete Clustering
+0.05,0.64,0.9021547608988224,Agglomerative Average Clustering
+0.05,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.69,7.21431692564425e-05,Spectral Custering
+0.05,0.69,1.2813706015259686e-15,Affinity Propagation
+0.05,0.69,1.0,K-means
+0.05,0.69,0.041202593981277756,Agglomerative Complete Clustering
+0.05,0.69,1.0,Agglomerative Average Clustering
+0.05,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.74,7.231676133993413e-05,Spectral Custering
+0.05,0.74,0.8873222851009139,Affinity Propagation
+0.05,0.74,1.0,K-means
+0.05,0.74,0.15651340636279043,Agglomerative Complete Clustering
+0.05,0.74,0.9595312960977075,Agglomerative Average Clustering
+0.05,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.78,0.0011713542951155773,Spectral Custering
+0.05,0.78,0.9125312260433117,Affinity Propagation
+0.05,0.78,1.0,K-means
+0.05,0.78,0.14406499878167972,Agglomerative Complete Clustering
+0.05,0.78,0.9595312960977075,Agglomerative Average Clustering
+0.05,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.83,0.0002982240136623988,Spectral Custering
+0.05,0.83,0.9164048053856502,Affinity Propagation
+0.05,0.83,1.0,K-means
+0.05,0.83,0.13792538097002868,Agglomerative Complete Clustering
+0.05,0.83,1.0,Agglomerative Average Clustering
+0.05,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.87,0.0,Spectral Custering
+0.05,0.87,0.9205057820711322,Affinity Propagation
+0.05,0.87,1.0,K-means
+0.05,0.87,0.010072864625001645,Agglomerative Complete Clustering
+0.05,0.87,0.9595312960977075,Agglomerative Average Clustering
+0.05,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.05,0.92,0.010518958858858816,Spectral Custering
+0.05,0.92,0.9268375523784833,Affinity Propagation
+0.05,0.92,1.0,K-means
+0.05,0.92,0.05189916032131593,Agglomerative Complete Clustering
+0.05,0.92,1.0,Agglomerative Average Clustering
+0.05,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.05,0.03245742768994962,Spectral Custering
+0.09,0.05,1.2813706015259686e-15,Affinity Propagation
+0.09,0.05,0.0007004108822965861,K-means
+0.09,0.05,0.06276448651079473,Agglomerative Complete Clustering
+0.09,0.05,0.0006546165859949892,Agglomerative Average Clustering
+0.09,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.09,0.0018188848938314884,Spectral Custering
+0.09,0.09,1.2813706015259686e-15,Affinity Propagation
+0.09,0.09,0.0027070295216757023,K-means
+0.09,0.09,0.0176246638078766,Agglomerative Complete Clustering
+0.09,0.09,0.007527615190837723,Agglomerative Average Clustering
+0.09,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.14,0.0046514913033973695,Spectral Custering
+0.09,0.14,1.2813706015259686e-15,Affinity Propagation
+0.09,0.14,0.0002890208349260839,K-means
+0.09,0.14,0.05198429930679045,Agglomerative Complete Clustering
+0.09,0.14,0.3905730669855119,Agglomerative Average Clustering
+0.09,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.18,0.002636492559273691,Spectral Custering
+0.09,0.18,1.2813706015259686e-15,Affinity Propagation
+0.09,0.18,0.8776994414539947,K-means
+0.09,0.18,0.06276448651079473,Agglomerative Complete Clustering
+0.09,0.18,0.5045376538938282,Agglomerative Average Clustering
+0.09,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.23,0.005952113065801027,Spectral Custering
+0.09,0.23,1.2813706015259686e-15,Affinity Propagation
+0.09,0.23,1.0,K-means
+0.09,0.23,0.04653012540362816,Agglomerative Complete Clustering
+0.09,0.23,0.5806033604124743,Agglomerative Average Clustering
+0.09,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.28,0.005898937101980279,Spectral Custering
+0.09,0.28,0.1902021670325846,Affinity Propagation
+0.09,0.28,1.0,K-means
+0.09,0.28,0.02029444800061425,Agglomerative Complete Clustering
+0.09,0.28,0.5818910675698576,Agglomerative Average Clustering
+0.09,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.32,7.27250768754568e-05,Spectral Custering
+0.09,0.32,0.2413025360117102,Affinity Propagation
+0.09,0.32,1.0,K-means
+0.09,0.32,0.03591590108889877,Agglomerative Complete Clustering
+0.09,0.32,0.7582766571931682,Agglomerative Average Clustering
+0.09,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.37,0.0,Spectral Custering
+0.09,0.37,0.2064489409010609,Affinity Propagation
+0.09,0.37,1.0,K-means
+0.09,0.37,0.06276448651079473,Agglomerative Complete Clustering
+0.09,0.37,0.8336791289905029,Agglomerative Average Clustering
+0.09,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.41,0.0018262653696722157,Spectral Custering
+0.09,0.41,1.2813706015259686e-15,Affinity Propagation
+0.09,0.41,1.0,K-means
+0.09,0.41,0.06276448651079473,Agglomerative Complete Clustering
+0.09,0.41,0.7942888437190893,Agglomerative Average Clustering
+0.09,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.46,0.0035378503516790825,Spectral Custering
+0.09,0.46,0.33310904120746176,Affinity Propagation
+0.09,0.46,1.0,K-means
+0.09,0.46,0.015164781183589101,Agglomerative Complete Clustering
+0.09,0.46,0.9021547608988224,Agglomerative Average Clustering
+0.09,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.51,0.0035406948231041903,Spectral Custering
+0.09,0.51,1.2813706015259686e-15,Affinity Propagation
+0.09,0.51,1.0,K-means
+0.09,0.51,0.025462452938691354,Agglomerative Complete Clustering
+0.09,0.51,0.9595312960977075,Agglomerative Average Clustering
+0.09,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.55,0.007228461731668974,Spectral Custering
+0.09,0.55,1.2813706015259686e-15,Affinity Propagation
+0.09,0.55,1.0,K-means
+0.09,0.55,0.041202593981277756,Agglomerative Complete Clustering
+0.09,0.55,0.9595312960977075,Agglomerative Average Clustering
+0.09,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.6,0.0002927756386913102,Spectral Custering
+0.09,0.6,1.2813706015259686e-15,Affinity Propagation
+0.09,0.6,1.0,K-means
+0.09,0.6,0.010072864625001645,Agglomerative Complete Clustering
+0.09,0.6,1.0,Agglomerative Average Clustering
+0.09,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.64,0.0006493751716557893,Spectral Custering
+0.09,0.64,1.2813706015259686e-15,Affinity Propagation
+0.09,0.64,1.0,K-means
+0.09,0.64,0.05731038077849463,Agglomerative Complete Clustering
+0.09,0.64,1.0,Agglomerative Average Clustering
+0.09,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.69,0.0011586406974307814,Spectral Custering
+0.09,0.69,1.2813706015259686e-15,Affinity Propagation
+0.09,0.69,1.0,K-means
+0.09,0.69,0.02029444800061425,Agglomerative Complete Clustering
+0.09,0.69,1.0,Agglomerative Average Clustering
+0.09,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.74,0.0,Spectral Custering
+0.09,0.74,0.8873222851009139,Affinity Propagation
+0.09,0.74,1.0,K-means
+0.09,0.74,0.0050181243858377885,Agglomerative Complete Clustering
+0.09,0.74,1.0,Agglomerative Average Clustering
+0.09,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.78,0.0,Spectral Custering
+0.09,0.78,0.9125312260433117,Affinity Propagation
+0.09,0.78,1.0,K-means
+0.09,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.09,0.78,1.0,Agglomerative Average Clustering
+0.09,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.83,0.0019463229441333803,Spectral Custering
+0.09,0.83,0.9164048053856502,Affinity Propagation
+0.09,0.83,1.0,K-means
+0.09,0.83,0.02029444800061425,Agglomerative Complete Clustering
+0.09,0.83,1.0,Agglomerative Average Clustering
+0.09,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.87,0.0011563165850880098,Spectral Custering
+0.09,0.87,0.9361149977772644,Affinity Propagation
+0.09,0.87,1.0,K-means
+0.09,0.87,0.10220681824533473,Agglomerative Complete Clustering
+0.09,0.87,1.0,Agglomerative Average Clustering
+0.09,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.09,0.92,0.0035406948231041903,Spectral Custering
+0.09,0.92,1.2813706015259686e-15,Affinity Propagation
+0.09,0.92,1.0,K-means
+0.09,0.92,0.11390636976580797,Agglomerative Complete Clustering
+0.09,0.92,1.0,Agglomerative Average Clustering
+0.09,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.05,0.858559457458179,Spectral Custering
+0.14,0.05,1.2813706015259686e-15,Affinity Propagation
+0.14,0.05,0.8320116638589645,K-means
+0.14,0.05,0.00019196385453967526,Agglomerative Complete Clustering
+0.14,0.05,0.001238290746776464,Agglomerative Average Clustering
+0.14,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.09,0.14971238546513102,Spectral Custering
+0.14,0.09,1.2813706015259686e-15,Affinity Propagation
+0.14,0.09,0.02682230823572035,K-means
+0.14,0.09,0.02630303774743906,Agglomerative Complete Clustering
+0.14,0.09,0.0034689676980836953,Agglomerative Average Clustering
+0.14,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.14,0.0046514913033973695,Spectral Custering
+0.14,0.14,1.2813706015259686e-15,Affinity Propagation
+0.14,0.14,0.0027070295216757023,K-means
+0.14,0.14,0.010072864625001645,Agglomerative Complete Clustering
+0.14,0.14,0.012226963936758617,Agglomerative Average Clustering
+0.14,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.18,7.21431692564425e-05,Spectral Custering
+0.14,0.18,1.2813706015259686e-15,Affinity Propagation
+0.14,0.18,0.017821458733038677,K-means
+0.14,0.18,0.0009824562201083307,Agglomerative Complete Clustering
+0.14,0.18,0.037609492635395494,Agglomerative Average Clustering
+0.14,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.23,0.0,Spectral Custering
+0.14,0.23,0.055543168884182294,Affinity Propagation
+0.14,0.23,0.673470921127719,K-means
+0.14,0.23,0.015164781183589101,Agglomerative Complete Clustering
+0.14,0.23,0.5323387282016785,Agglomerative Average Clustering
+0.14,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.28,7.379651689824869e-05,Spectral Custering
+0.14,0.28,0.04216952218307295,Affinity Propagation
+0.14,0.28,0.9595312960977075,K-means
+0.14,0.28,0.02630303774743906,Agglomerative Complete Clustering
+0.14,0.28,0.6901603707546744,Agglomerative Average Clustering
+0.14,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.32,7.42829137190504e-05,Spectral Custering
+0.14,0.32,1.2813706015259686e-15,Affinity Propagation
+0.14,0.32,1.0,K-means
+0.14,0.32,0.06276448651079473,Agglomerative Complete Clustering
+0.14,0.32,0.74451378232179,Agglomerative Average Clustering
+0.14,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.37,0.0,Spectral Custering
+0.14,0.37,1.2813706015259686e-15,Affinity Propagation
+0.14,0.37,1.0,K-means
+0.14,0.37,0.0682621955866191,Agglomerative Complete Clustering
+0.14,0.37,0.7759142629488418,Agglomerative Average Clustering
+0.14,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.41,0.0006546165859949892,Spectral Custering
+0.14,0.41,0.15284329773554575,Affinity Propagation
+0.14,0.41,1.0,K-means
+0.14,0.41,0.015164781183589101,Agglomerative Complete Clustering
+0.14,0.41,0.7644028051470535,Agglomerative Average Clustering
+0.14,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.46,0.0035463975553778446,Spectral Custering
+0.14,0.46,0.3088484011010077,Affinity Propagation
+0.14,0.46,1.0,K-means
+0.14,0.46,0.041202593981277756,Agglomerative Complete Clustering
+0.14,0.46,0.8078450759406927,Agglomerative Average Clustering
+0.14,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.51,0.00028960116002621733,Spectral Custering
+0.14,0.51,1.2813706015259686e-15,Affinity Propagation
+0.14,0.51,1.0,K-means
+0.14,0.51,0.025462452938691354,Agglomerative Complete Clustering
+0.14,0.51,0.9289911704819008,Agglomerative Average Clustering
+0.14,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.55,0.000649895530739247,Spectral Custering
+0.14,0.55,1.2813706015259686e-15,Affinity Propagation
+0.14,0.55,1.0,K-means
+0.14,0.55,0.041202593981277756,Agglomerative Complete Clustering
+0.14,0.55,0.8888110248267969,Agglomerative Average Clustering
+0.14,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.6,0.0011544640047966115,Spectral Custering
+0.14,0.6,1.2813706015259686e-15,Affinity Propagation
+0.14,0.6,1.0,K-means
+0.14,0.6,0.09070410686643629,Agglomerative Complete Clustering
+0.14,0.6,0.9289911704819008,Agglomerative Average Clustering
+0.14,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.64,0.0006792902015768874,Spectral Custering
+0.14,0.64,1.2813706015259686e-15,Affinity Propagation
+0.14,0.64,1.0,K-means
+0.14,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.14,0.64,0.9289911704819008,Agglomerative Average Clustering
+0.14,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.69,7.231676133993413e-05,Spectral Custering
+0.14,0.69,1.2813706015259686e-15,Affinity Propagation
+0.14,0.69,1.0,K-means
+0.14,0.69,0.08502441288198863,Agglomerative Complete Clustering
+0.14,0.69,0.9289911704819008,Agglomerative Average Clustering
+0.14,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.74,0.0011586406974307814,Spectral Custering
+0.14,0.74,1.2813706015259686e-15,Affinity Propagation
+0.14,0.74,1.0,K-means
+0.14,0.74,0.007849458234265493,Agglomerative Complete Clustering
+0.14,0.74,0.9289911704819008,Agglomerative Average Clustering
+0.14,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.78,0.002598411432258792,Spectral Custering
+0.14,0.78,1.2813706015259686e-15,Affinity Propagation
+0.14,0.78,1.0,K-means
+0.14,0.78,0.015164781183589101,Agglomerative Complete Clustering
+0.14,0.78,0.9289911704819008,Agglomerative Average Clustering
+0.14,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.83,0.00029147396666718954,Spectral Custering
+0.14,0.83,1.2813706015259686e-15,Affinity Propagation
+0.14,0.83,1.0,K-means
+0.14,0.83,0.015164781183589101,Agglomerative Complete Clustering
+0.14,0.83,0.9289911704819008,Agglomerative Average Clustering
+0.14,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.87,0.0002927756386913102,Spectral Custering
+0.14,0.87,1.2813706015259686e-15,Affinity Propagation
+0.14,0.87,1.0,K-means
+0.14,0.87,0.0050181243858377885,Agglomerative Complete Clustering
+0.14,0.87,0.9289911704819008,Agglomerative Average Clustering
+0.14,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.14,0.92,0.00885423291782506,Spectral Custering
+0.14,0.92,1.2813706015259686e-15,Affinity Propagation
+0.14,0.92,1.0,K-means
+0.14,0.92,0.05189916032131593,Agglomerative Complete Clustering
+0.14,0.92,1.0,Agglomerative Average Clustering
+0.14,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.05,1.0,Spectral Custering
+0.18,0.05,1.2813706015259686e-15,Affinity Propagation
+0.18,0.05,0.9595312960977075,K-means
+0.18,0.05,0.041202593981277756,Agglomerative Complete Clustering
+0.18,0.05,0.004441309413425825,Agglomerative Average Clustering
+0.18,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.09,0.7148428876343647,Spectral Custering
+0.18,0.09,1.2813706015259686e-15,Affinity Propagation
+0.18,0.09,0.653243579018313,K-means
+0.18,0.09,0.007314675625174206,Agglomerative Complete Clustering
+0.18,0.09,0.004101604076479232,Agglomerative Average Clustering
+0.18,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.14,0.026530760072510266,Spectral Custering
+0.18,0.14,1.2813706015259686e-15,Affinity Propagation
+0.18,0.14,0.00463834910187489,K-means
+0.18,0.14,0.00026012357525005263,Agglomerative Complete Clustering
+0.18,0.14,0.0046514913033973695,Agglomerative Average Clustering
+0.18,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.18,0.007237223121871246,Spectral Custering
+0.18,0.18,1.2813706015259686e-15,Affinity Propagation
+0.18,0.18,0.000290417542450661,K-means
+0.18,0.18,0.01969130918334334,Agglomerative Complete Clustering
+0.18,0.18,0.00192467800988426,Agglomerative Average Clustering
+0.18,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.23,0.001808652048906424,Spectral Custering
+0.18,0.23,1.2813706015259686e-15,Affinity Propagation
+0.18,0.23,0.0018262653696722157,K-means
+0.18,0.23,0.010072864625001645,Agglomerative Complete Clustering
+0.18,0.23,0.017546650465144083,Agglomerative Average Clustering
+0.18,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.28,0.000290417542450661,Spectral Custering
+0.18,0.28,0.05408341380627407,Affinity Propagation
+0.18,0.28,0.4492444330803107,K-means
+0.18,0.28,0.0682621955866191,Agglomerative Complete Clustering
+0.18,0.28,0.6230646394962776,Agglomerative Average Clustering
+0.18,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.32,0.0012132677826422356,Spectral Custering
+0.18,0.32,0.0981976654679077,Affinity Propagation
+0.18,0.32,0.9289911704819008,K-means
+0.18,0.32,0.0682621955866191,Agglomerative Complete Clustering
+0.18,0.32,0.5483031156312093,Agglomerative Average Clustering
+0.18,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.37,0.0002943290510649666,Spectral Custering
+0.18,0.37,0.1020290569308383,Affinity Propagation
+0.18,0.37,1.0,K-means
+0.18,0.37,0.030669398254337142,Agglomerative Complete Clustering
+0.18,0.37,0.5942839844256909,Agglomerative Average Clustering
+0.18,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.41,0.0002982240136623988,Spectral Custering
+0.18,0.41,1.2813706015259686e-15,Affinity Propagation
+0.18,0.41,1.0,K-means
+0.18,0.41,0.015164781183589101,Agglomerative Complete Clustering
+0.18,0.41,0.6267478441297176,Agglomerative Average Clustering
+0.18,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.46,0.0002943290510649666,Spectral Custering
+0.18,0.46,0.16627546173910013,Affinity Propagation
+0.18,0.46,1.0,K-means
+0.18,0.46,0.0050181243858377885,Agglomerative Complete Clustering
+0.18,0.46,0.6952427698232911,Agglomerative Average Clustering
+0.18,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.51,7.231676133993413e-05,Spectral Custering
+0.18,0.51,0.25716797343693343,Affinity Propagation
+0.18,0.51,1.0,K-means
+0.18,0.51,0.025462452938691354,Agglomerative Complete Clustering
+0.18,0.51,0.7445137823217899,Agglomerative Average Clustering
+0.18,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.55,0.0006509387562924756,Spectral Custering
+0.18,0.55,1.2813706015259686e-15,Affinity Propagation
+0.18,0.55,1.0,K-means
+0.18,0.55,0.041202593981277756,Agglomerative Complete Clustering
+0.18,0.55,0.7815858405886668,Agglomerative Average Clustering
+0.18,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.6,0.0026078279567122394,Spectral Custering
+0.18,0.6,0.20979856568558505,Affinity Propagation
+0.18,0.6,1.0,K-means
+0.18,0.6,0.0050181243858377885,Agglomerative Complete Clustering
+0.18,0.6,0.8585594574581791,Agglomerative Average Clustering
+0.18,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.64,0.0007089837725157233,Spectral Custering
+0.18,0.64,1.2813706015259686e-15,Affinity Propagation
+0.18,0.64,1.0,K-means
+0.18,0.64,0.025462452938691354,Agglomerative Complete Clustering
+0.18,0.64,0.858559457458179,Agglomerative Average Clustering
+0.18,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.69,7.483783197868479e-05,Spectral Custering
+0.18,0.69,1.2813706015259686e-15,Affinity Propagation
+0.18,0.69,1.0,K-means
+0.18,0.69,0.010072864625001645,Agglomerative Complete Clustering
+0.18,0.69,0.9289911704819008,Agglomerative Average Clustering
+0.18,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.74,0.001154926592534575,Spectral Custering
+0.18,0.74,1.2813706015259686e-15,Affinity Propagation
+0.18,0.74,1.0,K-means
+0.18,0.74,0.025462452938691354,Agglomerative Complete Clustering
+0.18,0.74,0.9289911704819008,Agglomerative Average Clustering
+0.18,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.78,0.0059229890666292005,Spectral Custering
+0.18,0.78,1.2813706015259686e-15,Affinity Propagation
+0.18,0.78,1.0,K-means
+0.18,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.18,0.78,0.9289911704819008,Agglomerative Average Clustering
+0.18,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.83,7.337611545791392e-05,Spectral Custering
+0.18,0.83,1.2813706015259686e-15,Affinity Propagation
+0.18,0.83,1.0,K-means
+0.18,0.83,0.041202593981277756,Agglomerative Complete Clustering
+0.18,0.83,0.9289911704819008,Agglomerative Average Clustering
+0.18,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.87,0.000649895530739247,Spectral Custering
+0.18,0.87,1.2813706015259686e-15,Affinity Propagation
+0.18,0.87,1.0,K-means
+0.18,0.87,0.030669398254337142,Agglomerative Complete Clustering
+0.18,0.87,0.9595312960977075,Agglomerative Average Clustering
+0.18,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.18,0.92,0.012256425253785695,Spectral Custering
+0.18,0.92,1.2813706015259686e-15,Affinity Propagation
+0.18,0.92,1.0,K-means
+0.18,0.92,0.06276448651079473,Agglomerative Complete Clustering
+0.18,0.92,0.9595312960977075,Agglomerative Average Clustering
+0.18,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.05,1.0,Spectral Custering
+0.23,0.05,1.2813706015259686e-15,Affinity Propagation
+0.23,0.05,1.0,K-means
+0.23,0.05,0.02029444800061425,Agglomerative Complete Clustering
+0.23,0.05,0.0,Agglomerative Average Clustering
+0.23,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.09,0.9192068641040878,Spectral Custering
+0.23,0.09,1.2813706015259686e-15,Affinity Propagation
+0.23,0.09,0.8888110248267969,K-means
+0.23,0.09,0.010072864625001645,Agglomerative Complete Clustering
+0.23,0.09,7.876028707183017e-05,Agglomerative Average Clustering
+0.23,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.14,0.4208421191614443,Spectral Custering
+0.23,0.14,1.2813706015259686e-15,Affinity Propagation
+0.23,0.14,0.09091342526675823,K-means
+0.23,0.14,0.010072864625001645,Agglomerative Complete Clustering
+0.23,0.14,0.0018875418332784902,Agglomerative Average Clustering
+0.23,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.18,0.0018352015269208425,Spectral Custering
+0.23,0.18,0.047713914956508924,Affinity Propagation
+0.23,0.18,0.00028960116002621733,K-means
+0.23,0.18,0.0023541760172077963,Agglomerative Complete Clustering
+0.23,0.18,0.0026025881248917604,Agglomerative Average Clustering
+0.23,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.23,0.000290417542450661,Spectral Custering
+0.23,0.23,0.026663522787159694,Affinity Propagation
+0.23,0.23,7.27250768754568e-05,K-means
+0.23,0.23,0.015164781183589101,Agglomerative Complete Clustering
+0.23,0.23,0.0013923750750073135,Agglomerative Average Clustering
+0.23,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.28,0.0059229890666292005,Spectral Custering
+0.23,0.28,1.2813706015259686e-15,Affinity Propagation
+0.23,0.28,0.00845867750380155,K-means
+0.23,0.28,0.03591590108889877,Agglomerative Complete Clustering
+0.23,0.28,0.02029444800061425,Agglomerative Average Clustering
+0.23,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.32,0.0019051218168968322,Spectral Custering
+0.23,0.32,0.023560431417887374,Affinity Propagation
+0.23,0.32,0.23770976337489053,K-means
+0.23,0.32,0.05189916032131593,Agglomerative Complete Clustering
+0.23,0.32,0.2657286159751554,Agglomerative Average Clustering
+0.23,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.37,0.0035665030876602393,Spectral Custering
+0.23,0.37,0.08420397055891932,Affinity Propagation
+0.23,0.37,0.8621189448890668,K-means
+0.23,0.37,0.015164781183589101,Agglomerative Complete Clustering
+0.23,0.37,0.5041925876451759,Agglomerative Average Clustering
+0.23,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.41,0.0006686489926634334,Spectral Custering
+0.23,0.41,1.2813706015259686e-15,Affinity Propagation
+0.23,0.41,1.0,K-means
+0.23,0.41,0.05189916032131593,Agglomerative Complete Clustering
+0.23,0.41,0.485826538780678,Agglomerative Average Clustering
+0.23,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.46,0.000740040855722899,Spectral Custering
+0.23,0.46,1.2813706015259686e-15,Affinity Propagation
+0.23,0.46,1.0,K-means
+0.23,0.46,0.06276448651079473,Agglomerative Complete Clustering
+0.23,0.46,0.5395365734215585,Agglomerative Average Clustering
+0.23,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.51,0.0002885582471880403,Spectral Custering
+0.23,0.51,1.2813706015259686e-15,Affinity Propagation
+0.23,0.51,1.0,K-means
+0.23,0.51,0.010072864625001645,Agglomerative Complete Clustering
+0.23,0.51,0.6204996036901926,Agglomerative Average Clustering
+0.23,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.55,0.0035378503516790825,Spectral Custering
+0.23,0.55,1.2813706015259686e-15,Affinity Propagation
+0.23,0.55,1.0,K-means
+0.23,0.55,0.03591590108889877,Agglomerative Complete Clustering
+0.23,0.55,0.6006252796233228,Agglomerative Average Clustering
+0.23,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.6,0.0027310063605139896,Spectral Custering
+0.23,0.6,1.2813706015259686e-15,Affinity Propagation
+0.23,0.6,1.0,K-means
+0.23,0.6,0.041202593981277756,Agglomerative Complete Clustering
+0.23,0.6,0.709055562801952,Agglomerative Average Clustering
+0.23,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.64,0.0019051218168968322,Spectral Custering
+0.23,0.64,1.2813706015259686e-15,Affinity Propagation
+0.23,0.64,1.0,K-means
+0.23,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.23,0.64,0.815250489489268,Agglomerative Average Clustering
+0.23,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.69,0.0035378503516790825,Spectral Custering
+0.23,0.69,1.2813706015259686e-15,Affinity Propagation
+0.23,0.69,1.0,K-means
+0.23,0.69,0.0050181243858377885,Agglomerative Complete Clustering
+0.23,0.69,0.8320116638589645,Agglomerative Average Clustering
+0.23,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.74,0.001154926592534575,Spectral Custering
+0.23,0.74,1.2813706015259686e-15,Affinity Propagation
+0.23,0.74,1.0,K-means
+0.23,0.74,0.04653012540362816,Agglomerative Complete Clustering
+0.23,0.74,0.8378080273254468,Agglomerative Average Clustering
+0.23,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.78,0.0072724835649073715,Spectral Custering
+0.23,0.78,1.2813706015259686e-15,Affinity Propagation
+0.23,0.78,1.0,K-means
+0.23,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.23,0.78,0.9021547608988224,Agglomerative Average Clustering
+0.23,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.83,7.249119089345479e-05,Spectral Custering
+0.23,0.83,1.2813706015259686e-15,Affinity Propagation
+0.23,0.83,1.0,K-means
+0.23,0.83,0.025462452938691354,Agglomerative Complete Clustering
+0.23,0.83,0.9289911704819008,Agglomerative Average Clustering
+0.23,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.87,0.00028867375520850357,Spectral Custering
+0.23,0.87,1.2813706015259686e-15,Affinity Propagation
+0.23,0.87,1.0,K-means
+0.23,0.87,0.05731038077849463,Agglomerative Complete Clustering
+0.23,0.87,1.0,Agglomerative Average Clustering
+0.23,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.23,0.92,0.0006572691707960061,Spectral Custering
+0.23,0.92,1.2813706015259686e-15,Affinity Propagation
+0.23,0.92,1.0,K-means
+0.23,0.92,0.05189916032131593,Agglomerative Complete Clustering
+0.23,0.92,0.9595312960977075,Agglomerative Average Clustering
+0.23,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.05,1.0,Spectral Custering
+0.28,0.05,1.2813706015259686e-15,Affinity Propagation
+0.28,0.05,1.0,K-means
+0.28,0.05,0.0012846151463867432,Agglomerative Complete Clustering
+0.28,0.05,0.0003503914439931955,Agglomerative Average Clustering
+0.28,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.09,1.0,Spectral Custering
+0.28,0.09,0.27820055080408673,Affinity Propagation
+0.28,0.09,0.9595312960977075,K-means
+0.28,0.09,0.0038466454426532627,Agglomerative Complete Clustering
+0.28,0.09,0.00011066196763574772,Agglomerative Average Clustering
+0.28,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.14,0.9595312960977075,Spectral Custering
+0.28,0.14,0.19909365714908378,Affinity Propagation
+0.28,0.14,0.9021547608988224,K-means
+0.28,0.14,0.025462452938691354,Agglomerative Complete Clustering
+0.28,0.14,0.0006837936911062584,Agglomerative Average Clustering
+0.28,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.18,0.40443884763142063,Spectral Custering
+0.28,0.18,1.2813706015259686e-15,Affinity Propagation
+0.28,0.18,0.32072671123123664,K-means
+0.28,0.18,0.030669398254337142,Agglomerative Complete Clustering
+0.28,0.18,0.006991288329597396,Agglomerative Average Clustering
+0.28,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.23,0.0018262653696722157,Spectral Custering
+0.28,0.23,1.2813706015259686e-15,Affinity Propagation
+0.28,0.23,0.001225130371218282,K-means
+0.28,0.23,0.02029444800061425,Agglomerative Complete Clustering
+0.28,0.23,0.004629007386572486,Agglomerative Average Clustering
+0.28,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.28,0.0012528256558276966,Spectral Custering
+0.28,0.28,1.2813706015259686e-15,Affinity Propagation
+0.28,0.28,0.005851417641644759,K-means
+0.28,0.28,0.0003474217255420828,Agglomerative Complete Clustering
+0.28,0.28,0.001432174698475364,Agglomerative Average Clustering
+0.28,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.32,0.0011563165850880098,Spectral Custering
+0.28,0.32,1.2813706015259686e-15,Affinity Propagation
+0.28,0.32,0.00066426763324568,K-means
+0.28,0.32,0.010072864625001645,Agglomerative Complete Clustering
+0.28,0.32,0.05771241273064312,Agglomerative Average Clustering
+0.28,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.37,0.007237223121871246,Spectral Custering
+0.28,0.37,1.2813706015259686e-15,Affinity Propagation
+0.28,0.37,0.24910274259904233,K-means
+0.28,0.37,0.04653012540362816,Agglomerative Complete Clustering
+0.28,0.37,0.4795457366215262,Agglomerative Average Clustering
+0.28,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.41,7.780871191278276e-05,Spectral Custering
+0.28,0.41,0.04210568049384533,Affinity Propagation
+0.28,0.41,0.8152504894892681,K-means
+0.28,0.41,0.04653012540362816,Agglomerative Complete Clustering
+0.28,0.41,0.19252745938447632,Agglomerative Average Clustering
+0.28,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.46,0.0003094869461697507,Spectral Custering
+0.28,0.46,0.08986103957210817,Affinity Propagation
+0.28,0.46,0.9595312960977075,K-means
+0.28,0.46,0.05189916032131593,Agglomerative Complete Clustering
+0.28,0.46,0.4610728190325418,Agglomerative Average Clustering
+0.28,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.51,0.0,Spectral Custering
+0.28,0.51,1.2813706015259686e-15,Affinity Propagation
+0.28,0.51,1.0,K-means
+0.28,0.51,0.025462452938691354,Agglomerative Complete Clustering
+0.28,0.51,0.5000840418354705,Agglomerative Average Clustering
+0.28,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.55,0.0,Spectral Custering
+0.28,0.55,0.07387356095891454,Affinity Propagation
+0.28,0.55,0.9595312960977075,K-means
+0.28,0.55,0.04653012540362816,Agglomerative Complete Clustering
+0.28,0.55,0.5154720881687576,Agglomerative Average Clustering
+0.28,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.6,0.0006509387562924756,Spectral Custering
+0.28,0.6,0.14045226481861867,Affinity Propagation
+0.28,0.6,1.0,K-means
+0.28,0.6,0.03591590108889877,Agglomerative Complete Clustering
+0.28,0.6,0.6253584312614053,Agglomerative Average Clustering
+0.28,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.64,0.0027310063605139896,Spectral Custering
+0.28,0.64,0.14976140699597734,Affinity Propagation
+0.28,0.64,1.0,K-means
+0.28,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.28,0.64,0.8135006794347659,Agglomerative Average Clustering
+0.28,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.69,0.001166141114477872,Spectral Custering
+0.28,0.69,1.2813706015259686e-15,Affinity Propagation
+0.28,0.69,1.0,K-means
+0.28,0.69,0.010072864625001645,Agglomerative Complete Clustering
+0.28,0.69,0.7136030428840429,Agglomerative Average Clustering
+0.28,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.74,7.220094060313786e-05,Spectral Custering
+0.28,0.74,1.2813706015259686e-15,Affinity Propagation
+0.28,0.74,1.0,K-means
+0.28,0.74,0.04653012540362816,Agglomerative Complete Clustering
+0.28,0.74,0.8056081421684229,Agglomerative Average Clustering
+0.28,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.78,0.0018875418332784902,Spectral Custering
+0.28,0.78,1.2813706015259686e-15,Affinity Propagation
+0.28,0.78,1.0,K-means
+0.28,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.28,0.78,0.9289911704819008,Agglomerative Average Clustering
+0.28,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.83,7.231676133993413e-05,Spectral Custering
+0.28,0.83,1.2813706015259686e-15,Affinity Propagation
+0.28,0.83,1.0,K-means
+0.28,0.83,0.02029444800061425,Agglomerative Complete Clustering
+0.28,0.83,0.9289911704819008,Agglomerative Average Clustering
+0.28,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.87,0.0006493751716557893,Spectral Custering
+0.28,0.87,1.2813706015259686e-15,Affinity Propagation
+0.28,0.87,1.0,K-means
+0.28,0.87,0.041202593981277756,Agglomerative Complete Clustering
+0.28,0.87,0.9595312960977075,Agglomerative Average Clustering
+0.28,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.28,0.92,0.000652509893371214,Spectral Custering
+0.28,0.92,1.2813706015259686e-15,Affinity Propagation
+0.28,0.92,1.0,K-means
+0.28,0.92,0.015164781183589101,Agglomerative Complete Clustering
+0.28,0.92,1.0,Agglomerative Average Clustering
+0.28,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.05,1.0,Spectral Custering
+0.32,0.05,0.5181941273685808,Affinity Propagation
+0.32,0.05,1.0,K-means
+0.32,0.05,0.02029444800061425,Agglomerative Complete Clustering
+0.32,0.05,0.00011961862895244638,Agglomerative Average Clustering
+0.32,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.09,1.0,Spectral Custering
+0.32,0.09,0.35852314580005973,Affinity Propagation
+0.32,0.09,1.0,K-means
+0.32,0.09,0.02029444800061425,Agglomerative Complete Clustering
+0.32,0.09,7.301956543710596e-05,Agglomerative Average Clustering
+0.32,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.14,1.0,Spectral Custering
+0.32,0.14,0.21844385854963885,Affinity Propagation
+0.32,0.14,1.0,K-means
+0.32,0.14,0.010072864625001645,Agglomerative Complete Clustering
+0.32,0.14,0.004070053741983461,Agglomerative Average Clustering
+0.32,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.18,0.8776994414539947,Spectral Custering
+0.32,0.18,0.2275110211559984,Affinity Propagation
+0.32,0.18,0.8549974004848336,K-means
+0.32,0.18,0.025462452938691354,Agglomerative Complete Clustering
+0.32,0.18,0.002056645228074448,Agglomerative Average Clustering
+0.32,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.23,0.22994701348652533,Spectral Custering
+0.32,0.23,0.07033065713043249,Affinity Propagation
+0.32,0.23,0.042028644140120176,K-means
+0.32,0.23,0.02029444800061425,Agglomerative Complete Clustering
+0.32,0.23,0.004662805176997524,Agglomerative Average Clustering
+0.32,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.28,0.002615199354359394,Spectral Custering
+0.32,0.28,0.049099501928382534,Affinity Propagation
+0.32,0.28,0.002615199354359394,K-means
+0.32,0.28,0.015164781183589101,Agglomerative Complete Clustering
+0.32,0.28,0.0022146145059875042,Agglomerative Average Clustering
+0.32,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.32,0.0,Spectral Custering
+0.32,0.32,1.2813706015259686e-15,Affinity Propagation
+0.32,0.32,0.0058655924557498,K-means
+0.32,0.32,0.015164781183589101,Agglomerative Complete Clustering
+0.32,0.32,0.021317859630598967,Agglomerative Average Clustering
+0.32,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.37,0.004815239215894727,Spectral Custering
+0.32,0.37,1.2813706015259686e-15,Affinity Propagation
+0.32,0.37,0.0018043017641911651,K-means
+0.32,0.37,0.03591590108889877,Agglomerative Complete Clustering
+0.32,0.37,0.010416696169445414,Agglomerative Average Clustering
+0.32,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.41,0.003581004793856066,Spectral Custering
+0.32,0.41,0.05664559727152992,Affinity Propagation
+0.32,0.41,0.06665370714512714,K-means
+0.32,0.41,0.041202593981277756,Agglomerative Complete Clustering
+0.32,0.41,0.234676212518194,Agglomerative Average Clustering
+0.32,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.46,7.249119089345479e-05,Spectral Custering
+0.32,0.46,1.2813706015259686e-15,Affinity Propagation
+0.32,0.46,0.7854319399857219,K-means
+0.32,0.46,0.010072864625001645,Agglomerative Complete Clustering
+0.32,0.46,0.5505536209490178,Agglomerative Average Clustering
+0.32,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.51,0.0006572691707960061,Spectral Custering
+0.32,0.51,0.055981668999759426,Affinity Propagation
+0.32,0.51,1.0,K-means
+0.32,0.51,0.02029444800061425,Agglomerative Complete Clustering
+0.32,0.51,0.5005332123144874,Agglomerative Average Clustering
+0.32,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.55,0.001970185099550186,Spectral Custering
+0.32,0.55,0.070102104284831,Affinity Propagation
+0.32,0.55,0.9595312960977075,K-means
+0.32,0.55,0.041202593981277756,Agglomerative Complete Clustering
+0.32,0.55,0.5395365734215586,Agglomerative Average Clustering
+0.32,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.6,0.0006509387562924756,Spectral Custering
+0.32,0.6,1.2813706015259686e-15,Affinity Propagation
+0.32,0.6,1.0,K-means
+0.32,0.6,0.025462452938691354,Agglomerative Complete Clustering
+0.32,0.6,0.653243579018313,Agglomerative Average Clustering
+0.32,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.64,0.0006792902015768874,Spectral Custering
+0.32,0.64,0.07622668058026667,Affinity Propagation
+0.32,0.64,1.0,K-means
+0.32,0.64,0.025462452938691354,Agglomerative Complete Clustering
+0.32,0.64,0.6158764434944146,Agglomerative Average Clustering
+0.32,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.69,3.2034265038149216e-16,Spectral Custering
+0.32,0.69,1.2813706015259686e-15,Affinity Propagation
+0.32,0.69,1.0,K-means
+0.32,0.69,0.025462452938691354,Agglomerative Complete Clustering
+0.32,0.69,0.7148428876343647,Agglomerative Average Clustering
+0.32,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.74,7.249119089345479e-05,Spectral Custering
+0.32,0.74,1.2813706015259686e-15,Affinity Propagation
+0.32,0.74,1.0,K-means
+0.32,0.74,0.02029444800061425,Agglomerative Complete Clustering
+0.32,0.74,0.8888110248267969,Agglomerative Average Clustering
+0.32,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.78,0.001154926592534575,Spectral Custering
+0.32,0.78,1.2813706015259686e-15,Affinity Propagation
+0.32,0.78,1.0,K-means
+0.32,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.32,0.78,0.8336791289905029,Agglomerative Average Clustering
+0.32,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.83,0.0011586406974307814,Spectral Custering
+0.32,0.83,1.2813706015259686e-15,Affinity Propagation
+0.32,0.83,1.0,K-means
+0.32,0.83,0.030669398254337142,Agglomerative Complete Clustering
+0.32,0.83,0.9289911704819008,Agglomerative Average Clustering
+0.32,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.87,0.001238290746776464,Spectral Custering
+0.32,0.87,1.2813706015259686e-15,Affinity Propagation
+0.32,0.87,1.0,K-means
+0.32,0.87,0.025462452938691354,Agglomerative Complete Clustering
+0.32,0.87,0.9289911704819008,Agglomerative Average Clustering
+0.32,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.32,0.92,0.001970185099550186,Spectral Custering
+0.32,0.92,1.2813706015259686e-15,Affinity Propagation
+0.32,0.92,1.0,K-means
+0.32,0.92,0.05189916032131593,Agglomerative Complete Clustering
+0.32,0.92,0.9289911704819008,Agglomerative Average Clustering
+0.32,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.05,1.0,Spectral Custering
+0.37,0.05,0.5043015012518867,Affinity Propagation
+0.37,0.05,1.0,K-means
+0.37,0.05,0.015164781183589101,Agglomerative Complete Clustering
+0.37,0.05,0.000737728726204441,Agglomerative Average Clustering
+0.37,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.09,1.0,Spectral Custering
+0.37,0.09,0.3726980732150597,Affinity Propagation
+0.37,0.09,1.0,K-means
+0.37,0.09,0.007849458234265493,Agglomerative Complete Clustering
+0.37,0.09,0.0,Agglomerative Average Clustering
+0.37,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.14,1.0,Spectral Custering
+0.37,0.14,0.22785971975913344,Affinity Propagation
+0.37,0.14,1.0,K-means
+0.37,0.14,0.025462452938691354,Agglomerative Complete Clustering
+0.37,0.14,7.980600496503813e-05,Agglomerative Average Clustering
+0.37,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.18,1.0,Spectral Custering
+0.37,0.18,0.154759193354858,Affinity Propagation
+0.37,0.18,1.0,K-means
+0.37,0.18,0.015164781183589101,Agglomerative Complete Clustering
+0.37,0.18,9.045491046192325e-05,Agglomerative Average Clustering
+0.37,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.23,0.8078450759406925,Spectral Custering
+0.37,0.23,0.08288459502290119,Affinity Propagation
+0.37,0.23,0.8320116638589645,K-means
+0.37,0.23,0.015164781183589101,Agglomerative Complete Clustering
+0.37,0.23,0.00042046083649393634,Agglomerative Average Clustering
+0.37,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.28,0.48613380050597466,Spectral Custering
+0.37,0.28,1.2813706015259686e-15,Affinity Propagation
+0.37,0.28,0.03533304642316676,K-means
+0.37,0.28,0.03591590108889877,Agglomerative Complete Clustering
+0.37,0.28,0.006910042341151773,Agglomerative Average Clustering
+0.37,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.32,0.000652509893371214,Spectral Custering
+0.37,0.32,0.014101220778845583,Affinity Propagation
+0.37,0.32,0.0002961420652816639,K-means
+0.37,0.32,0.02029444800061425,Agglomerative Complete Clustering
+0.37,0.32,0.0005995667706605947,Agglomerative Average Clustering
+0.37,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.37,0.0025994543450959277,Spectral Custering
+0.37,0.37,0.02516855341854533,Affinity Propagation
+0.37,0.37,0.001808652048906424,K-means
+0.37,0.37,0.030669398254337142,Agglomerative Complete Clustering
+0.37,0.37,9.493135180723326e-05,Agglomerative Average Clustering
+0.37,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.41,0.0011544640047966115,Spectral Custering
+0.37,0.41,1.2813706015259686e-15,Affinity Propagation
+0.37,0.41,0.0011563165850880098,K-means
+0.37,0.41,0.02029444800061425,Agglomerative Complete Clustering
+0.37,0.41,0.04779777582018676,Agglomerative Average Clustering
+0.37,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.46,0.000649895530739247,Spectral Custering
+0.37,0.46,0.022417010947287572,Affinity Propagation
+0.37,0.46,0.09596182024689072,K-means
+0.37,0.46,0.0050181243858377885,Agglomerative Complete Clustering
+0.37,0.46,0.21099163531420095,Agglomerative Average Clustering
+0.37,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.51,0.0035549862954161364,Spectral Custering
+0.37,0.51,0.008439594524527612,Affinity Propagation
+0.37,0.51,0.7355832909464769,K-means
+0.37,0.51,0.015164781183589101,Agglomerative Complete Clustering
+0.37,0.51,0.4113788708893521,Agglomerative Average Clustering
+0.37,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.55,0.0002982240136623988,Spectral Custering
+0.37,0.55,0.06392843798795103,Affinity Propagation
+0.37,0.55,0.9595312960977075,K-means
+0.37,0.55,0.02029444800061425,Agglomerative Complete Clustering
+0.37,0.55,0.6936956313574923,Agglomerative Average Clustering
+0.37,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.6,0.000290417542450661,Spectral Custering
+0.37,0.6,0.07178083075823999,Affinity Propagation
+0.37,0.6,1.0,K-means
+0.37,0.6,0.041202593981277756,Agglomerative Complete Clustering
+0.37,0.6,0.7940768515176174,Agglomerative Average Clustering
+0.37,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.64,0.0035406948231041903,Spectral Custering
+0.37,0.64,1.2813706015259686e-15,Affinity Propagation
+0.37,0.64,1.0,K-means
+0.37,0.64,0.025462452938691354,Agglomerative Complete Clustering
+0.37,0.64,0.7249070885783744,Agglomerative Average Clustering
+0.37,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.69,7.220094060313786e-05,Spectral Custering
+0.37,0.69,1.2813706015259686e-15,Affinity Propagation
+0.37,0.69,1.0,K-means
+0.37,0.69,0.0050181243858377885,Agglomerative Complete Clustering
+0.37,0.69,0.8056081421684229,Agglomerative Average Clustering
+0.37,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.74,0.0,Spectral Custering
+0.37,0.74,1.2813706015259686e-15,Affinity Propagation
+0.37,0.74,1.0,K-means
+0.37,0.74,0.030669398254337142,Agglomerative Complete Clustering
+0.37,0.74,0.9289911704819008,Agglomerative Average Clustering
+0.37,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.78,0.001154926592534575,Spectral Custering
+0.37,0.78,1.2813706015259686e-15,Affinity Propagation
+0.37,0.78,1.0,K-means
+0.37,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.37,0.78,0.9595312960977075,Agglomerative Average Clustering
+0.37,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.83,0.0002885582471880403,Spectral Custering
+0.37,0.83,1.2813706015259686e-15,Affinity Propagation
+0.37,0.83,1.0,K-means
+0.37,0.83,0.010072864625001645,Agglomerative Complete Clustering
+0.37,0.83,0.9289911704819008,Agglomerative Average Clustering
+0.37,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.87,0.00066426763324568,Spectral Custering
+0.37,0.87,1.2813706015259686e-15,Affinity Propagation
+0.37,0.87,1.0,K-means
+0.37,0.87,0.04653012540362816,Agglomerative Complete Clustering
+0.37,0.87,0.9595312960977075,Agglomerative Average Clustering
+0.37,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.37,0.92,0.0035463975553778446,Spectral Custering
+0.37,0.92,1.2813706015259686e-15,Affinity Propagation
+0.37,0.92,1.0,K-means
+0.37,0.92,0.02029444800061425,Agglomerative Complete Clustering
+0.37,0.92,1.0,Agglomerative Average Clustering
+0.37,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.05,1.0,Spectral Custering
+0.41,0.05,0.7106755921089203,Affinity Propagation
+0.41,0.05,1.0,K-means
+0.41,0.05,0.015164781183589101,Agglomerative Complete Clustering
+0.41,0.05,0.0,Agglomerative Average Clustering
+0.41,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.09,1.0,Spectral Custering
+0.41,0.09,0.439342058158162,Affinity Propagation
+0.41,0.09,1.0,K-means
+0.41,0.09,0.005209229512132459,Agglomerative Complete Clustering
+0.41,0.09,0.0,Agglomerative Average Clustering
+0.41,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.14,1.0,Spectral Custering
+0.41,0.14,0.2583296257753127,Affinity Propagation
+0.41,0.14,1.0,K-means
+0.41,0.14,0.0018977816086475545,Agglomerative Complete Clustering
+0.41,0.14,0.001225130371218282,Agglomerative Average Clustering
+0.41,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.18,1.0,Spectral Custering
+0.41,0.18,0.13036242743335572,Affinity Propagation
+0.41,0.18,1.0,K-means
+0.41,0.18,0.0018977816086475545,Agglomerative Complete Clustering
+0.41,0.18,0.0012846151463867432,Agglomerative Average Clustering
+0.41,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.23,1.0,Spectral Custering
+0.41,0.23,0.10658181373637897,Affinity Propagation
+0.41,0.23,1.0,K-means
+0.41,0.23,0.015164781183589101,Agglomerative Complete Clustering
+0.41,0.23,7.249119089345479e-05,Agglomerative Average Clustering
+0.41,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.28,0.7367469623402177,Spectral Custering
+0.41,0.28,0.08460233748732424,Affinity Propagation
+0.41,0.28,0.6095519116353356,K-means
+0.41,0.28,0.030669398254337142,Agglomerative Complete Clustering
+0.41,0.28,0.0,Agglomerative Average Clustering
+0.41,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.32,0.25910415427998396,Spectral Custering
+0.41,0.32,1.2813706015259686e-15,Affinity Propagation
+0.41,0.32,0.03262224951596872,K-means
+0.41,0.32,0.0012846151463867432,Agglomerative Complete Clustering
+0.41,0.32,0.004815239215894727,Agglomerative Average Clustering
+0.41,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.37,0.04197562115673282,Spectral Custering
+0.41,0.37,0.011911305122304804,Affinity Propagation
+0.41,0.37,0.0018457384019465802,K-means
+0.41,0.37,0.007849458234265493,Agglomerative Complete Clustering
+0.41,0.37,0.027765480635948855,Agglomerative Average Clustering
+0.41,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.41,0.004621561179772606,Spectral Custering
+0.41,0.41,1.2813706015259686e-15,Affinity Propagation
+0.41,0.41,7.337611545791392e-05,K-means
+0.41,0.41,0.025462452938691354,Agglomerative Complete Clustering
+0.41,0.41,0.022643830030234718,Agglomerative Average Clustering
+0.41,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.46,0.0018262653696722157,Spectral Custering
+0.41,0.46,0.05625488711041561,Affinity Propagation
+0.41,0.46,0.021054266777822284,K-means
+0.41,0.46,0.010072864625001645,Agglomerative Complete Clustering
+0.41,0.46,0.008244316264586547,Agglomerative Average Clustering
+0.41,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.51,0.00885423291782506,Spectral Custering
+0.41,0.51,0.03314395592278801,Affinity Propagation
+0.41,0.51,0.27954354742236204,K-means
+0.41,0.51,0.0050181243858377885,Agglomerative Complete Clustering
+0.41,0.51,0.213402072580132,Agglomerative Average Clustering
+0.41,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.55,0.0026247384733799786,Spectral Custering
+0.41,0.55,0.043472439297262536,Affinity Propagation
+0.41,0.55,0.7384323013215836,K-means
+0.41,0.55,0.03591590108889877,Agglomerative Complete Clustering
+0.41,0.55,0.26822244663634365,Agglomerative Average Clustering
+0.41,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.6,0.002650520541472198,Spectral Custering
+0.41,0.6,1.2813706015259686e-15,Affinity Propagation
+0.41,0.6,0.9192068641040878,K-means
+0.41,0.6,0.025462452938691354,Agglomerative Complete Clustering
+0.41,0.6,0.47222833337913245,Agglomerative Average Clustering
+0.41,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.64,7.27250768754568e-05,Spectral Custering
+0.41,0.64,1.2813706015259686e-15,Affinity Propagation
+0.41,0.64,1.0,K-means
+0.41,0.64,0.025462452938691354,Agglomerative Complete Clustering
+0.41,0.64,0.40288830586603386,Agglomerative Average Clustering
+0.41,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.69,0.0011563165850880098,Spectral Custering
+0.41,0.69,1.2813706015259686e-15,Affinity Propagation
+0.41,0.69,1.0,K-means
+0.41,0.69,0.015164781183589101,Agglomerative Complete Clustering
+0.41,0.69,0.6348993870744357,Agglomerative Average Clustering
+0.41,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.74,0.0026078279567122394,Spectral Custering
+0.41,0.74,1.2813706015259686e-15,Affinity Propagation
+0.41,0.74,1.0,K-means
+0.41,0.74,0.0050181243858377885,Agglomerative Complete Clustering
+0.41,0.74,0.6647687791744481,Agglomerative Average Clustering
+0.41,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.78,0.0002927756386913102,Spectral Custering
+0.41,0.78,1.2813706015259686e-15,Affinity Propagation
+0.41,0.78,1.0,K-means
+0.41,0.78,0.015164781183589101,Agglomerative Complete Clustering
+0.41,0.78,0.74451378232179,Agglomerative Average Clustering
+0.41,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.83,0.0002961420652816639,Spectral Custering
+0.41,0.83,1.2813706015259686e-15,Affinity Propagation
+0.41,0.83,1.0,K-means
+0.41,0.83,0.0050181243858377885,Agglomerative Complete Clustering
+0.41,0.83,0.8549974004848336,Agglomerative Average Clustering
+0.41,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.87,0.00028867375520850357,Spectral Custering
+0.41,0.87,1.2813706015259686e-15,Affinity Propagation
+0.41,0.87,1.0,K-means
+0.41,0.87,0.010072864625001645,Agglomerative Complete Clustering
+0.41,0.87,0.9021547608988224,Agglomerative Average Clustering
+0.41,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.41,0.92,0.0018057495280912154,Spectral Custering
+0.41,0.92,1.2813706015259686e-15,Affinity Propagation
+0.41,0.92,1.0,K-means
+0.41,0.92,0.025462452938691354,Agglomerative Complete Clustering
+0.41,0.92,0.9595312960977075,Agglomerative Average Clustering
+0.41,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.05,1.0,Spectral Custering
+0.46,0.05,0.5137356919384143,Affinity Propagation
+0.46,0.05,1.0,K-means
+0.46,0.05,0.00042046083649393634,Agglomerative Complete Clustering
+0.46,0.05,0.0008547220313336234,Agglomerative Average Clustering
+0.46,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.09,1.0,Spectral Custering
+0.46,0.09,0.45433772592844734,Affinity Propagation
+0.46,0.09,1.0,K-means
+0.46,0.09,0.0025254920194574004,Agglomerative Complete Clustering
+0.46,0.09,0.0,Agglomerative Average Clustering
+0.46,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.14,1.0,Spectral Custering
+0.46,0.14,1.2813706015259686e-15,Affinity Propagation
+0.46,0.14,1.0,K-means
+0.46,0.14,0.004958976710121675,Agglomerative Complete Clustering
+0.46,0.14,0.003380097549646298,Agglomerative Average Clustering
+0.46,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.18,1.0,Spectral Custering
+0.46,0.18,0.1546198189734703,Affinity Propagation
+0.46,0.18,1.0,K-means
+0.46,0.18,0.0015284029975106007,Agglomerative Complete Clustering
+0.46,0.18,0.0035500125317267,Agglomerative Average Clustering
+0.46,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.23,1.0,Spectral Custering
+0.46,0.23,0.13617274631184634,Affinity Propagation
+0.46,0.23,1.0,K-means
+0.46,0.23,0.030669398254337142,Agglomerative Complete Clustering
+0.46,0.23,0.001240842812775642,Agglomerative Average Clustering
+0.46,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.28,0.9021547608988224,Spectral Custering
+0.46,0.28,0.07171269684461463,Affinity Propagation
+0.46,0.28,0.9289911704819008,K-means
+0.46,0.28,0.015164781183589101,Agglomerative Complete Clustering
+0.46,0.28,0.00026012357525005263,Agglomerative Average Clustering
+0.46,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.32,0.7854319399857217,Spectral Custering
+0.46,0.32,1.2813706015259686e-15,Affinity Propagation
+0.46,0.32,0.8320116638589645,K-means
+0.46,0.32,0.010072864625001645,Agglomerative Complete Clustering
+0.46,0.32,0.0005357030820142281,Agglomerative Average Clustering
+0.46,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.37,0.2465342616510175,Spectral Custering
+0.46,0.37,0.02207532385762198,Affinity Propagation
+0.46,0.37,0.000290417542450661,K-means
+0.46,0.37,0.025462452938691354,Agglomerative Complete Clustering
+0.46,0.37,0.023893977993278987,Agglomerative Average Clustering
+0.46,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.41,7.27250768754568e-05,Spectral Custering
+0.46,0.41,0.03464698250762209,Affinity Propagation
+0.46,0.41,0.0002885582471880403,K-means
+0.46,0.41,0.0,Agglomerative Complete Clustering
+0.46,0.41,0.002128664605276878,Agglomerative Average Clustering
+0.46,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.46,0.0,Spectral Custering
+0.46,0.46,0.020831446748964554,Affinity Propagation
+0.46,0.46,0.0074696547199645975,K-means
+0.46,0.46,0.010072864625001645,Agglomerative Complete Clustering
+0.46,0.46,0.024294483853183103,Agglomerative Average Clustering
+0.46,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.51,0.0058798364916441545,Spectral Custering
+0.46,0.51,1.2813706015259686e-15,Affinity Propagation
+0.46,0.51,0.029488949325427227,K-means
+0.46,0.51,0.02029444800061425,Agglomerative Complete Clustering
+0.46,0.51,0.02667928557063976,Agglomerative Average Clustering
+0.46,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.55,0.0018043017641911651,Spectral Custering
+0.46,0.55,1.2813706015259686e-15,Affinity Propagation
+0.46,0.55,0.1070217264356348,K-means
+0.46,0.55,0.041202593981277756,Agglomerative Complete Clustering
+0.46,0.55,0.025257467996887703,Agglomerative Average Clustering
+0.46,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.6,0.0037014224764323083,Spectral Custering
+0.46,0.6,1.2813706015259686e-15,Affinity Propagation
+0.46,0.6,0.7136030428840429,K-means
+0.46,0.6,0.02029444800061425,Agglomerative Complete Clustering
+0.46,0.6,0.17761612084710723,Agglomerative Average Clustering
+0.46,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.64,7.301956543710596e-05,Spectral Custering
+0.46,0.64,1.2813706015259686e-15,Affinity Propagation
+0.46,0.64,1.0,K-means
+0.46,0.64,0.015164781183589101,Agglomerative Complete Clustering
+0.46,0.64,0.4008687518430216,Agglomerative Average Clustering
+0.46,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.69,0.0018262653696722157,Spectral Custering
+0.46,0.69,1.2813706015259686e-15,Affinity Propagation
+0.46,0.69,1.0,K-means
+0.46,0.69,0.010072864625001645,Agglomerative Complete Clustering
+0.46,0.69,0.39361301574878055,Agglomerative Average Clustering
+0.46,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.74,0.0002890208349260839,Spectral Custering
+0.46,0.74,1.2813706015259686e-15,Affinity Propagation
+0.46,0.74,1.0,K-means
+0.46,0.74,0.03591590108889877,Agglomerative Complete Clustering
+0.46,0.74,0.5845154403833089,Agglomerative Average Clustering
+0.46,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.78,7.21431692564425e-05,Spectral Custering
+0.46,0.78,1.2813706015259686e-15,Affinity Propagation
+0.46,0.78,1.0,K-means
+0.46,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.46,0.78,0.6550626161554953,Agglomerative Average Clustering
+0.46,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.83,0.000652509893371214,Spectral Custering
+0.46,0.83,1.2813706015259686e-15,Affinity Propagation
+0.46,0.83,1.0,K-means
+0.46,0.83,0.025462452938691354,Agglomerative Complete Clustering
+0.46,0.83,0.7384323013215836,Agglomerative Average Clustering
+0.46,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.87,7.546421376043327e-05,Spectral Custering
+0.46,0.87,1.2813706015259686e-15,Affinity Propagation
+0.46,0.87,1.0,K-means
+0.46,0.87,0.010072864625001645,Agglomerative Complete Clustering
+0.46,0.87,0.8776994414539947,Agglomerative Average Clustering
+0.46,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.46,0.92,0.0035378503516790825,Spectral Custering
+0.46,0.92,1.2813706015259686e-15,Affinity Propagation
+0.46,0.92,1.0,K-means
+0.46,0.92,0.010072864625001645,Agglomerative Complete Clustering
+0.46,0.92,1.0,Agglomerative Average Clustering
+0.46,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.05,1.0,Spectral Custering
+0.51,0.05,0.7335088059274044,Affinity Propagation
+0.51,0.05,1.0,K-means
+0.51,0.05,0.0,Agglomerative Complete Clustering
+0.51,0.05,0.0005661215746877413,Agglomerative Average Clustering
+0.51,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.09,1.0,Spectral Custering
+0.51,0.09,0.43241511833253277,Affinity Propagation
+0.51,0.09,1.0,K-means
+0.51,0.09,0.015164781183589101,Agglomerative Complete Clustering
+0.51,0.09,0.0009824562201083307,Agglomerative Average Clustering
+0.51,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.14,1.0,Spectral Custering
+0.51,0.14,0.38815362185337665,Affinity Propagation
+0.51,0.14,1.0,K-means
+0.51,0.14,0.02029444800061425,Agglomerative Complete Clustering
+0.51,0.14,0.00014548707415426655,Agglomerative Average Clustering
+0.51,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.18,1.0,Spectral Custering
+0.51,0.18,0.20285676476352313,Affinity Propagation
+0.51,0.18,1.0,K-means
+0.51,0.18,0.0015284029975106007,Agglomerative Complete Clustering
+0.51,0.18,0.000737728726204441,Agglomerative Average Clustering
+0.51,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.23,1.0,Spectral Custering
+0.51,0.23,0.12495701864849577,Affinity Propagation
+0.51,0.23,1.0,K-means
+0.51,0.23,0.010072864625001645,Agglomerative Complete Clustering
+0.51,0.23,0.0001034257587610387,Agglomerative Average Clustering
+0.51,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.28,1.0,Spectral Custering
+0.51,0.28,0.13439761266375988,Affinity Propagation
+0.51,0.28,1.0,K-means
+0.51,0.28,0.025462452938691354,Agglomerative Complete Clustering
+0.51,0.28,8.2207279055437e-05,Agglomerative Average Clustering
+0.51,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.32,0.9595312960977075,Spectral Custering
+0.51,0.32,0.043865857433651345,Affinity Propagation
+0.51,0.32,0.9595312960977075,K-means
+0.51,0.32,0.0050181243858377885,Agglomerative Complete Clustering
+0.51,0.32,0.0018262653696722157,Agglomerative Average Clustering
+0.51,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.37,0.7136030428840429,Spectral Custering
+0.51,0.37,0.07138311150543283,Affinity Propagation
+0.51,0.37,0.7355832909464769,K-means
+0.51,0.37,0.010072864625001645,Agglomerative Complete Clustering
+0.51,0.37,0.0017413582160563609,Agglomerative Average Clustering
+0.51,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.41,0.31745516044269734,Spectral Custering
+0.51,0.41,0.02649558193971059,Affinity Propagation
+0.51,0.41,0.065960494638548,K-means
+0.51,0.41,0.015164781183589101,Agglomerative Complete Clustering
+0.51,0.41,0.00013770832783013698,Agglomerative Average Clustering
+0.51,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.46,0.0035378503516790825,Spectral Custering
+0.51,0.46,0.019659126372712936,Affinity Propagation
+0.51,0.46,0.00463834910187489,K-means
+0.51,0.46,0.015164781183589101,Agglomerative Complete Clustering
+0.51,0.46,0.0001034257587610387,Agglomerative Average Clustering
+0.51,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.51,0.00029147396666718954,Spectral Custering
+0.51,0.51,1.2813706015259686e-15,Affinity Propagation
+0.51,0.51,0.0006509387562924756,K-means
+0.51,0.51,0.015164781183589101,Agglomerative Complete Clustering
+0.51,0.51,0.0003474217255420828,Agglomerative Average Clustering
+0.51,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.55,0.005851417641644759,Spectral Custering
+0.51,0.55,1.2813706015259686e-15,Affinity Propagation
+0.51,0.55,0.0035463975553778446,K-means
+0.51,0.55,0.030669398254337142,Agglomerative Complete Clustering
+0.51,0.55,0.027449365201887364,Agglomerative Average Clustering
+0.51,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.6,0.0018262653696722157,Spectral Custering
+0.51,0.6,1.2813706015259686e-15,Affinity Propagation
+0.51,0.6,0.09027394879355097,K-means
+0.51,0.6,0.0050181243858377885,Agglomerative Complete Clustering
+0.51,0.6,0.15697414023976314,Agglomerative Average Clustering
+0.51,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.64,0.0026078279567122394,Spectral Custering
+0.51,0.64,1.2813706015259686e-15,Affinity Propagation
+0.51,0.64,0.676609846352858,K-means
+0.51,0.64,0.015164781183589101,Agglomerative Complete Clustering
+0.51,0.64,0.1837032305377592,Agglomerative Average Clustering
+0.51,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.69,0.0006493751716557893,Spectral Custering
+0.51,0.69,1.2813706015259686e-15,Affinity Propagation
+0.51,0.69,1.0,K-means
+0.51,0.69,0.025462452938691354,Agglomerative Complete Clustering
+0.51,0.69,0.337889675758098,Agglomerative Average Clustering
+0.51,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.74,0.0025994543450959277,Spectral Custering
+0.51,0.74,1.2813706015259686e-15,Affinity Propagation
+0.51,0.74,1.0,K-means
+0.51,0.74,0.02029444800061425,Agglomerative Complete Clustering
+0.51,0.74,0.40061124272436716,Agglomerative Average Clustering
+0.51,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.78,0.0006509387562924756,Spectral Custering
+0.51,0.78,1.2813706015259686e-15,Affinity Propagation
+0.51,0.78,1.0,K-means
+0.51,0.78,0.030669398254337142,Agglomerative Complete Clustering
+0.51,0.78,0.5310044064107174,Agglomerative Average Clustering
+0.51,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.83,7.220094060313786e-05,Spectral Custering
+0.51,0.83,1.2813706015259686e-15,Affinity Propagation
+0.51,0.83,1.0,K-means
+0.51,0.83,0.015164781183589101,Agglomerative Complete Clustering
+0.51,0.83,0.707507325081915,Agglomerative Average Clustering
+0.51,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.87,0.001154926592534575,Spectral Custering
+0.51,0.87,1.2813706015259686e-15,Affinity Propagation
+0.51,0.87,1.0,K-means
+0.51,0.87,0.0050181243858377885,Agglomerative Complete Clustering
+0.51,0.87,0.8152504894892681,Agglomerative Average Clustering
+0.51,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.51,0.92,0.0035549862954161364,Spectral Custering
+0.51,0.92,1.2813706015259686e-15,Affinity Propagation
+0.51,0.92,1.0,K-means
+0.51,0.92,0.015164781183589101,Agglomerative Complete Clustering
+0.51,0.92,0.9289911704819008,Agglomerative Average Clustering
+0.51,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.05,1.0,Spectral Custering
+0.55,0.05,0.672930396633607,Affinity Propagation
+0.55,0.05,1.0,K-means
+0.55,0.05,0.0005357030820142281,Agglomerative Complete Clustering
+0.55,0.05,0.0,Agglomerative Average Clustering
+0.55,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.09,1.0,Spectral Custering
+0.55,0.09,0.4052317062511358,Affinity Propagation
+0.55,0.09,1.0,K-means
+0.55,0.09,0.0,Agglomerative Complete Clustering
+0.55,0.09,0.00023199260535735808,Agglomerative Average Clustering
+0.55,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.14,1.0,Spectral Custering
+0.55,0.14,0.29017405302394955,Affinity Propagation
+0.55,0.14,1.0,K-means
+0.55,0.14,0.015164781183589101,Agglomerative Complete Clustering
+0.55,0.14,0.0009965979540227726,Agglomerative Average Clustering
+0.55,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.18,1.0,Spectral Custering
+0.55,0.18,1.2813706015259686e-15,Affinity Propagation
+0.55,0.18,1.0,K-means
+0.55,0.18,0.00042046083649393634,Agglomerative Complete Clustering
+0.55,0.18,0.0011931759158202043,Agglomerative Average Clustering
+0.55,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.23,1.0,Spectral Custering
+0.55,0.23,1.2813706015259686e-15,Affinity Propagation
+0.55,0.23,1.0,K-means
+0.55,0.23,0.0005357030820142281,Agglomerative Complete Clustering
+0.55,0.23,0.0018043017641911651,Agglomerative Average Clustering
+0.55,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.28,1.0,Spectral Custering
+0.55,0.28,0.1001575595176774,Affinity Propagation
+0.55,0.28,1.0,K-means
+0.55,0.28,0.0,Agglomerative Complete Clustering
+0.55,0.28,0.00016491804191835045,Agglomerative Average Clustering
+0.55,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.32,1.0,Spectral Custering
+0.55,0.32,0.08143376442648605,Affinity Propagation
+0.55,0.32,1.0,K-means
+0.55,0.32,0.0050181243858377885,Agglomerative Complete Clustering
+0.55,0.32,0.00017724127876987938,Agglomerative Average Clustering
+0.55,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.37,0.8888110248267969,Spectral Custering
+0.55,0.37,1.2813706015259686e-15,Affinity Propagation
+0.55,0.37,0.8621189448890668,K-means
+0.55,0.37,0.010072864625001645,Agglomerative Complete Clustering
+0.55,0.37,0.004461338651235942,Agglomerative Average Clustering
+0.55,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.41,0.7384323013215836,Spectral Custering
+0.55,0.41,1.2813706015259686e-15,Affinity Propagation
+0.55,0.41,0.695242769823291,K-means
+0.55,0.41,0.0050181243858377885,Agglomerative Complete Clustering
+0.55,0.41,0.001166141114477872,Agglomerative Average Clustering
+0.55,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.46,0.24910274259904233,Spectral Custering
+0.55,0.46,1.2813706015259686e-15,Affinity Propagation
+0.55,0.46,0.0142080746223849,K-means
+0.55,0.46,0.0050181243858377885,Agglomerative Complete Clustering
+0.55,0.46,0.0035985638047414353,Agglomerative Average Clustering
+0.55,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.51,0.01873761336040493,Spectral Custering
+0.55,0.51,1.2813706015259686e-15,Affinity Propagation
+0.55,0.51,0.0003094869461697507,K-means
+0.55,0.51,0.025462452938691354,Agglomerative Complete Clustering
+0.55,0.51,0.00011489282868850739,Agglomerative Average Clustering
+0.55,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.55,0.0002885582471880403,Spectral Custering
+0.55,0.55,1.2813706015259686e-15,Affinity Propagation
+0.55,0.55,0.0006546165859949892,K-means
+0.55,0.55,0.02029444800061425,Agglomerative Complete Clustering
+0.55,0.55,0.0038480456780775924,Agglomerative Average Clustering
+0.55,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.6,0.00468945599711994,Spectral Custering
+0.55,0.6,1.2813706015259686e-15,Affinity Propagation
+0.55,0.6,0.01855368878443774,K-means
+0.55,0.6,0.010072864625001645,Agglomerative Complete Clustering
+0.55,0.6,0.035615819493060814,Agglomerative Average Clustering
+0.55,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.64,0.0018057495280912154,Spectral Custering
+0.55,0.64,1.2813706015259686e-15,Affinity Propagation
+0.55,0.64,0.10170307191706515,K-means
+0.55,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.55,0.64,0.005876057579043203,Agglomerative Average Clustering
+0.55,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.69,0.0006509387562924756,Spectral Custering
+0.55,0.69,1.2813706015259686e-15,Affinity Propagation
+0.55,0.69,0.9021547608988224,K-means
+0.55,0.69,0.0050181243858377885,Agglomerative Complete Clustering
+0.55,0.69,0.17991482285099278,Agglomerative Average Clustering
+0.55,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.74,0.000649895530739247,Spectral Custering
+0.55,0.74,1.2813706015259686e-15,Affinity Propagation
+0.55,0.74,1.0,K-means
+0.55,0.74,0.025462452938691354,Agglomerative Complete Clustering
+0.55,0.74,0.33146018255237775,Agglomerative Average Clustering
+0.55,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.78,0.0027070295216757023,Spectral Custering
+0.55,0.78,1.2813706015259686e-15,Affinity Propagation
+0.55,0.78,1.0,K-means
+0.55,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.55,0.78,0.3894559953029115,Agglomerative Average Clustering
+0.55,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.83,0.0011586406974307814,Spectral Custering
+0.55,0.83,1.2813706015259686e-15,Affinity Propagation
+0.55,0.83,1.0,K-means
+0.55,0.83,0.02029444800061425,Agglomerative Complete Clustering
+0.55,0.83,0.5471951587189701,Agglomerative Average Clustering
+0.55,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.87,0.004629007386572486,Spectral Custering
+0.55,0.87,1.2813706015259686e-15,Affinity Propagation
+0.55,0.87,1.0,K-means
+0.55,0.87,0.0050181243858377885,Agglomerative Complete Clustering
+0.55,0.87,0.7255917221956943,Agglomerative Average Clustering
+0.55,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.55,0.92,0.0026025881248917604,Spectral Custering
+0.55,0.92,1.2813706015259686e-15,Affinity Propagation
+0.55,0.92,1.0,K-means
+0.55,0.92,0.015164781183589101,Agglomerative Complete Clustering
+0.55,0.92,0.8888110248267969,Agglomerative Average Clustering
+0.55,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.05,1.0,Spectral Custering
+0.6,0.05,0.6507274050121724,Affinity Propagation
+0.6,0.05,1.0,K-means
+0.6,0.05,0.0005357030820142281,Agglomerative Complete Clustering
+0.6,0.05,0.00043494100660941267,Agglomerative Average Clustering
+0.6,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.09,1.0,Spectral Custering
+0.6,0.09,0.5179881906882415,Affinity Propagation
+0.6,0.09,1.0,K-means
+0.6,0.09,0.0005357030820142281,Agglomerative Complete Clustering
+0.6,0.09,0.0,Agglomerative Average Clustering
+0.6,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.14,1.0,Spectral Custering
+0.6,0.14,0.36009351978366605,Affinity Propagation
+0.6,0.14,1.0,K-means
+0.6,0.14,0.00042046083649393634,Agglomerative Complete Clustering
+0.6,0.14,0.00029700307326363924,Agglomerative Average Clustering
+0.6,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.18,1.0,Spectral Custering
+0.6,0.18,0.2819662505134847,Affinity Propagation
+0.6,0.18,1.0,K-means
+0.6,0.18,0.0,Agglomerative Complete Clustering
+0.6,0.18,0.0005661215746877413,Agglomerative Average Clustering
+0.6,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.23,1.0,Spectral Custering
+0.6,0.23,0.25246029839642814,Affinity Propagation
+0.6,0.23,1.0,K-means
+0.6,0.23,0.010072864625001645,Agglomerative Complete Clustering
+0.6,0.23,0.000290417542450661,Agglomerative Average Clustering
+0.6,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.28,1.0,Spectral Custering
+0.6,0.28,0.17739903930477263,Affinity Propagation
+0.6,0.28,1.0,K-means
+0.6,0.28,0.015164781183589101,Agglomerative Complete Clustering
+0.6,0.28,0.0011563165850880098,Agglomerative Average Clustering
+0.6,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.32,1.0,Spectral Custering
+0.6,0.32,0.17508984415326143,Affinity Propagation
+0.6,0.32,1.0,K-means
+0.6,0.32,0.0,Agglomerative Complete Clustering
+0.6,0.32,0.0006509387562924756,Agglomerative Average Clustering
+0.6,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.37,0.9595312960977075,Spectral Custering
+0.6,0.37,1.2813706015259686e-15,Affinity Propagation
+0.6,0.37,0.9595312960977075,K-means
+0.6,0.37,0.010072864625001645,Agglomerative Complete Clustering
+0.6,0.37,0.007253177874817455,Agglomerative Average Clustering
+0.6,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.41,0.8621189448890668,Spectral Custering
+0.6,0.41,1.2813706015259686e-15,Affinity Propagation
+0.6,0.41,0.9021547608988224,K-means
+0.6,0.41,0.015164781183589101,Agglomerative Complete Clustering
+0.6,0.41,0.0009965979540227726,Agglomerative Average Clustering
+0.6,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.46,0.8056081421684229,Spectral Custering
+0.6,0.46,1.2813706015259686e-15,Affinity Propagation
+0.6,0.46,0.6930069259104462,K-means
+0.6,0.46,0.0018977816086475545,Agglomerative Complete Clustering
+0.6,0.46,0.0012846151463867432,Agglomerative Average Clustering
+0.6,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.51,0.21827681632848994,Spectral Custering
+0.6,0.51,1.2813706015259686e-15,Affinity Propagation
+0.6,0.51,0.07110394761300261,K-means
+0.6,0.51,0.0050181243858377885,Agglomerative Complete Clustering
+0.6,0.51,0.0005661215746877413,Agglomerative Average Clustering
+0.6,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.55,0.016293397939374864,Spectral Custering
+0.6,0.55,1.2813706015259686e-15,Affinity Propagation
+0.6,0.55,0.0002943290510649666,K-means
+0.6,0.55,0.004958976710121675,Agglomerative Complete Clustering
+0.6,0.55,0.005876057579043203,Agglomerative Average Clustering
+0.6,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.6,0.0006546165859949892,Spectral Custering
+0.6,0.6,1.2813706015259686e-15,Affinity Propagation
+0.6,0.6,0.0058561349197118005,K-means
+0.6,0.6,0.007118269007505976,Agglomerative Complete Clustering
+0.6,0.6,8.850149145681615e-05,Agglomerative Average Clustering
+0.6,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.64,0.0002943290510649666,Spectral Custering
+0.6,0.64,1.2813706015259686e-15,Affinity Propagation
+0.6,0.64,0.005851417641644759,K-means
+0.6,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.6,0.64,0.008746876440730049,Agglomerative Average Clustering
+0.6,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.69,3.2034265038149216e-16,Spectral Custering
+0.6,0.69,1.2813706015259686e-15,Affinity Propagation
+0.6,0.69,0.09611059472451497,K-means
+0.6,0.69,0.0050181243858377885,Agglomerative Complete Clustering
+0.6,0.69,0.11391687029601583,Agglomerative Average Clustering
+0.6,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.74,0.0,Spectral Custering
+0.6,0.74,1.2813706015259686e-15,Affinity Propagation
+0.6,0.74,0.8888110248267969,K-means
+0.6,0.74,0.025462452938691354,Agglomerative Complete Clustering
+0.6,0.74,0.234676212518194,Agglomerative Average Clustering
+0.6,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.78,0.002615199354359394,Spectral Custering
+0.6,0.78,1.2813706015259686e-15,Affinity Propagation
+0.6,0.78,0.9595312960977075,K-means
+0.6,0.78,0.015164781183589101,Agglomerative Complete Clustering
+0.6,0.78,0.2682224466363437,Agglomerative Average Clustering
+0.6,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.83,7.220094060313786e-05,Spectral Custering
+0.6,0.83,1.2813706015259686e-15,Affinity Propagation
+0.6,0.83,1.0,K-means
+0.6,0.83,0.015164781183589101,Agglomerative Complete Clustering
+0.6,0.83,0.5005332123144874,Agglomerative Average Clustering
+0.6,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.87,0.0006604808052145911,Spectral Custering
+0.6,0.87,1.2813706015259686e-15,Affinity Propagation
+0.6,0.87,1.0,K-means
+0.6,0.87,0.0050181243858377885,Agglomerative Complete Clustering
+0.6,0.87,0.6095519116353355,Agglomerative Average Clustering
+0.6,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.6,0.92,0.001166141114477872,Spectral Custering
+0.6,0.92,1.2813706015259686e-15,Affinity Propagation
+0.6,0.92,1.0,K-means
+0.6,0.92,0.025462452938691354,Agglomerative Complete Clustering
+0.6,0.92,0.8888110248267969,Agglomerative Average Clustering
+0.6,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.05,1.0,Spectral Custering
+0.64,0.05,0.6651872373961032,Affinity Propagation
+0.64,0.05,1.0,K-means
+0.64,0.05,0.0,Agglomerative Complete Clustering
+0.64,0.05,0.0004204812230598034,Agglomerative Average Clustering
+0.64,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.09,1.0,Spectral Custering
+0.64,0.09,0.46355736439500744,Affinity Propagation
+0.64,0.09,1.0,K-means
+0.64,0.09,0.0005357030820142281,Agglomerative Complete Clustering
+0.64,0.09,9.045491046192325e-05,Agglomerative Average Clustering
+0.64,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.14,1.0,Spectral Custering
+0.64,0.14,0.4829167287957078,Affinity Propagation
+0.64,0.14,1.0,K-means
+0.64,0.14,0.0025254920194574004,Agglomerative Complete Clustering
+0.64,0.14,0.00010031850507095274,Agglomerative Average Clustering
+0.64,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.18,1.0,Spectral Custering
+0.64,0.18,0.31512755495458866,Affinity Propagation
+0.64,0.18,1.0,K-means
+0.64,0.18,0.00042046083649393634,Agglomerative Complete Clustering
+0.64,0.18,0.00039556538168573284,Agglomerative Average Clustering
+0.64,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.23,1.0,Spectral Custering
+0.64,0.23,0.2612507687614015,Affinity Propagation
+0.64,0.23,1.0,K-means
+0.64,0.23,0.0025254920194574004,Agglomerative Complete Clustering
+0.64,0.23,0.0011115962218470506,Agglomerative Average Clustering
+0.64,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.28,1.0,Spectral Custering
+0.64,0.28,0.1488300342998088,Affinity Propagation
+0.64,0.28,1.0,K-means
+0.64,0.28,0.0005357030820142281,Agglomerative Complete Clustering
+0.64,0.28,7.220094060313786e-05,Agglomerative Average Clustering
+0.64,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.32,1.0,Spectral Custering
+0.64,0.32,0.14157660717603843,Affinity Propagation
+0.64,0.32,1.0,K-means
+0.64,0.32,0.0050181243858377885,Agglomerative Complete Clustering
+0.64,0.32,0.0004509949797762907,Agglomerative Average Clustering
+0.64,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.37,1.0,Spectral Custering
+0.64,0.37,1.2813706015259686e-15,Affinity Propagation
+0.64,0.37,1.0,K-means
+0.64,0.37,0.015164781183589101,Agglomerative Complete Clustering
+0.64,0.37,0.00017724127876987938,Agglomerative Average Clustering
+0.64,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.41,1.0,Spectral Custering
+0.64,0.41,1.2813706015259686e-15,Affinity Propagation
+0.64,0.41,1.0,K-means
+0.64,0.41,0.004958976710121675,Agglomerative Complete Clustering
+0.64,0.41,0.00391544587714796,Agglomerative Average Clustering
+0.64,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.46,0.9595312960977075,Spectral Custering
+0.64,0.46,1.2813706015259686e-15,Affinity Propagation
+0.64,0.46,1.0,K-means
+0.64,0.46,0.015164781183589101,Agglomerative Complete Clustering
+0.64,0.46,0.00635082666077427,Agglomerative Average Clustering
+0.64,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.51,0.5978208097977263,Spectral Custering
+0.64,0.51,1.2813706015259686e-15,Affinity Propagation
+0.64,0.51,0.6173933217053199,K-means
+0.64,0.51,0.007118269007505976,Agglomerative Complete Clustering
+0.64,0.51,1.0411136137398495e-15,Agglomerative Average Clustering
+0.64,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.55,0.17544635483324275,Spectral Custering
+0.64,0.55,1.2813706015259686e-15,Affinity Propagation
+0.64,0.55,0.018823158596708214,K-means
+0.64,0.55,0.015164781183589101,Agglomerative Complete Clustering
+0.64,0.55,0.003455022628179013,Agglomerative Average Clustering
+0.64,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.6,0.00028867375520850357,Spectral Custering
+0.64,0.6,1.2813706015259686e-15,Affinity Propagation
+0.64,0.6,0.00029147396666718954,K-means
+0.64,0.6,0.007118269007505976,Agglomerative Complete Clustering
+0.64,0.6,0.0035406948231041903,Agglomerative Average Clustering
+0.64,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.64,0.000649895530739247,Spectral Custering
+0.64,0.64,1.2813706015259686e-15,Affinity Propagation
+0.64,0.64,0.0035463975553778446,K-means
+0.64,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.64,0.64,0.0006736476688545861,Agglomerative Average Clustering
+0.64,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.69,0.0025994543450959277,Spectral Custering
+0.64,0.69,1.2813706015259686e-15,Affinity Propagation
+0.64,0.69,0.04879494069539778,K-means
+0.64,0.69,0.007118269007505976,Agglomerative Complete Clustering
+0.64,0.69,0.00845867750380155,Agglomerative Average Clustering
+0.64,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.74,0.00028867375520850357,Spectral Custering
+0.64,0.74,1.2813706015259686e-15,Affinity Propagation
+0.64,0.74,0.48096023916558717,K-means
+0.64,0.74,0.02029444800061425,Agglomerative Complete Clustering
+0.64,0.74,0.19172835098289218,Agglomerative Average Clustering
+0.64,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.78,0.0,Spectral Custering
+0.64,0.78,1.2813706015259686e-15,Affinity Propagation
+0.64,0.78,0.8585594574581791,K-means
+0.64,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.64,0.78,0.22210755057956588,Agglomerative Average Clustering
+0.64,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.83,0.0011586406974307814,Spectral Custering
+0.64,0.83,1.2813706015259686e-15,Affinity Propagation
+0.64,0.83,1.0,K-means
+0.64,0.83,0.010072864625001645,Agglomerative Complete Clustering
+0.64,0.83,0.31992295427171885,Agglomerative Average Clustering
+0.64,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.87,0.0,Spectral Custering
+0.64,0.87,1.2813706015259686e-15,Affinity Propagation
+0.64,0.87,1.0,K-means
+0.64,0.87,0.0050181243858377885,Agglomerative Complete Clustering
+0.64,0.87,0.40466305702701955,Agglomerative Average Clustering
+0.64,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.64,0.92,0.0011848371952913339,Spectral Custering
+0.64,0.92,1.2813706015259686e-15,Affinity Propagation
+0.64,0.92,1.0,K-means
+0.64,0.92,0.015164781183589101,Agglomerative Complete Clustering
+0.64,0.92,0.7075073250819152,Agglomerative Average Clustering
+0.64,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.05,1.0,Spectral Custering
+0.69,0.05,0.6350671387563409,Affinity Propagation
+0.69,0.05,1.0,K-means
+0.69,0.05,0.0,Agglomerative Complete Clustering
+0.69,0.05,0.00017724127876987938,Agglomerative Average Clustering
+0.69,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.09,1.0,Spectral Custering
+0.69,0.09,0.5194482434828911,Affinity Propagation
+0.69,0.09,1.0,K-means
+0.69,0.09,0.0005357030820142281,Agglomerative Complete Clustering
+0.69,0.09,0.0002982240136623988,Agglomerative Average Clustering
+0.69,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.14,1.0,Spectral Custering
+0.69,0.14,0.4390598038279347,Affinity Propagation
+0.69,0.14,1.0,K-means
+0.69,0.14,0.0025254920194574004,Agglomerative Complete Clustering
+0.69,0.14,0.00019196385453967526,Agglomerative Average Clustering
+0.69,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.18,1.0,Spectral Custering
+0.69,0.18,0.3748505202300265,Affinity Propagation
+0.69,0.18,1.0,K-means
+0.69,0.18,0.0050181243858377885,Agglomerative Complete Clustering
+0.69,0.18,0.0006837936911062584,Agglomerative Average Clustering
+0.69,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.23,1.0,Spectral Custering
+0.69,0.23,1.2813706015259686e-15,Affinity Propagation
+0.69,0.23,1.0,K-means
+0.69,0.23,0.010072864625001645,Agglomerative Complete Clustering
+0.69,0.23,0.00028867375520850357,Agglomerative Average Clustering
+0.69,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.28,1.0,Spectral Custering
+0.69,0.28,0.2940360906163998,Affinity Propagation
+0.69,0.28,1.0,K-means
+0.69,0.28,0.0050181243858377885,Agglomerative Complete Clustering
+0.69,0.28,0.0,Agglomerative Average Clustering
+0.69,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.32,1.0,Spectral Custering
+0.69,0.32,1.2813706015259686e-15,Affinity Propagation
+0.69,0.32,1.0,K-means
+0.69,0.32,0.0007447313099708783,Agglomerative Complete Clustering
+0.69,0.32,0.0017323985557106695,Agglomerative Average Clustering
+0.69,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.37,1.0,Spectral Custering
+0.69,0.37,1.2813706015259686e-15,Affinity Propagation
+0.69,0.37,1.0,K-means
+0.69,0.37,0.015164781183589101,Agglomerative Complete Clustering
+0.69,0.37,7.27250768754568e-05,Agglomerative Average Clustering
+0.69,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.41,1.0,Spectral Custering
+0.69,0.41,1.2813706015259686e-15,Affinity Propagation
+0.69,0.41,1.0,K-means
+0.69,0.41,0.0005357030820142281,Agglomerative Complete Clustering
+0.69,0.41,0.00014548707415426655,Agglomerative Average Clustering
+0.69,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.46,1.0,Spectral Custering
+0.69,0.46,1.2813706015259686e-15,Affinity Propagation
+0.69,0.46,1.0,K-means
+0.69,0.46,0.0025254920194574004,Agglomerative Complete Clustering
+0.69,0.46,0.00623920275005668,Agglomerative Average Clustering
+0.69,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.51,0.9192068641040878,Spectral Custering
+0.69,0.51,1.2813706015259686e-15,Affinity Propagation
+0.69,0.51,0.8585594574581791,K-means
+0.69,0.51,0.0,Agglomerative Complete Clustering
+0.69,0.51,0.00011066196763574772,Agglomerative Average Clustering
+0.69,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.55,0.7593170342790442,Spectral Custering
+0.69,0.55,1.2813706015259686e-15,Affinity Propagation
+0.69,0.55,0.6999103550258867,K-means
+0.69,0.55,0.015164781183589101,Agglomerative Complete Clustering
+0.69,0.55,0.0006509387562924756,Agglomerative Average Clustering
+0.69,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.6,0.3273869488861127,Spectral Custering
+0.69,0.6,1.2813706015259686e-15,Affinity Propagation
+0.69,0.6,0.008746876440730049,K-means
+0.69,0.6,0.015164781183589101,Agglomerative Complete Clustering
+0.69,0.6,0.007118269007505976,Agglomerative Average Clustering
+0.69,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.64,0.0011619102115958502,Spectral Custering
+0.69,0.64,1.2813706015259686e-15,Affinity Propagation
+0.69,0.64,0.0058561349197118005,K-means
+0.69,0.64,0.02029444800061425,Agglomerative Complete Clustering
+0.69,0.64,0.005300290093489498,Agglomerative Average Clustering
+0.69,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.69,0.0018043017641911651,Spectral Custering
+0.69,0.69,1.2813706015259686e-15,Affinity Propagation
+0.69,0.69,0.0012863814830363835,K-means
+0.69,0.69,0.015164781183589101,Agglomerative Complete Clustering
+0.69,0.69,0.018621763074265177,Agglomerative Average Clustering
+0.69,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.74,0.0018457384019465802,Spectral Custering
+0.69,0.74,1.2813706015259686e-15,Affinity Propagation
+0.69,0.74,0.01419073362495505,K-means
+0.69,0.74,0.02029444800061425,Agglomerative Complete Clustering
+0.69,0.74,0.010279759564373464,Agglomerative Average Clustering
+0.69,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.78,0.0,Spectral Custering
+0.69,0.78,1.2813706015259686e-15,Affinity Propagation
+0.69,0.78,0.34801026986314326,K-means
+0.69,0.78,0.015164781183589101,Agglomerative Complete Clustering
+0.69,0.78,0.10142590338659324,Agglomerative Average Clustering
+0.69,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.83,0.0035463975553778446,Spectral Custering
+0.69,0.83,1.2813706015259686e-15,Affinity Propagation
+0.69,0.83,0.8888110248267969,K-means
+0.69,0.83,0.0050181243858377885,Agglomerative Complete Clustering
+0.69,0.83,0.010796811325641158,Agglomerative Average Clustering
+0.69,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.87,0.0,Spectral Custering
+0.69,0.87,1.2813706015259686e-15,Affinity Propagation
+0.69,0.87,1.0,K-means
+0.69,0.87,0.010072864625001645,Agglomerative Complete Clustering
+0.69,0.87,0.48613380050597466,Agglomerative Average Clustering
+0.69,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.69,0.92,0.00933575547325773,Spectral Custering
+0.69,0.92,1.2813706015259686e-15,Affinity Propagation
+0.69,0.92,1.0,K-means
+0.69,0.92,0.015164781183589101,Agglomerative Complete Clustering
+0.69,0.92,0.6735511377447208,Agglomerative Average Clustering
+0.69,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.05,1.0,Spectral Custering
+0.74,0.05,0.7628898480319406,Affinity Propagation
+0.74,0.05,1.0,K-means
+0.74,0.05,0.0050181243858377885,Agglomerative Complete Clustering
+0.74,0.05,0.0,Agglomerative Average Clustering
+0.74,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.09,1.0,Spectral Custering
+0.74,0.09,0.6301098022144885,Affinity Propagation
+0.74,0.09,1.0,K-means
+0.74,0.09,0.0005357030820142281,Agglomerative Complete Clustering
+0.74,0.09,0.00010685818722620599,Agglomerative Average Clustering
+0.74,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.14,1.0,Spectral Custering
+0.74,0.14,0.4823517702382036,Affinity Propagation
+0.74,0.14,1.0,K-means
+0.74,0.14,0.0038480456780775924,Agglomerative Complete Clustering
+0.74,0.14,0.00010685818722620599,Agglomerative Average Clustering
+0.74,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.18,1.0,Spectral Custering
+0.74,0.18,0.2826149067745325,Affinity Propagation
+0.74,0.18,1.0,K-means
+0.74,0.18,0.0007447313099708783,Agglomerative Complete Clustering
+0.74,0.18,7.220094060313786e-05,Agglomerative Average Clustering
+0.74,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.23,1.0,Spectral Custering
+0.74,0.23,0.33566392716840693,Affinity Propagation
+0.74,0.23,1.0,K-means
+0.74,0.23,0.010072864625001645,Agglomerative Complete Clustering
+0.74,0.23,0.0,Agglomerative Average Clustering
+0.74,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.28,1.0,Spectral Custering
+0.74,0.28,1.2813706015259686e-15,Affinity Propagation
+0.74,0.28,1.0,K-means
+0.74,0.28,0.015164781183589101,Agglomerative Complete Clustering
+0.74,0.28,0.0003503914439931955,Agglomerative Average Clustering
+0.74,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.32,1.0,Spectral Custering
+0.74,0.32,1.2813706015259686e-15,Affinity Propagation
+0.74,0.32,1.0,K-means
+0.74,0.32,0.0,Agglomerative Complete Clustering
+0.74,0.32,0.0008824251683251971,Agglomerative Average Clustering
+0.74,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.37,1.0,Spectral Custering
+0.74,0.37,1.2813706015259686e-15,Affinity Propagation
+0.74,0.37,1.0,K-means
+0.74,0.37,0.010072864625001645,Agglomerative Complete Clustering
+0.74,0.37,0.000130909172353114,Agglomerative Average Clustering
+0.74,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.41,1.0,Spectral Custering
+0.74,0.41,1.2813706015259686e-15,Affinity Propagation
+0.74,0.41,1.0,K-means
+0.74,0.41,0.0,Agglomerative Complete Clustering
+0.74,0.41,0.0,Agglomerative Average Clustering
+0.74,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.46,1.0,Spectral Custering
+0.74,0.46,1.2813706015259686e-15,Affinity Propagation
+0.74,0.46,1.0,K-means
+0.74,0.46,0.015164781183589101,Agglomerative Complete Clustering
+0.74,0.46,0.00013770832783013698,Agglomerative Average Clustering
+0.74,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.51,1.0,Spectral Custering
+0.74,0.51,1.2813706015259686e-15,Affinity Propagation
+0.74,0.51,1.0,K-means
+0.74,0.51,0.0007447313099708783,Agglomerative Complete Clustering
+0.74,0.51,1.6017132519074608e-16,Agglomerative Average Clustering
+0.74,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.55,0.9595312960977075,Spectral Custering
+0.74,0.55,1.2813706015259686e-15,Affinity Propagation
+0.74,0.55,0.9595312960977075,K-means
+0.74,0.55,0.0007447313099708783,Agglomerative Complete Clustering
+0.74,0.55,0.0018043017641911651,Agglomerative Average Clustering
+0.74,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.6,0.7644028051470536,Spectral Custering
+0.74,0.6,1.2813706015259686e-15,Affinity Propagation
+0.74,0.6,0.7384323013215836,K-means
+0.74,0.6,0.0050181243858377885,Agglomerative Complete Clustering
+0.74,0.6,0.000130909172353114,Agglomerative Average Clustering
+0.74,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.64,0.45877792988997024,Spectral Custering
+0.74,0.64,1.2813706015259686e-15,Affinity Propagation
+0.74,0.64,0.09719332386259692,K-means
+0.74,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.74,0.64,0.0007447313099708783,Agglomerative Average Clustering
+0.74,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.69,0.0,Spectral Custering
+0.74,0.69,1.2813706015259686e-15,Affinity Propagation
+0.74,0.69,0.0,K-means
+0.74,0.69,0.007118269007505976,Agglomerative Complete Clustering
+0.74,0.69,0.0009032962600513302,Agglomerative Average Clustering
+0.74,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.74,0.0018057495280912154,Spectral Custering
+0.74,0.74,1.2813706015259686e-15,Affinity Propagation
+0.74,0.74,0.0,K-means
+0.74,0.74,0.007118269007505976,Agglomerative Complete Clustering
+0.74,0.74,8.850149145681615e-05,Agglomerative Average Clustering
+0.74,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.78,0.001808652048906424,Spectral Custering
+0.74,0.78,1.2813706015259686e-15,Affinity Propagation
+0.74,0.78,0.003863879487773505,K-means
+0.74,0.78,0.015164781183589101,Agglomerative Complete Clustering
+0.74,0.78,0.0003062016302223494,Agglomerative Average Clustering
+0.74,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.83,0.0002890208349260839,Spectral Custering
+0.74,0.83,1.2813706015259686e-15,Affinity Propagation
+0.74,0.83,0.2882280866600319,K-means
+0.74,0.83,0.010072864625001645,Agglomerative Complete Clustering
+0.74,0.83,0.06532653626059041,Agglomerative Average Clustering
+0.74,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.87,0.0011619102115958502,Spectral Custering
+0.74,0.87,1.2813706015259686e-15,Affinity Propagation
+0.74,0.87,0.8585594574581791,K-means
+0.74,0.87,0.015164781183589101,Agglomerative Complete Clustering
+0.74,0.87,0.24105001545628965,Agglomerative Average Clustering
+0.74,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.74,0.92,0.0002982240136623988,Spectral Custering
+0.74,0.92,1.2813706015259686e-15,Affinity Propagation
+0.74,0.92,1.0,K-means
+0.74,0.92,0.02029444800061425,Agglomerative Complete Clustering
+0.74,0.92,0.5213812736133372,Agglomerative Average Clustering
+0.74,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.05,1.0,Spectral Custering
+0.78,0.05,0.6751006051108984,Affinity Propagation
+0.78,0.05,1.0,K-means
+0.78,0.05,0.0007447313099708783,Agglomerative Complete Clustering
+0.78,0.05,0.00040741237329224207,Agglomerative Average Clustering
+0.78,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.09,1.0,Spectral Custering
+0.78,0.09,0.5934455168496445,Affinity Propagation
+0.78,0.09,1.0,K-means
+0.78,0.09,0.0007447313099708783,Agglomerative Complete Clustering
+0.78,0.09,0.0004889264142214646,Agglomerative Average Clustering
+0.78,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.14,1.0,Spectral Custering
+0.78,0.14,0.46709397265770125,Affinity Propagation
+0.78,0.14,1.0,K-means
+0.78,0.14,0.0050181243858377885,Agglomerative Complete Clustering
+0.78,0.14,0.00011066196763574772,Agglomerative Average Clustering
+0.78,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.18,1.0,Spectral Custering
+0.78,0.18,0.359170395751628,Affinity Propagation
+0.78,0.18,1.0,K-means
+0.78,0.18,0.0007447313099708783,Agglomerative Complete Clustering
+0.78,0.18,0.0,Agglomerative Average Clustering
+0.78,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.23,1.0,Spectral Custering
+0.78,0.23,1.2813706015259686e-15,Affinity Propagation
+0.78,0.23,1.0,K-means
+0.78,0.23,0.010072864625001645,Agglomerative Complete Clustering
+0.78,0.23,0.00010685818722620599,Agglomerative Average Clustering
+0.78,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.28,1.0,Spectral Custering
+0.78,0.28,1.2813706015259686e-15,Affinity Propagation
+0.78,0.28,1.0,K-means
+0.78,0.28,0.010072864625001645,Agglomerative Complete Clustering
+0.78,0.28,0.00040741237329224207,Agglomerative Average Clustering
+0.78,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.32,1.0,Spectral Custering
+0.78,0.32,1.2813706015259686e-15,Affinity Propagation
+0.78,0.32,1.0,K-means
+0.78,0.32,0.0050181243858377885,Agglomerative Complete Clustering
+0.78,0.32,0.0015008275202908342,Agglomerative Average Clustering
+0.78,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.37,1.0,Spectral Custering
+0.78,0.37,1.2813706015259686e-15,Affinity Propagation
+0.78,0.37,1.0,K-means
+0.78,0.37,0.0050181243858377885,Agglomerative Complete Clustering
+0.78,0.37,0.000737728726204441,Agglomerative Average Clustering
+0.78,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.41,1.0,Spectral Custering
+0.78,0.41,1.2813706015259686e-15,Affinity Propagation
+0.78,0.41,1.0,K-means
+0.78,0.41,0.015164781183589101,Agglomerative Complete Clustering
+0.78,0.41,0.0006736476688545861,Agglomerative Average Clustering
+0.78,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.46,1.0,Spectral Custering
+0.78,0.46,1.2813706015259686e-15,Affinity Propagation
+0.78,0.46,1.0,K-means
+0.78,0.46,0.0,Agglomerative Complete Clustering
+0.78,0.46,0.0008336283511166641,Agglomerative Average Clustering
+0.78,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.51,1.0,Spectral Custering
+0.78,0.51,1.2813706015259686e-15,Affinity Propagation
+0.78,0.51,1.0,K-means
+0.78,0.51,0.010072864625001645,Agglomerative Complete Clustering
+0.78,0.51,0.0,Agglomerative Average Clustering
+0.78,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.55,1.0,Spectral Custering
+0.78,0.55,1.2813706015259686e-15,Affinity Propagation
+0.78,0.55,1.0,K-means
+0.78,0.55,0.015164781183589101,Agglomerative Complete Clustering
+0.78,0.55,0.0002982240136623988,Agglomerative Average Clustering
+0.78,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.6,0.9595312960977075,Spectral Custering
+0.78,0.6,1.2813706015259686e-15,Affinity Propagation
+0.78,0.6,0.9595312960977075,K-means
+0.78,0.6,0.0050181243858377885,Agglomerative Complete Clustering
+0.78,0.6,0.0004688895760755063,Agglomerative Average Clustering
+0.78,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.64,0.8776994414539947,Spectral Custering
+0.78,0.64,1.2813706015259686e-15,Affinity Propagation
+0.78,0.64,0.781585840588667,K-means
+0.78,0.64,0.02029444800061425,Agglomerative Complete Clustering
+0.78,0.64,0.000290417542450661,Agglomerative Average Clustering
+0.78,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.69,0.23996442001390414,Spectral Custering
+0.78,0.69,1.2813706015259686e-15,Affinity Propagation
+0.78,0.69,0.0002961420652816639,K-means
+0.78,0.69,0.010072864625001645,Agglomerative Complete Clustering
+0.78,0.69,0.0038169660659936244,Agglomerative Average Clustering
+0.78,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.74,0.002598411432258792,Spectral Custering
+0.78,0.74,1.2813706015259686e-15,Affinity Propagation
+0.78,0.74,8.507747093193368e-05,K-means
+0.78,0.74,0.02029444800061425,Agglomerative Complete Clustering
+0.78,0.74,0.0027577601596415293,Agglomerative Average Clustering
+0.78,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.78,0.0035549862954161364,Spectral Custering
+0.78,0.78,1.2813706015259686e-15,Affinity Propagation
+0.78,0.78,0.005986457226165619,K-means
+0.78,0.78,0.0050181243858377885,Agglomerative Complete Clustering
+0.78,0.78,0.0038802036743420206,Agglomerative Average Clustering
+0.78,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.83,0.008746876440730049,Spectral Custering
+0.78,0.83,1.2813706015259686e-15,Affinity Propagation
+0.78,0.83,0.0011713542951155773,K-means
+0.78,0.83,0.02029444800061425,Agglomerative Complete Clustering
+0.78,0.83,0.0011115962218470506,Agglomerative Average Clustering
+0.78,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.87,0.00463834910187489,Spectral Custering
+0.78,0.87,1.2813706015259686e-15,Affinity Propagation
+0.78,0.87,0.49188082867899335,K-means
+0.78,0.87,0.010072864625001645,Agglomerative Complete Clustering
+0.78,0.87,0.05293431206692092,Agglomerative Average Clustering
+0.78,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.78,0.92,0.0,Spectral Custering
+0.78,0.92,1.2813706015259686e-15,Affinity Propagation
+0.78,0.92,1.0,K-means
+0.78,0.92,0.007118269007505976,Agglomerative Complete Clustering
+0.78,0.92,0.5335222361759174,Agglomerative Average Clustering
+0.78,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.05,1.0,Spectral Custering
+0.83,0.05,0.7333006313138342,Affinity Propagation
+0.83,0.05,1.0,K-means
+0.83,0.05,0.0007447313099708783,Agglomerative Complete Clustering
+0.83,0.05,0.0,Agglomerative Average Clustering
+0.83,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.09,1.0,Spectral Custering
+0.83,0.09,0.6415566997485763,Affinity Propagation
+0.83,0.09,1.0,K-means
+0.83,0.09,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.09,8.850149145681615e-05,Agglomerative Average Clustering
+0.83,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.14,1.0,Spectral Custering
+0.83,0.14,0.535886108767108,Affinity Propagation
+0.83,0.14,1.0,K-means
+0.83,0.14,0.0038480456780775924,Agglomerative Complete Clustering
+0.83,0.14,0.0002890208349260839,Agglomerative Average Clustering
+0.83,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.18,1.0,Spectral Custering
+0.83,0.18,1.2813706015259686e-15,Affinity Propagation
+0.83,0.18,1.0,K-means
+0.83,0.18,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.18,0.0006383465628777902,Agglomerative Average Clustering
+0.83,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.23,1.0,Spectral Custering
+0.83,0.23,1.2813706015259686e-15,Affinity Propagation
+0.83,0.23,1.0,K-means
+0.83,0.23,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.23,0.00019196385453967526,Agglomerative Average Clustering
+0.83,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.28,1.0,Spectral Custering
+0.83,0.28,1.2813706015259686e-15,Affinity Propagation
+0.83,0.28,1.0,K-means
+0.83,0.28,0.0050181243858377885,Agglomerative Complete Clustering
+0.83,0.28,0.0029977241491207112,Agglomerative Average Clustering
+0.83,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.32,1.0,Spectral Custering
+0.83,0.32,1.2813706015259686e-15,Affinity Propagation
+0.83,0.32,1.0,K-means
+0.83,0.32,0.0050181243858377885,Agglomerative Complete Clustering
+0.83,0.32,0.0009824562201083307,Agglomerative Average Clustering
+0.83,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.37,1.0,Spectral Custering
+0.83,0.37,1.2813706015259686e-15,Affinity Propagation
+0.83,0.37,1.0,K-means
+0.83,0.37,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.37,0.0006736476688545861,Agglomerative Average Clustering
+0.83,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.41,1.0,Spectral Custering
+0.83,0.41,1.2813706015259686e-15,Affinity Propagation
+0.83,0.41,1.0,K-means
+0.83,0.41,0.015164781183589101,Agglomerative Complete Clustering
+0.83,0.41,8.2207279055437e-05,Agglomerative Average Clustering
+0.83,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.46,1.0,Spectral Custering
+0.83,0.46,1.2813706015259686e-15,Affinity Propagation
+0.83,0.46,1.0,K-means
+0.83,0.46,0.0050181243858377885,Agglomerative Complete Clustering
+0.83,0.46,0.0018058205422391822,Agglomerative Average Clustering
+0.83,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.51,1.0,Spectral Custering
+0.83,0.51,1.2813706015259686e-15,Affinity Propagation
+0.83,0.51,1.0,K-means
+0.83,0.51,0.015164781183589101,Agglomerative Complete Clustering
+0.83,0.51,0.0010774346192498178,Agglomerative Average Clustering
+0.83,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.55,1.0,Spectral Custering
+0.83,0.55,1.2813706015259686e-15,Affinity Propagation
+0.83,0.55,1.0,K-means
+0.83,0.55,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.55,0.005876057579043203,Agglomerative Average Clustering
+0.83,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.6,1.0,Spectral Custering
+0.83,0.6,1.2813706015259686e-15,Affinity Propagation
+0.83,0.6,1.0,K-means
+0.83,0.6,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.6,0.0,Agglomerative Average Clustering
+0.83,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.64,0.9595312960977075,Spectral Custering
+0.83,0.64,1.2813706015259686e-15,Affinity Propagation
+0.83,0.64,0.9595312960977075,K-means
+0.83,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.64,0.004958976710121675,Agglomerative Average Clustering
+0.83,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.69,0.8378080273254468,Spectral Custering
+0.83,0.69,1.2813706015259686e-15,Affinity Propagation
+0.83,0.69,0.8320116638589645,K-means
+0.83,0.69,0.0050181243858377885,Agglomerative Complete Clustering
+0.83,0.69,0.0,Agglomerative Average Clustering
+0.83,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.74,0.3666876073096332,Spectral Custering
+0.83,0.74,1.2813706015259686e-15,Affinity Propagation
+0.83,0.74,0.17072209561555557,K-means
+0.83,0.74,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.74,0.0,Agglomerative Average Clustering
+0.83,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.78,0.0330419676229288,Spectral Custering
+0.83,0.78,1.2813706015259686e-15,Affinity Propagation
+0.83,0.78,0.0003094869461697507,K-means
+0.83,0.78,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.78,0.019722391454015404,Agglomerative Average Clustering
+0.83,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.83,0.007228461731668974,Spectral Custering
+0.83,0.83,1.2813706015259686e-15,Affinity Propagation
+0.83,0.83,0.0019964109734461155,K-means
+0.83,0.83,0.015164781183589101,Agglomerative Complete Clustering
+0.83,0.83,0.003131635254676491,Agglomerative Average Clustering
+0.83,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.87,0.0011619102115958502,Spectral Custering
+0.83,0.87,1.2813706015259686e-15,Affinity Propagation
+0.83,0.87,0.008746876440730049,K-means
+0.83,0.87,0.010072864625001645,Agglomerative Complete Clustering
+0.83,0.87,0.004256414135658344,Agglomerative Average Clustering
+0.83,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.83,0.92,0.0018188848938314884,Spectral Custering
+0.83,0.92,1.2813706015259686e-15,Affinity Propagation
+0.83,0.92,0.7355832909464769,K-means
+0.83,0.92,0.0038480456780775924,Agglomerative Complete Clustering
+0.83,0.92,0.0020488964440694463,Agglomerative Average Clustering
+0.83,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.05,1.0,Spectral Custering
+0.87,0.05,0.7306685102203349,Affinity Propagation
+0.87,0.05,1.0,K-means
+0.87,0.05,0.0007447313099708783,Agglomerative Complete Clustering
+0.87,0.05,0.0,Agglomerative Average Clustering
+0.87,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.09,1.0,Spectral Custering
+0.87,0.09,1.2813706015259686e-15,Affinity Propagation
+0.87,0.09,1.0,K-means
+0.87,0.09,0.0007447313099708783,Agglomerative Complete Clustering
+0.87,0.09,0.00012492282030859215,Agglomerative Average Clustering
+0.87,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.14,1.0,Spectral Custering
+0.87,0.14,1.2813706015259686e-15,Affinity Propagation
+0.87,0.14,1.0,K-means
+0.87,0.14,0.0038480456780775924,Agglomerative Complete Clustering
+0.87,0.14,0.00017724127876987938,Agglomerative Average Clustering
+0.87,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.18,1.0,Spectral Custering
+0.87,0.18,1.2813706015259686e-15,Affinity Propagation
+0.87,0.18,1.0,K-means
+0.87,0.18,0.0025254920194574004,Agglomerative Complete Clustering
+0.87,0.18,0.0005995667706605947,Agglomerative Average Clustering
+0.87,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.23,1.0,Spectral Custering
+0.87,0.23,1.2813706015259686e-15,Affinity Propagation
+0.87,0.23,1.0,K-means
+0.87,0.23,0.010072864625001645,Agglomerative Complete Clustering
+0.87,0.23,0.0011544640047966115,Agglomerative Average Clustering
+0.87,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.28,1.0,Spectral Custering
+0.87,0.28,1.2813706015259686e-15,Affinity Propagation
+0.87,0.28,1.0,K-means
+0.87,0.28,0.0050181243858377885,Agglomerative Complete Clustering
+0.87,0.28,0.0005114785597949089,Agglomerative Average Clustering
+0.87,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.32,1.0,Spectral Custering
+0.87,0.32,1.2813706015259686e-15,Affinity Propagation
+0.87,0.32,1.0,K-means
+0.87,0.32,0.0007447313099708783,Agglomerative Complete Clustering
+0.87,0.32,0.0009032962600513302,Agglomerative Average Clustering
+0.87,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.37,1.0,Spectral Custering
+0.87,0.37,1.2813706015259686e-15,Affinity Propagation
+0.87,0.37,1.0,K-means
+0.87,0.37,0.0050181243858377885,Agglomerative Complete Clustering
+0.87,0.37,0.0001034257587610387,Agglomerative Average Clustering
+0.87,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.41,1.0,Spectral Custering
+0.87,0.41,1.2813706015259686e-15,Affinity Propagation
+0.87,0.41,1.0,K-means
+0.87,0.41,0.0,Agglomerative Complete Clustering
+0.87,0.41,0.0004889264142214646,Agglomerative Average Clustering
+0.87,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.46,1.0,Spectral Custering
+0.87,0.46,1.2813706015259686e-15,Affinity Propagation
+0.87,0.46,1.0,K-means
+0.87,0.46,0.010072864625001645,Agglomerative Complete Clustering
+0.87,0.46,0.0004889264142214646,Agglomerative Average Clustering
+0.87,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.51,1.0,Spectral Custering
+0.87,0.51,1.2813706015259686e-15,Affinity Propagation
+0.87,0.51,1.0,K-means
+0.87,0.51,1.1211992763352225e-15,Agglomerative Complete Clustering
+0.87,0.51,0.0,Agglomerative Average Clustering
+0.87,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.55,1.0,Spectral Custering
+0.87,0.55,1.2813706015259686e-15,Affinity Propagation
+0.87,0.55,1.0,K-means
+0.87,0.55,0.010072864625001645,Agglomerative Complete Clustering
+0.87,0.55,7.69454682816141e-05,Agglomerative Average Clustering
+0.87,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.6,1.0,Spectral Custering
+0.87,0.6,1.2813706015259686e-15,Affinity Propagation
+0.87,0.6,1.0,K-means
+0.87,0.6,0.010072864625001645,Agglomerative Complete Clustering
+0.87,0.6,0.0012688226420940719,Agglomerative Average Clustering
+0.87,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.64,1.0,Spectral Custering
+0.87,0.64,1.2813706015259686e-15,Affinity Propagation
+0.87,0.64,1.0,K-means
+0.87,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.87,0.64,0.00035786928634010936,Agglomerative Average Clustering
+0.87,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.69,0.9595312960977075,Spectral Custering
+0.87,0.69,1.2813706015259686e-15,Affinity Propagation
+0.87,0.69,0.9595312960977075,K-means
+0.87,0.69,0.010072864625001645,Agglomerative Complete Clustering
+0.87,0.69,0.0015987636960806588,Agglomerative Average Clustering
+0.87,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.74,0.9289911704819008,Spectral Custering
+0.87,0.74,1.2813706015259686e-15,Affinity Propagation
+0.87,0.74,0.781585840588667,K-means
+0.87,0.74,1.1211992763352225e-15,Agglomerative Complete Clustering
+0.87,0.74,0.0,Agglomerative Average Clustering
+0.87,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.78,0.5885835936832168,Spectral Custering
+0.87,0.78,1.2813706015259686e-15,Affinity Propagation
+0.87,0.78,0.3642712067480366,K-means
+0.87,0.78,0.0038480456780775924,Agglomerative Complete Clustering
+0.87,0.78,0.0002943290510649666,Agglomerative Average Clustering
+0.87,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.83,0.0006493751716557893,Spectral Custering
+0.87,0.83,1.2813706015259686e-15,Affinity Propagation
+0.87,0.83,0.0006686489926634334,K-means
+0.87,0.83,0.0050181243858377885,Agglomerative Complete Clustering
+0.87,0.83,0.0009622804168957023,Agglomerative Average Clustering
+0.87,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.87,0.007251873053312213,Spectral Custering
+0.87,0.87,1.2813706015259686e-15,Affinity Propagation
+0.87,0.87,0.00031311522421389245,K-means
+0.87,0.87,0.010072864625001645,Agglomerative Complete Clustering
+0.87,0.87,0.004621325479108313,Agglomerative Average Clustering
+0.87,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.87,0.92,0.005851417641644759,Spectral Custering
+0.87,0.92,1.2813706015259686e-15,Affinity Propagation
+0.87,0.92,0.012957706592632295,K-means
+0.87,0.92,0.010072864625001645,Agglomerative Complete Clustering
+0.87,0.92,0.049379589114525925,Agglomerative Average Clustering
+0.87,0.92,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.05,1.0,Spectral Custering
+0.92,0.05,0.6681382348565323,Affinity Propagation
+0.92,0.05,1.0,K-means
+0.92,0.05,0.0012438708805110634,Agglomerative Complete Clustering
+0.92,0.05,0.00033727990026350855,Agglomerative Average Clustering
+0.92,0.05,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.09,1.0,Spectral Custering
+0.92,0.09,1.2813706015259686e-15,Affinity Propagation
+0.92,0.09,1.0,K-means
+0.92,0.09,0.0050181243858377885,Agglomerative Complete Clustering
+0.92,0.09,0.0001034257587610387,Agglomerative Average Clustering
+0.92,0.09,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.14,1.0,Spectral Custering
+0.92,0.14,1.2813706015259686e-15,Affinity Propagation
+0.92,0.14,1.0,K-means
+0.92,0.14,1.1211992763352225e-15,Agglomerative Complete Clustering
+0.92,0.14,7.379651689824869e-05,Agglomerative Average Clustering
+0.92,0.14,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.18,1.0,Spectral Custering
+0.92,0.18,1.2813706015259686e-15,Affinity Propagation
+0.92,0.18,1.0,K-means
+0.92,0.18,1.1211992763352225e-15,Agglomerative Complete Clustering
+0.92,0.18,0.0,Agglomerative Average Clustering
+0.92,0.18,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.23,1.0,Spectral Custering
+0.92,0.23,1.2813706015259686e-15,Affinity Propagation
+0.92,0.23,1.0,K-means
+0.92,0.23,0.010072864625001645,Agglomerative Complete Clustering
+0.92,0.23,0.0006572691707960061,Agglomerative Average Clustering
+0.92,0.23,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.28,1.0,Spectral Custering
+0.92,0.28,1.2813706015259686e-15,Affinity Propagation
+0.92,0.28,1.0,K-means
+0.92,0.28,0.0050181243858377885,Agglomerative Complete Clustering
+0.92,0.28,0.0008778617564865013,Agglomerative Average Clustering
+0.92,0.28,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.32,1.0,Spectral Custering
+0.92,0.32,1.2813706015259686e-15,Affinity Propagation
+0.92,0.32,1.0,K-means
+0.92,0.32,0.0050181243858377885,Agglomerative Complete Clustering
+0.92,0.32,0.0003062016302223494,Agglomerative Average Clustering
+0.92,0.32,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.37,1.0,Spectral Custering
+0.92,0.37,1.2813706015259686e-15,Affinity Propagation
+0.92,0.37,1.0,K-means
+0.92,0.37,0.0050181243858377885,Agglomerative Complete Clustering
+0.92,0.37,0.00029700307326363924,Agglomerative Average Clustering
+0.92,0.37,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.41,1.0,Spectral Custering
+0.92,0.41,1.2813706015259686e-15,Affinity Propagation
+0.92,0.41,1.0,K-means
+0.92,0.41,1.1211992763352225e-15,Agglomerative Complete Clustering
+0.92,0.41,0.0,Agglomerative Average Clustering
+0.92,0.41,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.46,1.0,Spectral Custering
+0.92,0.46,1.2813706015259686e-15,Affinity Propagation
+0.92,0.46,1.0,K-means
+0.92,0.46,0.0050181243858377885,Agglomerative Complete Clustering
+0.92,0.46,0.0,Agglomerative Average Clustering
+0.92,0.46,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.51,1.0,Spectral Custering
+0.92,0.51,1.2813706015259686e-15,Affinity Propagation
+0.92,0.51,1.0,K-means
+0.92,0.51,0.0050181243858377885,Agglomerative Complete Clustering
+0.92,0.51,0.00012492282030859215,Agglomerative Average Clustering
+0.92,0.51,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.55,1.0,Spectral Custering
+0.92,0.55,1.2813706015259686e-15,Affinity Propagation
+0.92,0.55,1.0,K-means
+0.92,0.55,0.010072864625001645,Agglomerative Complete Clustering
+0.92,0.55,0.0,Agglomerative Average Clustering
+0.92,0.55,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.6,1.0,Spectral Custering
+0.92,0.6,1.2813706015259686e-15,Affinity Propagation
+0.92,0.6,1.0,K-means
+0.92,0.6,0.0050181243858377885,Agglomerative Complete Clustering
+0.92,0.6,7.483783197868479e-05,Agglomerative Average Clustering
+0.92,0.6,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.64,1.0,Spectral Custering
+0.92,0.64,1.2813706015259686e-15,Affinity Propagation
+0.92,0.64,1.0,K-means
+0.92,0.64,0.010072864625001645,Agglomerative Complete Clustering
+0.92,0.64,0.0007524010390800609,Agglomerative Average Clustering
+0.92,0.64,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.69,1.0,Spectral Custering
+0.92,0.69,1.2813706015259686e-15,Affinity Propagation
+0.92,0.69,1.0,K-means
+0.92,0.69,0.0050181243858377885,Agglomerative Complete Clustering
+0.92,0.69,0.0007447313099708783,Agglomerative Average Clustering
+0.92,0.69,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.74,1.0,Spectral Custering
+0.92,0.74,1.2813706015259686e-15,Affinity Propagation
+0.92,0.74,1.0,K-means
+0.92,0.74,0.010072864625001645,Agglomerative Complete Clustering
+0.92,0.74,0.0011713542951155773,Agglomerative Average Clustering
+0.92,0.74,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.78,1.0,Spectral Custering
+0.92,0.78,1.2813706015259686e-15,Affinity Propagation
+0.92,0.78,0.9192068641040878,K-means
+0.92,0.78,0.0038480456780775924,Agglomerative Complete Clustering
+0.92,0.78,0.000290417542450661,Agglomerative Average Clustering
+0.92,0.78,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.83,0.74451378232179,Spectral Custering
+0.92,0.83,1.2813706015259686e-15,Affinity Propagation
+0.92,0.83,0.37785293436717876,K-means
+0.92,0.83,0.010072864625001645,Agglomerative Complete Clustering
+0.92,0.83,9.74978542361519e-05,Agglomerative Average Clustering
+0.92,0.83,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.87,0.13227619020079384,Spectral Custering
+0.92,0.87,1.2813706015259686e-15,Affinity Propagation
+0.92,0.87,0.0009313193551145257,K-means
+0.92,0.87,0.0050181243858377885,Agglomerative Complete Clustering
+0.92,0.87,0.0074696547199645975,Agglomerative Average Clustering
+0.92,0.87,0.0050181243858377885,Agglomerative Single Clustering
+0.92,0.92,0.0002927756386913102,Spectral Custering
+0.92,0.92,1.2813706015259686e-15,Affinity Propagation
+0.92,0.92,7.231676133993413e-05,K-means
+0.92,0.92,0.010072864625001645,Agglomerative Complete Clustering
+0.92,0.92,0.000802705974964351,Agglomerative Average Clustering
+0.92,0.92,0.0050181243858377885,Agglomerative Single Clustering
