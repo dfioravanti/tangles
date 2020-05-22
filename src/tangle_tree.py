@@ -110,8 +110,7 @@ class TangleTreeModel:
             node.p_right = np.zeros(self.nb_points)
             node.p_left = np.zeros(self.nb_points)
 
-            relevant = node.right.P != node.left.P
-            relevant = np.logical_and(np.logical_or(node.right.P, node.left.P), relevant)
+            relevant = (node.right.P + node.left.P == 1)
 
             idx = np.arange(len(self.cuts))[len(node.coordinate):][relevant[len(node.coordinate):]]
 

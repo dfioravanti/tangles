@@ -27,7 +27,7 @@ def get_positions_from_labels(ys):
     return positions
 
 
-def get_points_to_plot(xs, cs):
+def get_points_to_plot(xs, cs=None):
     _, nb_features = xs.shape
     if cs is not None:
         nb_centers, _  = cs.shape
