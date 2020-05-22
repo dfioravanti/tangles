@@ -1,5 +1,7 @@
 from copy import deepcopy
 import numpy as np
+import bitarray as ba
+from bitarray.util import subset
 
 
 def one(_):
@@ -44,6 +46,7 @@ class TangleTreeModel:
     # adds a node to the tree
     def add_cut(self, c):
         new_leaves = []
+        print(len(self.tree.current_leaves))
         for parent in self.tree.current_leaves:
             parent.left = TangleTreeNode(parent, c, False)
             self.set_valid(parent.left)
@@ -61,18 +64,13 @@ class TangleTreeModel:
         nb_core_cuts = len(node.core_cuts)
         node.valid = True
         for i in range(nb_core_cuts):
-            if sum(node.core_cuts[i]) < self.agreement:
+            if node.core_cuts[i].count() < self.agreement:
                 node.valid = False
             for j in range(i + 1, nb_core_cuts):
-                if sum([a and b
-                        for a, b in zip(node.core_cuts[i],
-                                        node.core_cuts[j])]) < self.agreement:
+                if (node.core_cuts[i] & node.core_cuts[j]).count() < self.agreement:
                     node.valid = False
                 for k in range(j + 1, nb_core_cuts):
-                    if sum([a and b and c
-                            for a, b, c in zip(node.core_cuts[i],
-                                               node.core_cuts[j],
-                                               node.core_cuts[k])]) < self.agreement:
+                    if (node.core_cuts[i] & node.core_cuts[j] & node.core_cuts[k]).count() < self.agreement:
                         node.valid = False
         return
 
@@ -198,6 +196,7 @@ class TangleTree:
             self.traverse_print(node.right)
             self.traverse_print(node.left)
 
+
 class TangleTreeNode:
 
     def __init__(self, parent, c, orientation):
@@ -219,7 +218,7 @@ class TangleTreeNode:
             self.oriented_cut = None
         # else add the cut and update the core
         else:
-            self.oriented_cut = c if orientation else [not x for x in c]
+            self.oriented_cut = ba.bitarray(list(c)) if orientation else ba.bitarray(list(~c))
             self.update_core()
             self.coordinate = parent.coordinate + [orientation]
 
@@ -248,7 +247,7 @@ class TangleTreeNode:
 
                 core_cuts += [deepcopy(self.oriented_cut)]
 
-                self.core = [x and y for x, y in zip(core, self.oriented_cut)]
+                self.core = core & self.oriented_cut
                 self.core_cuts = core_cuts
 
 
@@ -339,8 +338,8 @@ class CondensedTangleTreeNode:
 
 
 # checks if the oriented cut a is a subset of the oriented cut b
-def subset(a, b):
-    return sum([x and y for x, y in zip(a, b)]) == sum(b)
+#def subset(a, b):
+#    return sum([x and y for x, y in zip(a, b)]) == sum(b)
 
 # just try to reduce the typing and make it more readable
 def is_splitting(node):
