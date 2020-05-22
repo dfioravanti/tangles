@@ -5,9 +5,6 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 from sklearn.manifold import TSNE
 
-import altair as alt
-from altair.expr import datum
-
 from src.config import NAN
 from src.utils import get_points_to_plot
 

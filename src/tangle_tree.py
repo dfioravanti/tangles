@@ -1,6 +1,5 @@
 from copy import deepcopy
 import numpy as np
-from pythonlangutil.overload import Overload, signature
 
 
 def one(_):
@@ -21,6 +20,7 @@ class TangleTreeModel:
         self.condensed_tree = CondensedTangleTree()
 
         self.tangles = []
+        self.maximals = []
 
         self.build()
 
@@ -145,6 +145,9 @@ class TangleTreeModel:
             self.tangles += [[node.p, node.coordinate, node.condensed_coordinate]]
 
         else:
+
+            self.maximals.append(node)
+
             if node.condensed_coordinate:
                 if side:
                     node.p = node.parent.p_right
