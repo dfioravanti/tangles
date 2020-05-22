@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import kneighbors_graph
+import networkx as nx
 
 
 def load_MICROBIOME(path, k):
@@ -17,4 +18,6 @@ def load_MICROBIOME(path, k):
 
     A[A > 0] = np.exp(- A[A > 0]/(2 * sigma**2))
 
-    return xs, ys, A
+    G = nx.from_numpy_array(A)
+
+    return xs, ys, A, G

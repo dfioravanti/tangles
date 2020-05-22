@@ -108,8 +108,9 @@ def get_dataset_and_order_function(args):
 
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_MICROBIOME:
-        xs, ys, A = load_MICROBIOME(args['dataset']['path'], args['dataset']['k'])
+        xs, ys, A, G = load_MICROBIOME(args['dataset']['path'], args['dataset']['k'])
 
+        data["G"] = G
         data["A"] = A
         data['xs'] = xs
         data['ys'] = ys
