@@ -22,7 +22,10 @@ from src.tangle_tree import TangleTreeModel
 from src.utils import get_points_to_plot, get_positions_from_labels
 
 def exp(cost):
-    return np.exp(-3*cost)
+    return np.exp(-6*cost)
+
+def sigmoid(cost):
+    return 1 / (1 + np.exp(10 * (cost - 0.4)))
 
 def main_tree(args):
 
@@ -36,7 +39,15 @@ def main_tree(args):
 
     data, orders, all_cuts, name_cuts = get_dataset_cuts_order(args)
 
-    model = TangleTreeModel(agreement=args["experiment"]["agreement"], cuts=all_cuts, costs=orders, weight_fun=exp)
+    percentile = args["experiment"]["percentile_orders"]
+    idx = orders < np.max(orders) * percentile / 100.0
+
+    orders = orders[idx]
+    all_cuts = all_cuts[idx]
+
+    print("Using up to ", percentile/100, " of the orders yielding ", len(orders), " cuts")
+
+    model = TangleTreeModel(agreement=args["experiment"]["agreement"], cuts=all_cuts, costs=orders, weight_fun=sigmoid)
 
     tangles = np.array(model.tangles)
 
@@ -49,8 +60,13 @@ def main_tree(args):
 
     plot = True
     if plot:
-        pos = get_positions_from_labels(data["ys"])
-        #pos = data["xs"]
+        #pos = get_positions_from_labels(data["ys"])
+        #pos,_ = get_points_to_plot(data["xs"])
+
+        #pos = nx.spring_layout(data["G"])
+        #pos = np.array(list(pos.values()))
+
+        pos = data["xs"]
 
         fig, ax = plt.subplots(1, 1, figsize=(5, 5))
         plt.axis('off')
