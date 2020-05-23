@@ -101,12 +101,14 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_CANCER10:
-        xs, ys = load_CANCER10(args['dataset']['path'])
+        xs, ys, A, G = load_CANCER10(args['dataset']['path'])
 
+        data["G"] = G
+        data["A"] = A
         data['xs'] = xs
         data['ys'] = ys
 
-        order_function = partial(implicit_order, xs, None)
+        order_function = partial(cut_order, A)
     elif args['experiment']['dataset_name'] == DATASET_MICROBIOME:
         xs, ys, A, G = load_MICROBIOME(args['dataset']['path'], args['dataset']['k'])
 
