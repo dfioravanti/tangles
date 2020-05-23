@@ -11,16 +11,16 @@ ts = int(datetime.datetime.now().timestamp())
 parameters = {}
 multi_parameters = {}
 
-parameters['-t'] = DATASET_QUESTIONNAIRE
+parameters['-t'] = DATASET_SBM
 parameters['--id'] = ts
-parameters['-p'] = PREPROCESSING_BINARIZED_LIKERT
+parameters['-p'] = PREPROCESSING_KARNIG_LIN
 
 #multi_parameters['-p'] = [PREPROCESSING_KARNIG_LIN, PREPROCESSING_FID_MAT]
-#multi_parameters['--nb_cuts'] = [50]
-#multi_parameters['--lb_f'] = [0.2, 0.3, 0.4]
+multi_parameters['--nb_cuts'] = [200]
+multi_parameters['--lb_f'] = [0.2, 0.3, 0.4]
 
-#multi_parameters['-s'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-multi_parameters['-s'] = [42]
+multi_parameters['-s'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+#multi_parameters['-s'] = [42]
 
 
 
@@ -37,11 +37,12 @@ if parameters['-t'] == DATASET_MINDSETS:
 
 elif parameters['-t'] == DATASET_SBM:
 
-    multi_parameters['--sbm_bs'] = [[100, 100], [100, 100, 100]]
-    multi_parameters['--sbm_bs'] += [[50, 100], [60, 100], [70, 100], [80, 100], [90, 100]]
+    multi_parameters['--sbm_bs'] = [[100, 100]]
 
-    multi_parameters['--sbm_p'] = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    multi_parameters['--sbm_q'] = [0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    multi_parameters['--sbm_p'] = [0.05, 0.18, 0.28, 0.87, 0.64, 0.55, 0.51, 0.23, 0.37, 0.83, 0.46,
+                                   0.32, 0.09, 0.92, 0.6 , 0.14, 0.74, 0.41, 0.78, 0.69]
+    multi_parameters['--sbm_q'] = [0.05, 0.18, 0.28, 0.87, 0.64, 0.55, 0.51, 0.23, 0.37, 0.83, 0.46,
+                                   0.32, 0.09, 0.92, 0.6 , 0.14, 0.74, 0.41, 0.78, 0.69]
 
 elif parameters['-t'] == DATASET_KNN_BLOBS:
 
