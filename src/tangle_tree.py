@@ -1,7 +1,7 @@
 from copy import deepcopy
 import numpy as np
 import bitarray as ba
-from bitarray.util import subset
+#from bitarray.util import subset
 
 
 def one(_):
@@ -46,7 +46,6 @@ class TangleTreeModel:
     # adds a node to the tree
     def add_cut(self, c):
         new_leaves = []
-        print(len(self.tree.current_leaves))
         for parent in self.tree.current_leaves:
             parent.left = TangleTreeNode(parent, c, False)
             self.set_valid(parent.left)
@@ -144,7 +143,7 @@ class TangleTreeModel:
 
         else:
 
-            self.maximals.append(node)
+            self.maximals += [node.p]
 
             if node.condensed_coordinate:
                 if side:
@@ -338,8 +337,8 @@ class CondensedTangleTreeNode:
 
 
 # checks if the oriented cut a is a subset of the oriented cut b
-#def subset(a, b):
-#    return sum([x and y for x, y in zip(a, b)]) == sum(b)
+def subset(a, b):
+    return (a & b).count() == b.count()
 
 # just try to reduce the typing and make it more readable
 def is_splitting(node):
