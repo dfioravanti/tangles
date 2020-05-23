@@ -17,7 +17,7 @@ parameters['-p'] = PREPROCESSING_KARNIG_LIN
 
 #multi_parameters['-p'] = [PREPROCESSING_KARNIG_LIN, PREPROCESSING_FID_MAT]
 multi_parameters['--nb_cuts'] = [200]
-multi_parameters['--lb_f'] = [0.2, 0.3, 0.4]
+multi_parameters['--lb_f'] = [0.3, 0.4]
 
 multi_parameters['-s'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 #multi_parameters['-s'] = [42]
