@@ -91,7 +91,7 @@ def plot_dataset_metric(xs, cs, colors, ax, cmap, add_colorbar):
 
     xs_embedded, cs_embedded = get_points_to_plot(xs, cs)
 
-    sc = ax.scatter(xs[:, 0], xs[:, 1], color=colors, vmin=0, vmax=1, edgecolor='black')
+    sc = ax.scatter(xs_embedded[:, 0], xs_embedded[:, 1], color=colors, vmin=0, vmax=1, edgecolor='black')
     if add_colorbar:
         ax = add_colorbar_to_ax(ax, cmap)
 
