@@ -12,7 +12,7 @@ from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROC
 from src.config import NAN
 from src.preprocessing import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, make_submodular, binarize_likert_scale
 from src.loading import get_dataset_and_order_function
-from src.plotting import plot_graph_cuts, plot_predictions, plot_cuts, plot_soft_predictions
+from src.plotting import plot_graph_cuts, plot_cuts
 from src.tangles import core_algorithm
 from src.tree_tangles import TangleTree, compute_soft_predictions_children, compute_hard_predictions_node
 from src.utils import change_lower, change_upper, normalize
@@ -111,133 +111,6 @@ def order_cuts(cuts, cuts_names, order_function):
     return cuts[idx], cost_cuts[idx], cuts_names
 
 
-def compute_clusters(tangles_by_orders, all_cuts, verbose):
-    """ 
-    
-    Given the tangles divided by order and all the cuts it converts the tangles into hard clustering.
-    It does this by creating a cluster for each tangle and then assign each point to the tangle 
-    for which it satisfies the largest number of constrains.
-
-    Parameters
-    ----------
-    tangles_by_orders : dict of Orientations
-        Dictionary with key the order and value the tangles of that order
-    all_cuts : ndarray of shape [nb_cuts]
-        All the cuts
-    verbose : Int
-        The verbosity level
-
-    Returns
-    -------
-    dict of ndarray
-        Dictionary with key the order and value the predicted labels for that order
-    """
-    predictions_by_order = {}
-
-    for order, tangles in tangles_by_orders.items():
-
-        if verbose >= 2:
-            print(f"\tCompute clusters for order {order}", flush=True)
-        _, n_points = all_cuts.shape
-        nb_tangles = len(tangles)
-
-        matching_cuts = np.zeros((nb_tangles, n_points), dtype=int)
-
-        for i, tangle in enumerate(tangles):
-            cuts = list(tangle.specification.keys())
-            orientations = list(tangle.specification.values())
-
-            matching_cuts[i, :] = np.sum((all_cuts[cuts, :].T == orientations), axis=1)
-
-        predictions = np.argmax(matching_cuts, axis=0)
-        best_values = np.max(matching_cuts, axis=0)
-
-        nb_best_values = np.sum(matching_cuts == best_values, axis=0)
-        predictions[nb_best_values > 1] = NAN
-
-        predictions_by_order[order] = predictions
-
-    return predictions_by_order
-
-
-def compute_fuzzy_clusters(tangles_by_orders, all_cuts, verbose):
-
-    soft_predictions_by_order = {}
-
-    for order, tangles in tangles_by_orders.items():
-
-        if verbose >= 2:
-            print(f"\tCompute soft clusters for order {order}", flush=True)
-        nb_cuts, n_points = all_cuts.shape
-        nb_tangles = len(tangles)
-
-        matching_cuts = np.zeros((nb_tangles, n_points), dtype=int)
-
-        for i, tangle in enumerate(tangles):
-            cuts = list(tangle.specification.keys())
-            orientations = list(tangle.specification.values())
-
-            matching_cuts[i, :] = np.sum((all_cuts[cuts, :].T == orientations), axis=1)
-
-        soft_predictions = np.zeros((nb_tangles, n_points), dtype=float)
-
-        for k in range(nb_tangles):
-            for i in range(n_points):
-                soft_predictions[k, i] = 1 / sum(((nb_cuts - matching_cuts[k, i]) / (nb_cuts - matching_cuts[:, i]))**4)
-
-        soft_predictions_by_order[order] = soft_predictions
-
-    return soft_predictions_by_order
-
-
-def compute_maximal_tangles(tangles_by_orders):
-    print("Computing maximal tangles")
-    maximals = []
-    orders = sorted(tangles_by_orders.keys())
-
-    for order in orders:
-        tangles = tangles_by_orders[order]
-        new_maximals = tangles.copy()
-        for m in maximals:
-            for tangle in tangles:
-                if all(mspec == tangle.specification[i] for (i, mspec) in m.specification.items()):
-                    break
-            else:
-                new_maximals.append(m)
-        maximals = new_maximals
-
-    return maximals
-
-
-def compute_clusters_maximals(maximal_tangles, all_cuts):
-    predictions_by_order = {}
-
-    print(f"\tCompute clusters for maximal tangles", flush=True)
-    _, n_points = all_cuts.shape
-    nb_tangles = len(maximal_tangles)
-
-    matching_cuts = np.zeros((nb_tangles, n_points), dtype=float)
-
-    for i, tangle in enumerate(maximal_tangles):
-        cuts = list(tangle.specification.keys())
-        orientations = list(tangle.specification.values())
-
-        matching_cuts[i, :] = np.sum((all_cuts[cuts, :].T == orientations), axis=1) / len(cuts)
-    best = np.amax(matching_cuts, axis=0)
-    predictions = np.zeros(n_points)
-    for p in range(n_points):
-        the_best = matching_cuts[:, p] == best[p]
-        if the_best.sum() == 1:
-            predictions[p] = np.argwhere(the_best)
-        else:
-            predictions[p] = np.nan
-            print(f'Unsure about {p}')
-
-    predictions_by_order[-1] = predictions
-
-    return predictions_by_order
-
-
 def get_dataset_cuts_order(args):
     if args['verbose'] >= 2:
         print("Load data\n", flush=True)
@@ -308,7 +181,7 @@ def tangle_computation(cuts, orders, agreement, verbose):
                 max_order = orders[-1]
                 if verbose >= 2:
                     print('\t\tI could not add all the new cuts')
-                    print(f'\n\tI stopped the computation at order {order} instead of {max_order}', flush=True)
+                    print(f'\n\tI stopped the computation at order {old_order} instead of {max_order}', flush=True)
                 break
             else:
                 tangles_tree = new_tree
@@ -322,34 +195,6 @@ def tangle_computation(cuts, orders, agreement, verbose):
         tangles_tree.maximals += tangles_tree.active
 
     return tangles_tree
-
-
-def plotting_hard_clustering(data, ys_predicted, verbose, path):
-
-    path.mkdir(parents=True, exist_ok=True)
-
-    if verbose >= 2:
-        print('Start plotting', flush=True)
-
-    xs = data.get('xs', None)
-    ys = data.get('ys', None)
-    G = data.get('G', None)
-
-    if G is not None:
-        plot_predictions_graph(G=G, ys=ys, ys_predicted=ys_predicted, path=path)
-    if xs is not None:
-        plot_predictions(xs=xs, ys=ys, ys_predicted=ys_predicted, path=path)
-    if verbose >= 2:
-        print('Done plotting', flush=True)
-
-def soft_plotting(data, prediction, path):
-
-    path.mkdir(parents=True, exist_ok=True)
-
-    xs = data.get('xs', None)
-    ys = data.get('ys', None)
-
-    plot_soft_predictions(xs=xs, ys=ys, prediction=prediction)
 
 
 def get_parameters(args):

@@ -2,9 +2,9 @@ from pathlib import Path
 
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
-from src.execution import compute_clusters, compute_and_save_evaluation, get_dataset_cuts_order, tangle_computation, plotting_hard_clustering, \
-                          compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, \
-                          tangles_to_range_answers, centers_in_range_answers, compute_soft_predictions, compute_hard_preditions
+from src.execution import compute_and_save_evaluation, get_dataset_cuts_order, tangle_computation, \
+                          print_tangles_names, tangles_to_range_answers, centers_in_range_answers, \
+                              compute_soft_predictions, compute_hard_preditions
 from src.plotting import plot_soft_predictions, plot_hard_predictions
 from src.tree_tangles import contract_tree
 from src.utils import get_id
