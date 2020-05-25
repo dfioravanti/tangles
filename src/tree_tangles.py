@@ -348,14 +348,21 @@ def compute_soft_predictions_node(node, characterizing_cuts, cuts, costs, verbos
     orientation_characterizing_cuts = [True if o.direction == 'left' else False for o in characterizing_cuts.values()]
 
     p = np.sum((cuts[idx_characterizing_cuts, :].T == orientation_characterizing_cuts) * costs[idx_characterizing_cuts], axis=1)
+    p = p * node.parent.p
 
     return p
 
 
 def compute_soft_predictions_children(node, cuts, costs, verbose):
 
+    _, nb_points = cuts.shape
+    if node.parent is None:
+        node.p = np.ones(nb_points)  
 
     if node.left_child is not None and node.right_child is not None:
+
+        p_left = np.zeros(nb_points)
+        p_right = np.zeros(nb_points)
 
         unnormalized_p_left = compute_soft_predictions_node(node=node.left_child, characterizing_cuts=node.characterizing_cuts_left,
                                       cuts=cuts, costs=costs, verbose=verbose)
@@ -363,9 +370,13 @@ def compute_soft_predictions_children(node, cuts, costs, verbose):
                                       cuts=cuts, costs=costs, verbose=verbose)
 
         total_p = unnormalized_p_left + unnormalized_p_right
+        idx_not_zero = ~np.isclose(total_p, 0)
 
-        node.left_child.p = unnormalized_p_left / total_p
-        node.right_child.p = unnormalized_p_right / total_p
+        p_left[idx_not_zero] = unnormalized_p_left[idx_not_zero] / total_p[idx_not_zero]
+        p_right[idx_not_zero] = unnormalized_p_right[idx_not_zero] / total_p[idx_not_zero]
+
+        node.left_child.p = p_left
+        node.right_child.p = p_right
 
     if node.left_child is not None:
         compute_soft_predictions_children(node=node.left_child, cuts=cuts, costs=costs, verbose=verbose)

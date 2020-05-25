@@ -49,14 +49,14 @@ def get_next_id(current_id, direction):
     else:
         return current_id + 2 ** level + 2
 
-def plot_dataset(data, colors, ax=None, cmap=None, add_colorbar=True):
+def plot_dataset(data, colors, ax=None, cmap=None, add_colorbar=True, pos=None):
 
     if data['xs'] is not None:
         ax = plot_dataset_metric(data['xs'], data['cs'], colors, ax, cmap, add_colorbar)
     elif data['G'] is not None:
-        ax = plot_dataset_graph(data['G'], data['ys'], colors, ax, cmap, add_colorbar)
+        ax, pos = plot_dataset_graph(data['G'], data['ys'], colors, ax, cmap, add_colorbar, pos)
 
-    return ax
+    return ax, pos
 
 
 def add_colorbar_to_ax(ax, cmap):
@@ -68,12 +68,16 @@ def add_colorbar_to_ax(ax, cmap):
     return ax
 
 
-def plot_dataset_graph(G, ys, colors, ax, cmap, add_colorbar):
+def plot_dataset_graph(G, ys, colors, ax, cmap, add_colorbar, pos):
 
-    pos = get_position(G, ys)
+    if pos is None:
+        pos = get_position(G, ys)
+
     nx.draw_networkx(G, pos=pos, ax=ax, node_color=colors, edge_color=COLOR_SILVER, with_labels=False, edgecolors='black')
     if add_colorbar:
         ax = add_colorbar_to_ax(ax, cmap)
+
+    return ax, pos
 
 
 def plot_dataset_metric(xs, cs, colors, ax, cmap, add_colorbar):
@@ -122,15 +126,15 @@ def plot_soft_predictions(data, contracted_tree, id_node=0, path=None):
     if data['ys'] is not None:
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
         colors = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
-        ax = plot_dataset(data, colors, ax=ax, add_colorbar=False)
+        ax, pos = plot_dataset(data, colors, ax=ax, add_colorbar=False)
 
         fig.savefig(output_path / f"groundtruth.svg")
         plt.close(fig)
 
-    plot_soft_prediction_node(data, contracted_tree.root, id_node=0, cmap=cmap_heatmap, path=path)
+    plot_soft_prediction_node(data, contracted_tree.root, id_node=0, cmap=cmap_heatmap, path=path, pos=pos)
     
 
-def plot_soft_prediction_node(data, node, id_node, cmap, path):
+def plot_soft_prediction_node(data, node, id_node, cmap, path, pos):
 
     if node.p is None:
         nb_points = get_nb_points(data)
@@ -139,16 +143,16 @@ def plot_soft_prediction_node(data, node, id_node, cmap, path):
         colors = cmap(node.p)
     
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
-    plot_dataset(data, colors, ax=ax, cmap=cmap)
+    plot_dataset(data, colors, ax=ax, cmap=cmap, pos=pos)
     fig.savefig(path / f"node_nb_{id_node:02d}.svg")
     plt.close(fig)
 
     if node.left_child is not None:
         id_left = get_next_id(id_node, 'left')
-        plot_soft_prediction_node(data, node.left_child, id_left, cmap, path)
+        plot_soft_prediction_node(data, node.left_child, id_left, cmap, path, pos=pos)
     if node.right_child is not None:
         id_right = get_next_id(id_node, 'right')
-        plot_soft_prediction_node(data, node.right_child, id_right, cmap, path)
+        plot_soft_prediction_node(data, node.right_child, id_right, cmap, path, pos=pos)
 
 
 def plot_hard_predictions(data, ys_predicted, path=None):
