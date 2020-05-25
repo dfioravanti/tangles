@@ -6,9 +6,10 @@ from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 
 from sklearn.manifold import TSNE
+from sklearn.preprocessing import minmax_scale
 
 from src.config import NAN
-from src.utils import get_points_to_plot
+from src.utils import get_points_to_plot, normalize
 
 
 # Standard colors for uniform plots
@@ -20,14 +21,147 @@ CMAP = plt.cm.get_cmap('Blues')
 
 # TODO: Fix the comments in this file
 
-def plot_heatmap(data, tangles, cuts, path=None):
+def get_nb_points(data):
 
     if data['xs'] is not None:
-        plot_heatmap_points(xs=data['xs'], ys=data['ys'], cs=data['cs'],
-                           tangles=tangles, cuts=cuts, path=path)
+        return len(data['xs'])
+    elif data['A'] is not None:
+        return len(data['A'])
+    else:
+        raise KeyError('What data are you using?')
+
+def append_to_binary(number, new_digit):
+
+    return int(str(bin(number) + str(new_digit)), 2)
+
+def get_next_id(current_id, direction):
+
+    if current_id == 0:
+        if direction == 'left':
+            return 1
+        else:
+            return 2
+            
+    level = int(np.ceil(np.log2(current_id)))
+
+    if direction == 'left':
+        return current_id + 2 ** level + 1
+    else:
+        return current_id + 2 ** level + 2
+
+def plot_dataset(data, colors, ax=None, cmap=None, add_colorbar=True):
+
+    if data['xs'] is not None:
+        ax = plot_dataset_metric(data['xs'], data['cs'], colors, ax, cmap, add_colorbar)
+    elif data['G'] is not None:
+        ax = plot_dataset_graph(data['G'], colors, ax, cmap, add_colorbar)
+
+    return ax
 
 
-def plot_heatmap_points(xs, ys, cs, tangles, cuts, path=None):
+def plot_dataset_graph(G, colors, ax, cmap, add_colorbar):
+    pass
+
+
+def plot_dataset_metric(xs, cs, colors, ax, cmap, add_colorbar):
+
+    plt.style.use('ggplot')
+    plt.ioff()
+
+    ax.grid()
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    xs_embedded, cs_embedded = get_points_to_plot(xs, cs)
+
+    sc = ax.scatter(xs[:, 0], xs[:, 1], color=colors, vmin=0, vmax=1)
+    if add_colorbar:
+        cb = plt.colorbar(mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=0, vmax=1), cmap=cmap),
+                          ax=ax, orientation='vertical')   
+        cb.ax.set_title('p', y=-.05) 
+
+    return ax
+
+def labels_to_colors(ys, cmap):
+    
+    nb_points = len(ys)
+    colors = np.zeros((nb_points, 4))
+    normalize_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
+
+    for y in np.unique(ys):
+        idx_current = (ys == y).nonzero()[0]
+        color = cmap(normalize_ys(y))
+        colors[idx_current, :] = np.array(color).reshape((1, -1))
+
+    return colors        
+
+
+def plot_soft_predictions(data, contracted_tree, id_node=0, path=None):
+
+    cmap_groundtruth = plt.cm.get_cmap('tab10')
+    cmap_heatmap = plt.cm.get_cmap('Blues')
+
+    if path is not None:
+        output_path = path
+        output_path.mkdir(parents=True, exist_ok=True)
+
+    if data['ys'] is not None:
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+        colors = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        ax = plot_dataset(data, colors, ax=ax, add_colorbar=False)
+
+        fig.savefig(output_path / f"groundtruth.svg")
+        plt.close(fig)
+
+    plot_soft_prediction_node(data, contracted_tree.root, id_node=0, cmap=cmap_heatmap, path=path)
+    
+
+def plot_soft_prediction_node(data, node, id_node, cmap, path):
+
+    if node.p is None:
+        nb_points = get_nb_points(data)
+        colors = cmap(np.ones(nb_points))
+    else:
+        colors = cmap(node.p)
+    
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+    plot_dataset(data, colors, ax=ax, cmap=cmap)
+    fig.savefig(path / f"node_nb_{id_node:02d}.svg")
+    plt.close(fig)
+
+    if node.left_child is not None:
+        id_left = get_next_id(id_node, 'left')
+        plot_soft_prediction_node(data, node.left_child, id_left, cmap, path)
+    if node.right_child is not None:
+        id_right = get_next_id(id_node, 'right')
+        plot_soft_prediction_node(data, node.right_child, id_right, cmap, path)
+
+
+def plot_hard_predictions(data, ys_predicted, path=None):
+
+    cmap_groundtruth = plt.cm.get_cmap('tab10')
+    cmap_predictions = plt.cm.get_cmap('Set2')
+
+    if path is not None:
+        output_path = path
+        output_path.mkdir(parents=True, exist_ok=True)
+
+    if data['ys'] is not None:
+        fig, (ax_true, ax_predicted) = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
+        colors_true = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        ax_true = plot_dataset(data, colors_true, ax=ax_true, add_colorbar=False)
+    else:
+        fig, ax_predicted = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+
+    colors_predicted = labels_to_colors(ys_predicted, cmap=cmap_predictions)
+    ax_predicted = plot_dataset(data, colors_predicted, ax=ax_predicted, add_colorbar=False)
+
+    fig.savefig(output_path / f"hard_clustering.svg")
+    plt.close(fig)
+
+
+def plot_heatmap_points(xs, ys, cs, soft_predictions, path=None):
+    
     """
     For each tangle print a heatmap that shows how many cuts each point satisfies.
 
@@ -45,53 +179,74 @@ def plot_heatmap_points(xs, ys, cs, tangles, cuts, path=None):
 
     plt.style.use('ggplot')
     plt.ioff()
-
-    mpl.rcParams.update({'font.size': 8})
    
     nb_points = len(xs)
     xs_embedded, cs_embedded = get_points_to_plot(xs, cs)
+
     if ys is not None:
-        ys_normalized = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
-
-    color_tangles = mpl.colors.Normalize(vmin=0, vmax=np.max(len(tangles)))
-    f, axs = plt.subplots(nrows=1, ncols=len(tangles), figsize=(20, 10), )
-
-    for i, tangle in enumerate(tangles):       
-        ax = axs[i]
-        ax.grid(b=None)
-        ax.set_title(f'Tangle number {i+1}')
-        ax.set_xticks([], [])
-        ax.set_yticks([], [])
-
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_visible(False)
-        ax.spines['top'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
+        fig, (ax_true, ax_predicted) = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
+        ax_true = plot_groundtruth(xs=xs_embedded, ys=ys, ax=ax_true, cmap=plt.cm.get_cmap('tab10'))
+    else:
+        fig, ax_predicted = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
     
-        ax.set_facecolor(CMAP(0))
-
-        matching_cuts = np.zeros(nb_points, dtype='int')
-        for cut, orr in tangle.specification.items():
-            if np.sum(cuts[cut] == orr) != nb_points:
-                matching_cuts = matching_cuts + (cuts[cut] == orr)
-        
-        ax.hexbin(xs_embedded[:, 0], xs_embedded[:, 1], 
-                  C=matching_cuts, cmap=CMAP, bins='log', gridsize=25)
-
-        if cs is not None:
-            ax.scatter(cs_embedded[:, 0], cs_embedded[:, 1], c=COLOR_CARNATION_RGB, marker='o', s=10)
-
-    f.tight_layout()
+    plot_soft_heatmap(xs=xs_embedded, soft_predictions=soft_predictions,
+                      ax=ax_predicted, cmap=plt.cm.get_cmap('tab10'))
 
     if path is None:
         plt.show()
     else:
         plt.savefig(output_path / f"Best heatmap.svg")
 
-    plt.close(f)
+    plt.close(fig)
+    exit(0)
 
 
-def plot_predictions(xs, ys, predictions_of_order, path=None):
+def plot_groundtruth(xs, ys, ax, cmap):
+
+    normalize_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
+
+    ax.grid(b=None)
+    ax.set_facecolor('white')
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    for y in np.unique(ys):
+        xs_current = xs[ys == y]
+        color = cmap(normalize_ys(y))
+        color = np.array(color).reshape((1, -1))
+        label = f'Cluster {y}'
+
+        ax.scatter(xs_current[:, 0], xs_current[:, 1], c=color, label=label)
+        ax.legend(facecolor='white')
+
+    return ax
+
+
+def plot_soft_heatmap(xs, soft_predictions, ax, cmap):
+
+    nb_classes, nb_points = soft_predictions.shape
+    normaliz_nb = mpl.colors.Normalize(vmin=0, vmax=nb_classes)
+
+    ax.grid(b=None)
+    ax.set_facecolor('white')
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    for i, prediction in enumerate(soft_predictions):
+
+        color = cmap(normaliz_nb(i))
+        colors = np.tile(color, (nb_points, 1))
+        colors[:, 3] = minmax_scale(prediction)
+        label = f'Cluster {i}'
+
+        ax.scatter(xs[:, 0], xs[:, 1], color=colors, label=label)
+        ax.legend(facecolor='white')
+
+        break
+
+    return ax
+
+def plot_predictions(xs, ys, ys_predicted, path=None):
     """
     For each tangle print a heatmap that shows how many cuts each point satisfies.
 
@@ -115,6 +270,7 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
     plt.ioff()
     cmap = plt.cm.get_cmap('tab20')
 
+    normalise_ys_predicted = mpl.colors.Normalize(vmin=0, vmax=np.max(ys_predicted))
     if ys is not None:
         normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
 
@@ -166,138 +322,6 @@ def plot_predictions(xs, ys, predictions_of_order, path=None):
                             c=color, label=label)
 
         ax_pred.legend()
-
-        if path is None:
-            plt.show()
-        else:
-            plt.savefig(output_path / f"Tangle order {order}.svg")
-
-        plt.close(f)
-
-def plot_soft_predictions(xs, ys, prediction, path=None):
-
-    plt.style.use('ggplot')
-    plt.ioff()
-    cmap = plt.cm.get_cmap('tab20')
-
-    if ys is not None:
-        normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
-
-    xs_embedded = TSNE(n_components=2).fit_transform(xs)
-
-    if path is not None:
-        output_path = path / 'points prediction'
-        output_path.mkdir(parents=True, exist_ok=True)
-
-
-    normalise_pred = mpl.colors.Normalize(vmin=0, vmax=np.max(prediction))
-
-    f, (ax_true, ax_pred) = plt.subplots(nrows=1, ncols=2, figsize=(15, 15))
-    ax_true.axis('off'), ax_true.grid(b=None), ax_true.set_title("True clusters")
-    ax_pred.axis('off'), ax_pred.grid(b=None), ax_pred.set_title("Predicted clusters")
-
-    if ys is not None:
-        for y in np.unique(ys):
-
-            xs_current = xs_embedded[ys == y]
-            color = cmap(normalise_ys(y))
-            color = np.array(color).reshape((1, -1))
-            label = f'cluster {y}'
-
-            ax_true.scatter(xs_current[:, 0], xs_current[:, 1],
-                                c=color, label=label)
-        ax_true.legend()
-
-        for y in range(prediction.shape[0]):
-
-            xs_current = xs_embedded[prediction[y,:] > 0]
-            if y != NAN:
-                color = cmap(normalise_ys(y))
-                color = np.array(color).reshape((1, -1))
-                label = f'cluster {y}'
-            else:
-                color = COLOR_SILVER_RGB
-                label = f'no cluster'
-
-            color = np.array(color).reshape((1, -1))
-            ax_pred.scatter(xs_current[:, 0], xs_current[:, 1],
-                            c=color, label=label, s=prediction[y]**2)
-
-        ax_pred.legend()
-
-        if path is None:
-            plt.show()
-
-        plt.close(f)
-
-
-def plot_predictions_graph(G, ys, predictions_of_order, path=None):
-    """
-    For each tangle print a heatmap that shows how many cuts each point satisfies.
-
-    Parameters
-    ----------
-    all_cuts: array of shape [nb_cuts, nb_points]
-        the collection of all cuts
-    ys: array of shape [n_points]
-        The array of class labels
-    predictions_of_order: dict of list of Specification
-        A dictionary where the key is the order and the value is a list of all the tangles of that order
-    path:
-
-    Returns
-    -------
-
-    """
-
-    path.mkdir(parents=True, exist_ok=True)
-    plt.style.use('ggplot')
-    plt.ioff()
-    cmap = plt.cm.get_cmap('tab10')
-    if ys is not None:
-        normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
-
-    if path is not None:
-        output_path = path / 'graph prediction'
-        output_path.mkdir(parents=True, exist_ok=True)
-
-    pos = get_position(G, ys)
-
-    for order, prediction in predictions_of_order.items():
-
-        normalise_pred = mpl.colors.Normalize(vmin=0, vmax=np.max(prediction))
-
-        f, (ax_true, ax_pred) = plt.subplots(
-            nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(
-            b=None), ax_true.set_title("True clusters")
-        ax_pred.axis('off'), ax_pred.grid(
-            b=None), ax_pred.set_title("Predicted clusters")
-
-        colors = np.zeros((len(ys), 4))
-        if ys is not None:
-            for y in np.unique(ys):
-                color = cmap(normalise_ys(y))
-                colors[ys == y, :] = color
-        else:
-            colors[:] = COLOR_SILVER_RGB
-
-        nx.draw_networkx(G, pos=pos, ax=ax_true,
-                         node_color=colors,
-                         edge_color=COLOR_SILVER)
-
-        colors = np.zeros((len(prediction), 4))
-        for y in np.unique(prediction):
-
-            if y != NAN:
-                color = cmap(normalise_pred(y))
-                colors[prediction == y, :] = color
-            else:
-                colors[prediction == y, :] = COLOR_SILVER_RGB
-
-        nx.draw_networkx(G, pos=pos, ax=ax_pred,
-                         node_color=colors,
-                         edge_color=COLOR_SILVER)
 
         if path is None:
             plt.show()

@@ -162,8 +162,9 @@ def maximize(xs, A, B, D):
     return g_max, a_res, b_res
 
 
-def kernighan_lin(A, nb_cuts, lb_f, verbose):
+def kernighan_lin(A, nb_cuts, lb_f, seed, verbose):
     cuts = []
+    np.random.seed(seed)
 
     for i in range(nb_cuts):
         f = np.random.uniform(lb_f, 0.5)
@@ -231,8 +232,10 @@ def kernighan_lin_algorithm(xs, fraction):
 #
 # ----------------------------------------------------------------------------------------------------------------------
 
-def fid_mat(xs, nb_cuts, lb_f, verbose):
+def fid_mat(xs, nb_cuts, lb_f, seed, verbose):
     cuts = []
+
+    np.random.seed(seed)
 
     for i in range(nb_cuts):
         if verbose >= 3:

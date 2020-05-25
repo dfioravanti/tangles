@@ -82,12 +82,21 @@ def load_validate_settings(args_parser, root_dir):
     args = merge_config(args_parser, main_cfg)
     args = validate_settings(args)
 
+    args = deactivate_plots(args)
     args = delete_useless_parameters(args)
 
     args['prefix'] = get_prefix(args)
 
     return args
 
+def deactivate_plots(args):
+
+    if args['plot']['no_plots']:
+        for key in args['plot']:
+            if key != 'no_plots':
+                args['plot'][key] = False
+
+    return args
 
 def delete_useless_parameters(args):
 
@@ -128,7 +137,7 @@ def merge_config(args_parser, main_cfg):
     """
 
     if args_parser.seed is not None:
-        main_cfg['seed'] = args_parser.seed
+        main_cfg['experiment']['seed'] = args_parser.seed
 
     if args_parser.dataset_name is not None:
         main_cfg['experiment']['dataset_name'] = args_parser.dataset_name
@@ -186,10 +195,8 @@ def merge_config(args_parser, main_cfg):
         if args_parser.lb_f is not None:
             main_cfg['preprocessing'][PREPROCESSING_FID_MAT]['lb_f'] = args_parser.lb_f
 
-    if args_parser.plot_tangles is not None:
-        main_cfg['plot']['tangles'] = args_parser.plot_tangles
-    if args_parser.plot_cuts is not None:
-        main_cfg['plot']['cuts'] = args_parser.plot_cuts
+    if args_parser.no_plots is not None:
+        main_cfg['plot']['no_plots'] = args_parser.no_plots
 
     if args_parser.unique_id is not None:
         main_cfg['experiment']['unique_id'] = str(args_parser.unique_id)

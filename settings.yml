@@ -2,9 +2,9 @@
 # allowed types: single, batch
 experiment:
   seed: 42
-  dataset_name: retinal
-  preprocessing_name: bin_lik
-  agreement: 200
+  dataset_name: knn_blobs
+  preprocessing_name: fid_mat
+  agreement: 40
   percentile_orders: 100
 
 dataset:
@@ -15,19 +15,19 @@ dataset:
 
   sbm:
     block_sizes: [100, 100]
-    p: 0.3
-    q: 0.1
+    p: 0.64
+    q: 0.41
 
   knn_blobs:
-    blob_sizes: [50, 50, 50, 50]
-    blob_centers: [[-2, -2], [2, -2], [-2, 2], [2, 2]]
+    blob_sizes: [120, 60, 60]
+    blob_centers: [[-1, 0], [1, -1], [1, 1]]
     k: 10
 
   mindsets:
-    mindset_sizes: [100, 100]
-    nb_questions: 50
+    mindset_sizes: [10, 10]
+    nb_questions: 10
     nb_useless: 0
-    noise: 0.3
+    noise: 0
 
   q:
     nb_samples: 1000
@@ -66,15 +66,18 @@ preprocessing:
     n_max: 20
 
   fid_mat:
-    nb_cuts: 100
-    lb_f: 0.1
+    nb_cuts: 2
+    lb_f: 0.2
 
 # -1 in nb_cuts means all
 plot:
-  tangles: True
-  cuts: True
-  heatmap: True
+  no_plots: false
+  tree: True
+  tangles: False
+  cuts: False
   nb_cuts: 10
+  soft: True
+  hard: True
 
 # 0, 1, 2, 3 allowed
 # 0: Nothing

@@ -1,98 +1,101 @@
-import bitarray as ba
+from itertools import combinations
+from copy import deepcopy
+
 import numpy as np
+import bitarray as ba
+from bitarray.util import subset
 
-from src.oriented_cuts import Specification
 
-
-def core_algorithm(tangles, current_cuts, idx_current_cuts, agreement):
+class Tangle(dict):
     """
-    Algorithm to compute the tangles by using the core heuristic.
-    The algorithm can be outlined as follows
-        1. For each old tangle we try to add the current cut in both orientations and
-           we check if it can be done as outlined in the paper.
-        2. If a tangle can be extended we mark it as extended, we remove the old one and add the new one
-
-
-    Parameters
-    ----------
-    tangles: list
-        The list of all FULL tangles computed up until now
-    current_cuts: list
-        The list of cuts that we need to try to add to the tangles. They are ordered by order
-    idx_current_cuts: list
-        The list of indexes of the current cuts in the list of all cuts
-    agreement: int
-        Minimum triplet size for a tangle to be a tangle.
-
-    Returns
-    -------
-    tangles: list
-        The list of all new tangles, both full and not
+    This class represents an oriented cut as a couple of lists and a dictionary.
+        - cuts contains all the biparitions of the specification defined as binary arrays.
+          1 means that that x belongs to the partition and 0 that it does not.
+          It is implemented with bitarrays for max speed
+        - core contains all the biparitions of the core of the specification defined as binary arrays.
+          1 means that that x belongs to the partition and 0 that it does not.
+          It is implemented with bitarrays for max speed
+        - specification is a dictionary there the key is the index of the cut in the list of all the cuts and
+          the value is which orientation of that specification we need to take
     """
+    def __init__(self, cuts=[], core=[], specification={}):
 
-    old_tangles = tangles
+        """
+        Initialise a new specification
 
-    for i, cut in zip(idx_current_cuts, current_cuts):
-        new_tangles = []
+        Parameters
+        ----------
+        cuts: list of bitarray
+            All the biparitions of the specification
+        core: list of bitarray
+            All the biparitions of the core of the specification
+        specification: dict of bool
+            The key is the index of the cut in the list of all the cuts and
+            the value is which orientation of that specification we need to take
+        """
 
-        if old_tangles == []:
-            if np.sum(cut) >= agreement:
-                array = ba.bitarray(list(cut))
-                new_tangles.append(Specification(cuts=[array],
-                                                 core=[array],
-                                                 specification={i: True})
-                                   )
-            if np.sum(~cut) >= agreement:
-                array = ba.bitarray(list(~cut))
-                new_tangles.append(Specification(cuts=[array],
-                                                 core=[array],
-                                                 specification={i: False})
-                                   )
-            old_tangles = new_tangles
+        self.cuts = cuts
+        self.core = core
+        self.specification = specification
+
+    def add(self, new_cut, new_cut_specification, min_size):
+
+        """
+        Check if new_cut can be added to the current orientation
+
+        Parameters
+        ----------
+        new_cut: bitarray
+            The bipartition that we need to add as bitarray
+        new_cut_specification: dict of bool
+            The specification of new_cut
+        min_size:
+            Minimum triplet size that we accept for it to be a tangle
+
+        Returns
+        -------
+        new_specification: Specification or None
+            If it is possible to add we return the new specification otherwise we return None
+        """
+
+        cuts = deepcopy(self.cuts)
+        core = deepcopy(self.core)
+        specification = deepcopy(self.specification)
+
+        for i, core_cut in enumerate(core):
+            if subset(core_cut, new_cut):
+                cuts.append(new_cut)
+                specification.update(new_cut_specification)
+                return Tangle(cuts, core, specification)
+            if subset(new_cut, core_cut):
+                del core[i]
+
+        if len(core) == 0:
+            if new_cut.count() < min_size:
+                return None
+        elif len(core) == 1:
+            if (core[0] & new_cut).count() < min_size:
+                return None
         else:
-            while old_tangles != []:
-                tau = old_tangles.pop(0)
-                new_tangle = tau.add(new_cut=ba.bitarray(list(cut)),
-                                     new_specification={i: True},
-                                     min_size=agreement)
-                if new_tangle is not None:
-                    new_tangles.append(new_tangle)
+            for core1, core2 in combinations(core, 2):
+                if (core1 & core2 & new_cut).count() < min_size:
+                    return None
 
-                new_tangle = tau.add(new_cut=ba.bitarray(list(~cut)),
-                                     new_specification={i: False},
-                                     min_size=agreement)
-                if new_tangle is not None:
-                    new_tangles.append(new_tangle)
+        cuts.append(new_cut)
+        core.append(new_cut)
+        specification.update(new_cut_specification)
 
-            if new_tangles == []:
-                break
-            else:
-                old_tangles = new_tangles
-
-    return new_tangles
+        return Tangle(cuts, core, specification)
 
 
-def remove_incomplete_tangles(tangles, nb_cuts_considered):
-    """
-    Given a list of tangles we remove the tangles that are not using all the cuts available.
-    In other words we remove all the partial specifications and we leave only the specifications
+def core_algorithm(tangles_tree, current_cuts, idx_current_cuts, agreement):
 
-    Parameters
-    ----------
-    tangles: list
-        The list of all tangles computed up until now
-    nb_cuts_considered: int
-        The number of cuts that have been considered up until now
+    new_tree = deepcopy(tangles_tree)
 
-    Returns
-    -------
-    tangles: list
-        The list of all FULL tangles computed up until now
-    """
+    for idx_cut, cut in zip(idx_current_cuts, current_cuts):
 
-    idx = reversed(range(len(tangles)))
-    for i in idx:
-        if len(tangles[i].cuts) < nb_cuts_considered:
-            del tangles[i]
+        could_add = new_tree.add_cut(cut=cut, cut_id=idx_cut, agreement=agreement)
+        if could_add == False:
+            return None
 
-    return tangles
+    return new_tree

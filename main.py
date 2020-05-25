@@ -1,14 +1,13 @@
 from pathlib import Path
 
-import json
-import pandas as pd
-
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
-from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting, \
+from src.execution import compute_clusters, compute_and_save_evaluation, get_dataset_cuts_order, tangle_computation, plotting_hard_clustering, \
                           compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, \
-                          tangles_to_range_answers, centers_in_range_answers
-from src.plotting import plot_heatmap
+                          tangles_to_range_answers, centers_in_range_answers, compute_soft_predictions, compute_hard_preditions
+from src.plotting import plot_soft_predictions, plot_hard_predictions
+from src.tree_tangles import contract_tree
+from src.utils import get_id
 
 
 def main(args):
@@ -33,58 +32,52 @@ def main(args):
     -------
     """
 
-    foundamental_parameters = {**args['experiment'], **args['dataset'], **args['preprocessing']}
+    hyperparameters = {**args['experiment'], **args['dataset'], **args['preprocessing']}
 
-    unique_id = hash(json.dumps(foundamental_parameters, sort_keys=True))
-    df_output = pd.DataFrame()
+    id_run = get_id(hyperparameters)
 
     if args['verbose'] >= 1:
-        print(f'Working with parameters = {foundamental_parameters}', flush=True)
+        print(f'ID for the run = {id_run}')
+        print(f'Working with hyperparameters = {hyperparameters}')
+        print(f'Plot settings = {args["plot"]}', flush=True)
 
-    data, orders, all_cuts, name_cuts = get_dataset_cuts_order(args)
-    max_order = orders.max()
+    data, orders, cuts, name_cuts = get_dataset_cuts_order(args)
 
-    tangles_by_order = tangle_computation(all_cuts=all_cuts,
-                                          orders=orders,
-                                          agreement=args['experiment']['agreement'],
-                                          verbose=args['verbose'])
+    tangles_tree = tangle_computation(cuts=cuts,
+                                      orders=orders,
+                                      agreement=args['experiment']['agreement'],
+                                      verbose=args['verbose'])
 
-    # max_tangles = compute_maximal_tangles(tangles_by_order)
-    predictions_by_order = compute_clusters(tangles_by_orders=tangles_by_order,
-                                            all_cuts=all_cuts,
-                                            verbose=args['verbose'])
+    if args['plot']['tree']:
+        tangles_tree.plot_tree(path=args['output_dir']/'tree.svg')
+    
+    contracted_tree = contract_tree(tangles_tree)
+    if args['plot']['tree']:
+        contracted_tree.plot_tree(path=args['output_dir']/'contracted.svg')
+
+    compute_soft_predictions(contracted_tree=contracted_tree,
+                             cuts=cuts,
+                             orders=orders,
+                             verbose=args['verbose'])
+
+    if args['plot']['soft']:
+        path = args['output_dir'] / 'clustering'
+        plot_soft_predictions(data, contracted_tree, path=path)
+
+    ys_predicted = compute_hard_preditions(contracted_tree, cuts=cuts)
+    
+    if args['plot']['hard']:
+        path = args['output_dir'] / 'clustering'
+        plot_hard_predictions(data, ys_predicted, path=path)
 
     if data['ys'] is not None:
-        evaluation = compute_evaluation(data['ys'], predictions_by_order)
-        order_best = evaluation['order_best']
-        if args['verbose'] >= 1:
-            print(f'Best result \n\t {evaluation}', flush=True)
+        compute_and_save_evaluation(ys=data['ys'], 
+                                    ys_predicted=ys_predicted,
+                                    hyperparameters=hyperparameters, 
+                                    id_run=id_run,
+                                    path=args['output_dir'])
 
-        new_row = pd.Series({**foundamental_parameters, **evaluation, 'max_order': max_order})
-        df_output = df_output.append(new_row, ignore_index=True)
-        path = args['output_dir'] / f'evaluation_{unique_id}.csv'
-        df_output.to_csv(path)
-
-        if args['plot']['heatmap']:
-            plot_heatmap(data=data, tangles=tangles_by_order[order_best], 
-                         cuts=all_cuts, path=args['plot_dir'])
-
-    else:
-        order_best = None
-
-    if name_cuts is not None:
-        range_answers = tangles_to_range_answers(tangles_by_order[order_best], name_cuts,
-                                                 interval_values=args['preprocessing']['range_answers'],
-                                                 path=args['output_dir'])
-        if data['cs'] is not None:
-            centers_in_range_answers(data['cs'], range_answers)
-        print_tangles_names(name_cuts, tangles_by_order, order_best,
-                            path=args['answers_dir'],
-                            verbose=args['verbose'])
-
-    if args['plot']['tangles']:
-        plotting(data, predictions_by_order, verbose=args['verbose'], path=args['plot_dir'])
-
+    exit(0)
 
 if __name__ == '__main__':
 

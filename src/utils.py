@@ -1,10 +1,63 @@
 import itertools
-
-from numpy import pi, cos, sin, sqrt, arange
+import hashlib
+import json
 
 import numpy as np
-
+from numpy import pi, cos, sin, sqrt, arange
 from sklearn.manifold import TSNE
+
+class Orientation(object):
+
+    def __init__(self, direction):
+        if direction == 'both':
+            self.direction = direction
+        elif direction == True:
+            self.direction = 'left'
+        elif direction == False:
+            self.direction = 'right'
+
+    def __eq__(self, value):
+        
+        if self.direction == 'both' or value.direction == 'both':
+            return True
+        if self.direction == value.direction:
+            return True
+
+        return False
+
+def get_id(d):
+    return hashlib.md5(json.dumps(d, sort_keys=True).encode('utf-8')).hexdigest()
+
+def normalize(array):
+    ptp = np.ptp(array)
+    if ptp != 0:
+        return (array - np.min(array))/np.ptp(array)
+    else:
+        return array
+
+
+def matching_items(d1, d2):
+
+    matching_keys = []
+    common_keys = d1.keys() & d2.keys()
+    for k in common_keys:
+        if d1[k] == d2[k]:
+            matching_keys.append(k)
+
+    return matching_keys
+
+
+def merge_dictionaries_with_disagreements(d1, d2):
+
+    merge = {**d1, **d2}
+    common_keys = d1.keys() & d2.keys()
+
+    for k in common_keys:
+        if d1[k] != d2[k]:
+            merge.pop(k)
+
+    return merge
+
 
 
 def get_positions_from_labels(ys):
@@ -35,10 +88,10 @@ def get_points_to_plot(xs, cs):
     if nb_features > 2:
         if cs is not None:
             points_to_embed = np.vstack([xs, cs])
-            embeds = TSNE(n_components=2, metric='manhattan', perplexity=10).fit_transform(points_to_embed)
+            embeds = TSNE(n_components=2, metric='manhattan', random_state=42).fit_transform(points_to_embed)
             xs_embedded, cs_embedded = embeds[:-nb_centers], embeds[-nb_centers:]
         else:
-            xs_embedded = TSNE(n_components=2, metric='manhattan').fit_transform(xs)
+            xs_embedded = TSNE(n_components=2, metric='manhattan', random_state=42).fit_transform(xs)
     else:
         xs_embedded = xs
 
