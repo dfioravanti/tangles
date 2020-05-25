@@ -50,7 +50,7 @@ def make_parser():
     parser.add_argument('--id', dest='unique_id', action='store', default=0)
 
     # Plotting
-    parser.add_argument('--yes_plots', dest='no_plots', action='store_true', default=None)
-    parser.add_argument('--no_plots', dest='no_plots', action='store_false', default=None)
+    parser.add_argument('--yes_plots', dest='no_plots', action='store_false', default=None)
+    parser.add_argument('--no_plots', dest='no_plots', action='store_true', default=None)
 
     return parser

@@ -13,7 +13,7 @@ parameters = {}
 multi_parameters = {}
 
 parameters['--id'] = ts
-parameters['-t'] = DATASET_MINDSETS
+parameters['-t'] = DATASET_SBM
 
 multi_parameters['-s'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 #multi_parameters['-s'] = [42]
@@ -70,7 +70,7 @@ with open('parameters.txt', 'w') as f:
 
             line += [f'{k} {str_v}']
 
-        line += ['--no_plot_tangles', '--no_plot_cuts']
+        line += ['--no_plots']
 
         line = ' '.join(line)
         print(line, file=f)
