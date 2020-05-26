@@ -98,10 +98,10 @@ class TangleTree(object):
     def _add_cut_to_node(self, current_node, cut, cut_id, agreement):
 
         old_tangle = current_node.tangle
-        new_tangle_true = old_tangle.add(new_cut=ba.bitarray(list(cut)),
+        new_tangle_true = old_tangle.add(new_cut=ba.bitarray(cut.tolist()),
                                          new_cut_specification={cut_id: True},
                                          min_size=agreement)
-        new_tangle_false = old_tangle.add(new_cut=ba.bitarray(list(~cut)),
+        new_tangle_false = old_tangle.add(new_cut=ba.bitarray((~cut).tolist()),
                                           new_cut_specification={cut_id: False},
                                           min_size=agreement)
 
@@ -115,7 +115,7 @@ class TangleTree(object):
     def _add_cut_to_empty_tree(self, cut, cut_id, agreement):
         
         if np.sum(cut) >= agreement:
-            array = ba.bitarray(list(cut))
+            array = ba.bitarray(cut.tolist())
             new_tangle_true = Tangle(cuts=[array],
                                      core=[array],
                                      specification={cut_id: True})
@@ -123,7 +123,7 @@ class TangleTree(object):
             new_tangle_true = None
 
         if np.sum(~cut) >= agreement:
-            array = ba.bitarray(list(~cut))
+            array = ba.bitarray((~cut).tolist())
             new_tangle_false = Tangle(cuts=[array],
                                      core=[array],
                                      specification={cut_id: False})

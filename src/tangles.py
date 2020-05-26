@@ -62,14 +62,18 @@ class Tangle(dict):
         core = deepcopy(self.core)
         specification = deepcopy(self.specification)
 
+        i_to_remove = []
         for i, core_cut in enumerate(core):
             if subset(core_cut, new_cut):
                 cuts.append(new_cut)
                 specification.update(new_cut_specification)
                 return Tangle(cuts, core, specification)
             if subset(new_cut, core_cut):
-                del core[i]
+                i_to_remove.append(i)
 
+        for i in i_to_remove[::-1]:
+            del core[i]
+            
         if len(core) == 0:
             if new_cut.count() < min_size:
                 return None

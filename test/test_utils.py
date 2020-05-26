@@ -1,6 +1,6 @@
 import pytest
 
-from src.utils import merge_dictionaries_with_disagreements,matching_items
+from src.utils import merge_dictionaries_with_disagreements, matching_items
 
 class Test_matching_items():
 
