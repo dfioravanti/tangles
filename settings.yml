@@ -1,21 +1,26 @@
 
 # allowed types: single, batch
 experiment:
-  seed: 42
-  dataset_name: knn_blobs
+  seed: 50
+  dataset_name: moons
   preprocessing_name: fid_mat
-  agreement: 40
+  agreement: 100
   percentile_orders: 100
 
 dataset:
+
+  moons:
+    n_samples: 300
+    noise: 0.2
+    radius: 0.3
 
   retinal:
     nb_bins: 10
     max_idx: 75
 
   sbm:
-    block_sizes: [100, 100]
-    p: 0.64
+    block_sizes: [120, 60, 60]
+    p: 0.6
     q: 0.41
 
   knn_blobs:
@@ -24,10 +29,10 @@ dataset:
     k: 10
 
   mindsets:
-    mindset_sizes: [10, 10]
-    nb_questions: 10
+    mindset_sizes: [100, 100]
+    nb_questions: 20
     nb_useless: 0
-    noise: 0
+    noise: 0.2
 
   q:
     nb_samples: 1000
@@ -59,22 +64,22 @@ preprocessing:
 
   karnig_lin:
     nb_cuts: 100
-    lb_f: 0.3
+    lb_f: 0.1
 
   coarsening:
     nb_cuts: 300
     n_max: 20
 
   fid_mat:
-    nb_cuts: 2
-    lb_f: 0.2
+    nb_cuts: 50
+    lb_f: 0.3
 
 # -1 in nb_cuts means all
 plot:
   no_plots: false
   tree: True
   tangles: False
-  cuts: False
+  cuts: True
   nb_cuts: 10
   soft: True
   hard: True

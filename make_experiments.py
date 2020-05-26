@@ -13,7 +13,7 @@ parameters = {}
 multi_parameters = {}
 
 parameters['--id'] = ts
-parameters['-t'] = DATASET_SBM
+parameters['-t'] = DATASET_MINDSETS
 
 multi_parameters['-s'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 #multi_parameters['-s'] = [42]

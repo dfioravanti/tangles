@@ -1,7 +1,13 @@
 from functools import partial
 
+from sklearn.neighbors import radius_neighbors_graph
+from sklearn.datasets import make_moons
+
+import networkx as nx
+
 from src.config import DATASET_SBM, DATASET_QUESTIONNAIRE, DATASET_KNN_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
-    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES
+    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS
+
 from src.datasets.cancer import load_CANCER
 from src.datasets.cancer10 import load_CANCER10
 from src.datasets.graphs import load_SBM
@@ -80,6 +86,17 @@ def get_dataset_and_order_function(args):
         data['xs'] = xs
         data['ys'] = ys
         order_function = partial(implicit_order, xs, 200)
+    elif args['experiment']['dataset_name'] == DATASET_MOONS:
+        xs, ys = make_moons(n_samples=args['dataset']['n_samples'],
+                            noise=args['dataset']['noise'],
+                            random_state=args['experiment']['seed'])
+        A = radius_neighbors_graph(xs, radius=args['dataset']['radius']).toarray()
+        G = nx.from_numpy_matrix(A)
+        data['xs'] = xs
+        data['ys'] = ys
+        data['A'] = A
+        data['G'] = G
+        order_function = partial(cut_order, A)
     elif args['experiment']['dataset_name'] == DATASET_MIES:
         xs, ys = load_MIES(root_path=args['root_dir'])
 

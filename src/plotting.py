@@ -5,6 +5,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
+import seaborn as sns
+
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import minmax_scale
 
@@ -382,3 +384,26 @@ def make_result_heatmap(data, ax, x_column, y_column, values_column):
     ax.set_yticks(np.arange(len(ys)+1)-.5, minor=True)
     ax.grid(b=True, which="minor", color="w", linestyle='-', linewidth=5)
     ax.tick_params(which="minor", bottom=False, left=False)
+
+
+def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column):
+
+    plt.rc('font', family='serif')
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    exp = exp_df.pivot(index=y_column, columns=x_column, values=values_column
+                      ).round(2).sort_index(ascending=False).sort_index(axis=1)
+    ref = ref_df.pivot(index=y_column, columns=x_column, values=values_column
+                      ).round(2).sort_index(ascending=False).sort_index(axis=1)
+
+    difference_df = exp - ref
+
+    xs = difference_df.columns.to_numpy()
+    ys = difference_df.index.to_numpy()
+    values = difference_df.to_numpy().round(2)
+    
+    heat_map = sns.heatmap(difference_df, center=0, cmap='BrBG', annot=True, linewidths=1, cbar_kws={'label': 'Difference in Rand score'})
+    heat_map.set_yticklabels(heat_map.get_yticklabels(), rotation=0) 
+    heat_map.set_ylabel(heat_map.get_ylabel(), rotation=0, labelpad=15) 
+
+    return fig, ax
