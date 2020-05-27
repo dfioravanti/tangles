@@ -42,7 +42,7 @@ def normalize(array):
     if ptp != 0:
         return (array - np.min(array))/np.ptp(array)
     else:
-        return array
+        return np.zeros_like(array)
 
 
 def matching_items(d1, d2):
