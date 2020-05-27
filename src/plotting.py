@@ -150,6 +150,8 @@ def plot_soft_prediction_node(data, node, eq_cuts, id_node, cmap, path, pos):
             eq_characterizing_cuts = eq_cuts[id_characterizing_cuts]
         else:
             eq_characterizing_cuts = []
+    else:
+            eq_characterizing_cuts = []
 
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
     plot_dataset(data, colors, eq_cuts=eq_characterizing_cuts, ax=ax, cmap=cmap, pos=pos)

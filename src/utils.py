@@ -37,12 +37,13 @@ class Orientation(object):
 def get_id(d):
     return hashlib.md5(json.dumps(d, sort_keys=True).encode('utf-8')).hexdigest()
 
+
 def normalize(array):
     ptp = np.ptp(array)
     if ptp != 0:
         return (array - np.min(array))/np.ptp(array)
     else:
-        return np.zeros_like(array)
+        return np.ones_like(array)
 
 
 def matching_items(d1, d2):
