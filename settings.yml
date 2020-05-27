@@ -1,10 +1,10 @@
 
 # allowed types: single, batch
 experiment:
-  seed: 50
-  dataset_name: blobs
-  preprocessing_name: linear
-  agreement: 30
+  seed: 80
+  dataset_name: cancer
+  preprocessing_name: bin_lik
+  agreement: 50
   percentile_orders: 100
 
 dataset:
@@ -19,13 +19,13 @@ dataset:
     max_idx: 75
 
   sbm:
-    block_sizes: [120, 60, 60]
-    p: 0.6
-    q: 0.41
+    block_sizes: [100, 100]
+    p: 0.92
+    q: 0.78
 
   blobs:
-    blob_sizes: [120, 60, 60]
-    blob_centers: [[-2, 0], [2, -2], [2, 2]]
+    blob_sizes: [60, 60, 60, 60]
+    blob_centers: [[-2, 2], [-2, -2], [2, -2], [2, 2]]
     radius: 0.5
 
   mindsets:
@@ -39,7 +39,7 @@ dataset:
     nb_features: 70
     nb_mindsets: 5
     centers: False
-    range_answers: [1, 10]
+    range_answers: [1, 5]
 
   pol_books:
     path_edges: datasets/pol_books/political-books-edges.csv
@@ -63,10 +63,12 @@ preprocessing:
   linear:
     equations: [[1, 0, 0.5],
                 [1, 0, 1],
-                [1, -1, -1],
-                [1, -1, -1.5],
-                [1, 1, 1],
-                [1, 1, 1.5]]
+                [1, 0, -0.5],
+                [1, 0, -1],
+                [0, 1, -0.5],
+                [0, 1, -1],
+                [0, 1, 0.5],
+                [0, 1, 1]]
 
   bin_lik:
     range_answers: [1, 10]
@@ -80,15 +82,15 @@ preprocessing:
     n_max: 20
 
   fid_mat:
-    nb_cuts: 5
-    lb_f: 0.2
+    nb_cuts: 50
+    lb_f: 0.4
 
 # -1 in nb_cuts means all
 plot:
   no_plots: false
   tree: True
   tangles: False
-  cuts: True
+  cuts: False
   nb_cuts: 10
   soft: True
   hard: True
