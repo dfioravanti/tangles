@@ -24,6 +24,15 @@ class Orientation(object):
             return True
 
         return False
+    
+    def __str__(self):
+        if self.direction == 'both':
+            return direction
+        elif self.direction == 'left':
+            return 'True'
+        elif self.direction == 'right':
+            return 'False'
+
 
 def get_id(d):
     return hashlib.md5(json.dumps(d, sort_keys=True).encode('utf-8')).hexdigest()

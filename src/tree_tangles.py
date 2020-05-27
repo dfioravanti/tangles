@@ -27,6 +27,24 @@ class TangleNode(object):
         self.last_cut_added_orientation = last_cut_added_orientation
         
         self.tangle = tangle
+        
+    def __str__(self, height=0):
+        
+        if self.parent is None:
+            string = 'Root'
+        else:
+            padding = ' '
+            string = f'{padding*height}{self.last_cut_added_id} -> {self.last_cut_added_orientation}'
+            
+        if self.left_child is not None:
+            string += '\n'
+            string += self.left_child.__str__(height=height+1)
+        if self.right_child is not None:
+            string += '\n'
+            string += self.right_child.__str__(height=height+1)
+            
+        return string
+    
 
 class ContractedTangleNode(TangleNode):
 
@@ -46,6 +64,24 @@ class ContractedTangleNode(TangleNode):
         self.is_right_child_processed = False       
 
         self.p = None 
+        
+    def __str__(self, height=0):
+        
+        if self.parent is None:
+            string = 'Root'
+        else:
+            padding = ' '
+            string_cuts = [f'{k} -> {v}' for k, v in self.characterizing_cuts.items()]
+            string = f'{padding*height}{string_cuts}'
+            
+        if self.left_child is not None:
+            string += '\n'
+            string += self.left_child.__str__(height=height+1)
+        if self.right_child is not None:
+            string += '\n'
+            string += self.right_child.__str__(height=height+1)
+            
+        return string
 
 class TangleTree(object):
     
@@ -63,6 +99,9 @@ class TangleTree(object):
         self.maximals = []
         self.will_split = []
         self.is_empty = True
+        
+    def __str__(self):
+        return str(self.root)
 
     def add_cut(self, cut, cut_id, agreement):
         
@@ -233,6 +272,9 @@ class ContractedTangleTree(TangleTree):
         self.maximals = []
         self.will_split = []
         self.root = self._convert_subtree(parent=None, node=tree.root)
+
+    def __str__(self):
+        return str(self.root)
 
     def _convert_subtree(self, parent, node):
 
