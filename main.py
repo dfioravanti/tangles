@@ -41,13 +41,13 @@ def main(args):
         print(f'Working with hyperparameters = {hyperparameters}')
         print(f'Plot settings = {args["plot"]}', flush=True)
 
-    data, orders, cuts, name_cuts = get_dataset_cuts_order(args)
+    data, orders, cuts = get_dataset_cuts_order(args)
 
     tangles_tree = tangle_computation(cuts=cuts,
                                       orders=orders,
                                       agreement=args['experiment']['agreement'],
                                       verbose=args['verbose'])
-
+    
     if args['plot']['tree']:
         tangles_tree.plot_tree(path=args['output_dir']/'tree.svg')
     
@@ -56,7 +56,7 @@ def main(args):
         contracted_tree.plot_tree(path=args['output_dir']/'contracted.svg')
 
     compute_soft_predictions(contracted_tree=contracted_tree,
-                             cuts=cuts,
+                             cuts=cuts['values'],
                              orders=orders,
                              verbose=args['verbose'])
 
@@ -64,8 +64,8 @@ def main(args):
         path = args['output_dir'] / 'clustering'
         plot_soft_predictions(data, contracted_tree, path=path)
 
-    ys_predicted = compute_hard_preditions(contracted_tree, cuts=cuts)
-    
+    ys_predicted = compute_hard_preditions(contracted_tree, cuts=cuts['values'])
+
     if args['plot']['hard']:
         path = args['output_dir'] / 'clustering'
         plot_hard_predictions(data, ys_predicted, path=path)

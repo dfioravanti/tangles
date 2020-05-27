@@ -5,13 +5,13 @@ from sklearn.datasets import make_moons
 
 import networkx as nx
 
-from src.config import DATASET_SBM, DATASET_QUESTIONNAIRE, DATASET_KNN_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
+from src.config import DATASET_SBM, DATASET_QUESTIONNAIRE, DATASET_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
     DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS
 
 from src.datasets.cancer import load_CANCER
 from src.datasets.cancer10 import load_CANCER10
 from src.datasets.graphs import load_SBM
-from src.datasets.kNN import load_knn_blobs
+from src.datasets.kNN import load_blobs
 from src.datasets.mies import load_MIES
 from src.datasets.mindsets import make_mindsets
 from src.datasets.questionnaire import make_questionnaire
@@ -97,24 +97,11 @@ def get_dataset_and_order_function(args):
         data['A'] = A
         data['G'] = G
         order_function = partial(cut_order, A)
-    elif args['experiment']['dataset_name'] == DATASET_MIES:
-        xs, ys = load_MIES(root_path=args['root_dir'])
-
-        data['xs'] = xs
-        data['ys'] = ys
-        order_function = partial(implicit_order, xs, 300)
     elif args['experiment']['dataset_name'] == DATASET_CANCER:
         xs, ys = load_CANCER(args['dataset']['nb_bins'])
 
         data['xs'] = xs
         data['ys'] = ys
-        order_function = partial(implicit_order, xs, None)
-    elif args['experiment']['dataset_name'] == DATASET_CANCER10:
-        xs, ys = load_CANCER10(args['dataset']['path'])
-
-        data['xs'] = xs
-        data['ys'] = ys
-
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_SBM:
         A, ys, G = load_SBM(block_sizes=args['dataset']['block_sizes'],
@@ -126,11 +113,11 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['G'] = G
         order_function = partial(cut_order, A)
-    elif args['experiment']['dataset_name'] == DATASET_KNN_BLOBS:
-        xs, ys, A, G = load_knn_blobs(blob_sizes=args['dataset']['blob_sizes'],
-                                      blob_centers=args['dataset']['blob_centers'],
-                                      k=args['dataset']['k'],
-                                      seed=args['experiment']['seed'])
+    elif args['experiment']['dataset_name'] == DATASET_BLOBS:
+        xs, ys, A, G = load_blobs(blob_sizes=args['dataset']['blob_sizes'],
+                                  blob_centers=args['dataset']['blob_centers'],
+                                  radius=args['dataset']['radius'],
+                                  seed=args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys

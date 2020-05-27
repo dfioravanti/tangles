@@ -198,57 +198,76 @@ def get_position(G, ys):
         pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
     return pos
 
-
-def plot_cuts(xs, ys, cuts, orders, path):
-
-    path.mkdir(parents=True, exist_ok=True)
+def plot_cuts(data, cuts, orders, nb_cuts_to_plot, path):
+    
     plt.style.use('ggplot')
     plt.ioff()
-    cmap = plt.cm.get_cmap('tab10')
-    if ys is not None:
-        normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
-
+    
     if path is not None:
-        path_cuts = path / 'points_cuts'
-        path_cuts.mkdir(parents=True, exist_ok=True)
-
-    _, nb_points = cuts.shape
-    xs_embedded = TSNE(n_components=2).fit_transform(xs)
-
-    for i, cut in enumerate(cuts):
-
-        fig, (ax_true, ax_cut) = plt.subplots(
-            nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(
-            b=None), ax_true.set_title("True clusters")
-        ax_cut.axis('off'), ax_cut.grid(
-            b=None), ax_cut.set_title(f"cut of order {orders[i]}")
-
-        if ys is not None:
-            for y in np.unique(ys):
-                xs_current = xs_embedded[ys == y]
-                color = cmap(normalise_ys(y))
-                color = np.array(color).reshape((1, -1))
-                label = f'cluster {y}'
-
-                ax_true.scatter(xs_current[:, 0], xs_current[:, 1],
-                                c=color, label=label)
-            ax_true.legend()
-        else:
-            color = np.array(COLOR_SILVER_RGB).reshape((1, -1))
-            ax_true.scatter(xs_embedded[:, 0], xs_embedded[:, 1],
-                            c=color)
-
-        colors = np.zeros((nb_points, 4), dtype=float)
-        colors[~cut] = COLOR_SILVER_RGB
-        colors[cut] = COLOR_INDIGO_RGB
-
-        ax_cut.scatter(xs_embedded[:, 0], xs_embedded[:, 1], c=colors)
-
+        path = path / 'cuts'
+        path.mkdir(parents=True, exist_ok=True)
+    
+    values_cuts = cuts['values']
+    eq_cuts = cuts['equations']
+    nb_cuts_to_plot = min(nb_cuts_to_plot, len(values_cuts))
+    pos = None
+        
+    for i in np.arange(nb_cuts_to_plot):
+        eq = eq_cuts[i] if eq_cuts is not None else None
+            
+        fig, pos = plot_cut(data, cut=values_cuts[i], order=orders[i], eq=eq, pos=pos)
         if path is not None:
-            plt.savefig(path_cuts / f"cut number {i}.svg")
+            fig.savefig(path / f"cut number {i}.svg")
+            plt.close(fig)
 
-        plt.close(fig)
+
+def get_lines(xs, eq):
+    
+    min_x, max_x = np.min(xs[:, 0]), np.max(xs[:, 0])
+    min_y, max_y = np.min(xs[:, 1]), np.max(xs[:, 1])
+    
+    x_range = np.linspace(min_x, max_x, 100)
+    y_range = np.linspace(min_y, max_y, 100)
+    
+    if eq[0] == 0:
+        x = x_range
+        y = np.zeros_like(x_range)
+        y.fill(-eq[2] / eq[1])
+    elif eq[1] == 0:
+        x = np.zeros_like(y_range)
+        x.fill( -eq[2] / eq[0])
+        y = y_range
+    else:
+        x = x_range
+        y = -(eq[0] * x_range + eq[2]) / eq[1]
+        
+    return x, y        
+
+   
+def plot_cut(data, cut, order, eq, pos):
+
+    cmap_groundtruth = plt.cm.get_cmap('tab10')
+    cmap_cut = plt.cm.get_cmap('Blues')
+
+    if data['ys'] is not None:
+        fig, (ax_true, ax_cut) = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
+        colors_true = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        ax_true, pos = plot_dataset(data, colors_true, ax=ax_true, add_colorbar=False, pos=pos)
+        ax_true.set_title('Groundtruth')
+        if eq is not None:
+            x, y =  get_lines(data['xs'], eq)
+            ax_true.plot(x, y ,'k--')
+        
+    else:
+        fig, ax_cut = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+
+    ax_cut.set_title('Cut')
+    fig.suptitle(f'Cut of order: {order}')
+
+    color_cut = labels_to_colors(cut, cmap=cmap_cut)
+    ax_cut = plot_dataset(data, color_cut, ax=ax_cut, add_colorbar=False, pos=pos)
+
+    return fig, pos
 
 
 def plot_graph_cuts(G, ys, cuts, orders, path):
@@ -282,39 +301,6 @@ def plot_graph_cuts(G, ys, cuts, orders, path):
         if path is not None:
             plt.savefig(path_cuts / f"cut number {i}.svg")
 
-        plt.close(fig)
-
-
-def plot_evaluation(evaluations, path):
-
-    path.mkdir(parents=True, exist_ok=True)
-    plt.style.use('ggplot')
-    plt.ioff()
-
-    for nb_blocks, p_evaluations in evaluations.items():
-        fig, ax = plt.subplots(1, 1)
-        for i, (p, q_evaluations) in enumerate(p_evaluations.items()):
-
-            cmap = plt.cm.get_cmap('tab10')
-            rgb_color = np.array(cmap(i)).reshape(1, -1)
-            v_scores = []
-            for _, evaluation in q_evaluations.items():
-                v_scores.append(evaluation["v_measure_score"])
-
-            qs = list(q_evaluations.keys())
-
-            ax.scatter(qs, v_scores, c=rgb_color)
-            ax.plot(qs, v_scores, c=rgb_color[0], label=f'p = {p}')
-
-            ax.xaxis.set_ticks(qs)
-            ax.yaxis.set_ticks(np.arange(0, 1.05, 0.05))
-
-        ax.set_ylabel('V-measure')
-        ax.set_xlabel('q')
-        ax.set_title(f'Number of blocks = {nb_blocks}')
-        ax.legend()
-
-        plt.savefig(path / f"Number of blocks {nb_blocks}.svg")
         plt.close(fig)
 
 

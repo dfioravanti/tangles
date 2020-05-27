@@ -27,7 +27,7 @@ class Orientation(object):
     
     def __str__(self):
         if self.direction == 'both':
-            return direction
+            return self.direction
         elif self.direction == 'left':
             return 'True'
         elif self.direction == 'right':

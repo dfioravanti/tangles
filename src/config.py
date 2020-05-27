@@ -22,7 +22,7 @@ DATASET_QUESTIONNAIRE = "q"
 DATASET_RETINAL = "retinal"
 DATASET_MIES = 'mies'
 DATASET_SBM = "sbm"
-DATASET_KNN_BLOBS = "knn_blobs"
+DATASET_BLOBS = "blobs"
 DATASET_CANCER10 = 'cancer10'
 DATASET_CANCER = 'cancer'
 DATASET_MINDSETS = 'mindsets'
@@ -40,12 +40,12 @@ DISCRETE_DATASETS = [
 ]
 
 CONTINUE_DATASETS = [
-   DATASET_MOONS 
+    DATASET_MOONS,
+    DATASET_BLOBS
 ]
 
 GRAPH_DATASETS = [
     DATASET_SBM,
-    DATASET_KNN_BLOBS,
 ]
 
 VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS + CONTINUE_DATASETS
@@ -59,6 +59,7 @@ PREPROCESSING_FID_MAT = "fid_mat"
 PREPROCESSING_COARSENING = "coarsening"
 PREPROCESSING_SUBMODULAR = 'sub'
 PREPROCESSING_BINARIZED_LIKERT = 'bin_lik'
+PREPROCESSING_LINEAR_CUTS = 'linear'
 
 VALID_PREPROCESSING = [
     PREPROCESSING_USE_FEATURES,
@@ -67,7 +68,8 @@ VALID_PREPROCESSING = [
     PREPROCESSING_COARSENING,
     PREPROCESSING_FID_MAT,
     PREPROCESSING_SUBMODULAR,
-    PREPROCESSING_BINARIZED_LIKERT
+    PREPROCESSING_BINARIZED_LIKERT,
+    PREPROCESSING_LINEAR_CUTS
 ]
 
 # Algorithm
@@ -125,7 +127,7 @@ def get_prefix(args):
 
     if args['experiment']['dataset_name'] == DATASET_SBM:
         prefix = f'SMB_{len(args["dataset"]["block_sizes"])}'
-    elif args['experiment']['dataset_name'] == DATASET_KNN_BLOBS:
+    elif args['experiment']['dataset_name'] == DATASET_BLOBS:
         prefix = f'knn_blobs_{len(args["dataset"]["blob_sizes"])}'
     else:
         prefix = args['experiment']['dataset_name']
@@ -161,14 +163,14 @@ def merge_config(args_parser, main_cfg):
             main_cfg['dataset'][DATASET_SBM]['p'] = args_parser.sbm_p
         if args_parser.sbm_q is not None:
             main_cfg['dataset'][DATASET_SBM]['q'] = args_parser.sbm_q
-    elif args_parser.dataset_name == DATASET_KNN_BLOBS:
+    elif args_parser.dataset_name == DATASET_BLOBS:
         if args_parser.gauss_bs is not None:
-            main_cfg['dataset'][DATASET_KNN_BLOBS]['blob_sizes'] = args_parser.gauss_bs
+            main_cfg['dataset'][DATASET_BLOBS]['blob_sizes'] = args_parser.gauss_bs
         if args_parser.gauss_cs is not None:
             centers = np.array(args_parser.gauss_cs).reshape(2, -1).tolist()
-            main_cfg['dataset'][DATASET_KNN_BLOBS]['blob_centers'] = centers
+            main_cfg['dataset'][DATASET_BLOBS]['blob_centers'] = centers
         if args_parser.gauss_k is not None:
-            main_cfg['dataset'][DATASET_KNN_BLOBS]['k'] = args_parser.gauss_k
+            main_cfg['dataset'][DATASET_BLOBS]['radius'] = args_parser.gauss_radius
     elif args_parser.dataset_name == DATASET_MINDSETS:
         if args_parser.mind_sizes is not None:
             main_cfg['dataset'][DATASET_MINDSETS]['mindset_sizes'] = args_parser.mind_sizes

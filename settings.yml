@@ -2,9 +2,9 @@
 # allowed types: single, batch
 experiment:
   seed: 50
-  dataset_name: moons
-  preprocessing_name: fid_mat
-  agreement: 100
+  dataset_name: blobs
+  preprocessing_name: linear
+  agreement: 30
   percentile_orders: 100
 
 dataset:
@@ -23,10 +23,10 @@ dataset:
     p: 0.6
     q: 0.41
 
-  knn_blobs:
+  blobs:
     blob_sizes: [120, 60, 60]
-    blob_centers: [[-1, 0], [1, -1], [1, 1]]
-    k: 10
+    blob_centers: [[-2, 0], [2, -2], [2, 2]]
+    radius: 0.5
 
   mindsets:
     mindset_sizes: [100, 100]
@@ -46,7 +46,7 @@ dataset:
     path_nodes: datasets/pol_books/political-books-nodes.csv
 
   cancer:
-    nb_bins: 5
+    nb_bins: 10
 
   big5:
     path: datasets/big5.csv
@@ -59,6 +59,15 @@ dataset:
     path_yaml: datasets/mushrooms.yaml
 
 preprocessing:
+
+  linear:
+    equations: [[1, 0, 0.5],
+                [1, 0, 1],
+                [1, -1, -1],
+                [1, -1, -1.5],
+                [1, 1, 1],
+                [1, 1, 1.5]]
+
   bin_lik:
     range_answers: [1, 10]
 
@@ -71,8 +80,8 @@ preprocessing:
     n_max: 20
 
   fid_mat:
-    nb_cuts: 50
-    lb_f: 0.3
+    nb_cuts: 5
+    lb_f: 0.2
 
 # -1 in nb_cuts means all
 plot:

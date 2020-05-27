@@ -11,12 +11,15 @@ class Test_tangle_computation(object):
 
     def test_one_point_case(self):
 
-        cuts = np.zeros((1, 1), dtype=bool)
+        cuts_values = np.zeros((1, 1), dtype=bool)
         orders = np.zeros(1, dtype=float)
 
-        cuts[0, 0] = True
+        cuts_values[0, 0] = True
         orders[0] = 1
         agreement = 1
+
+        cuts = {}
+        cuts['values'] = cuts_values
 
         tangle_tree = tangle_computation(cuts=cuts, orders=orders, agreement=1, verbose=0)
         assert tangle_tree.__class__ == TangleTree
@@ -26,15 +29,18 @@ class Test_tangle_computation(object):
 
         node = tangle_tree.root.left_child 
         assert node.last_cut_added_id == 0
-        assert node.last_cut_added_orientation == cuts[0]
+        assert node.last_cut_added_orientation == cuts_values[0]
         assert node.tangle.specification == {0: True}
-        assert node.tangle.cuts == [ba.bitarray(cuts.tolist())]
-        assert node.tangle.core == [ba.bitarray(cuts.tolist())]
+        assert node.tangle.cuts == [ba.bitarray(cuts_values.tolist())]
+        assert node.tangle.core == [ba.bitarray(cuts_values.tolist())]
 
 
-        cuts[0, 0] = False
+        cuts_values[0, 0] = False
         orders[0] = 1
         agreement = 1
+
+        cuts = {}
+        cuts['values'] = cuts_values
 
         tangle_tree = tangle_computation(cuts=cuts, orders=orders, agreement=1, verbose=0)
         assert tangle_tree.__class__ == TangleTree
@@ -44,17 +50,20 @@ class Test_tangle_computation(object):
 
         node = tangle_tree.root.right_child 
         assert node.last_cut_added_id == 0
-        assert node.last_cut_added_orientation == cuts[0]
+        assert node.last_cut_added_orientation == cuts_values[0]
         assert node.tangle.specification == {0: False}
-        assert node.tangle.cuts == [ba.bitarray(cuts.tolist())]
-        assert node.tangle.core == [ba.bitarray(cuts.tolist())]
+        assert node.tangle.cuts == [ba.bitarray(cuts_values.tolist())]
+        assert node.tangle.core == [ba.bitarray(cuts_values.tolist())]
 
-        cuts = np.zeros((2, 1), dtype=bool)
+        cuts_values = np.zeros((2, 1), dtype=bool)
         orders = np.zeros(2, dtype=float)
 
-        cuts[:, 0] = [True, False]
+        cuts_values[:, 0] = [True, False]
         orders[:] = [1, 1]
         agreement = 1
+
+        cuts = {}
+        cuts['values'] = cuts_values
 
         tangle_tree = tangle_computation(cuts=cuts, orders=orders, agreement=1, verbose=0)
         assert tangle_tree.__class__ == TangleTree
@@ -64,17 +73,17 @@ class Test_tangle_computation(object):
 
         l_node = tangle_tree.root.left_child 
         assert l_node.last_cut_added_id == 0
-        assert l_node.last_cut_added_orientation == cuts[0, :]
+        assert l_node.last_cut_added_orientation == cuts_values[0, :]
         assert l_node.tangle.specification == {0: True}
-        assert l_node.tangle.cuts == [ba.bitarray(cuts[0].tolist())]
-        assert l_node.tangle.core == [ba.bitarray(cuts[0].tolist())]
+        assert l_node.tangle.cuts == [ba.bitarray(cuts_values[0].tolist())]
+        assert l_node.tangle.core == [ba.bitarray(cuts_values[0].tolist())]
 
         assert l_node.left_child is None
         assert l_node.right_child is not None
 
         lr_node = l_node.right_child
         assert lr_node.last_cut_added_id == 1
-        assert lr_node.last_cut_added_orientation == cuts[1, :]
+        assert lr_node.last_cut_added_orientation == cuts_values[1, :]
         assert lr_node.tangle.specification == {0: True, 1: False}
 
         assert lr_node.tangle.cuts == [ba.bitarray([1]), ba.bitarray([1])]
@@ -82,12 +91,15 @@ class Test_tangle_computation(object):
 
     def test_tree_points_case_permutation_one(self):
 
-        cuts = np.array([[1, 0, 0],
+        cuts_values = np.array([[1, 0, 0],
                          [0, 1, 0],
                          [0, 0 ,1]]).astype(bool)
         orders = np.array([1, 1, 1])
         agreement = 1
         
+        cuts = {}
+        cuts['values'] = cuts_values
+
         tangle_tree = tangle_computation(cuts=cuts, orders=orders, agreement=1, verbose=0)
         assert tangle_tree.__class__ == TangleTree
  
@@ -124,12 +136,15 @@ class Test_tangle_computation(object):
         
     def test_tree_points_case_permutation_two(self):
 
-        cuts = np.array([[0, 1, 0],
+        cuts_values = np.array([[0, 1, 0],
                          [1, 0, 0],
                          [0, 0 ,1]]).astype(bool)
         orders = np.array([1, 1, 1])
         agreement = 1
-        
+    
+        cuts = {}
+        cuts['values'] = cuts_values
+
         tangle_tree = tangle_computation(cuts=cuts, orders=orders, agreement=1, verbose=0)
         assert tangle_tree.__class__ == TangleTree
  
@@ -166,12 +181,15 @@ class Test_tangle_computation(object):
         
     def test_tree_points_case_permutation_three(self):
 
-        cuts = np.array([[0, 0, 1],
+        cuts_values = np.array([[0, 0, 1],
                          [0, 1, 0],
                          [1, 0, 0]]).astype(bool)
         orders = np.array([1, 1, 1])
         agreement = 1
         
+        cuts = {}
+        cuts['values'] = cuts_values
+
         tangle_tree = tangle_computation(cuts=cuts, orders=orders, agreement=1, verbose=0)
         assert tangle_tree.__class__ == TangleTree
  

@@ -6,11 +6,12 @@ import pandas as pd
 
 from sklearn.metrics import adjusted_rand_score
 
-from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_KNN_BLOBS, PREPROCESSING_FID_MAT, \
-    PREPROCESSING_SUBMODULAR, PREPROCESSING_BINARIZED_LIKERT
+from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_BLOBS, PREPROCESSING_FID_MAT, \
+    PREPROCESSING_SUBMODULAR, PREPROCESSING_BINARIZED_LIKERT, PREPROCESSING_LINEAR_CUTS
 from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
 from src.config import NAN
-from src.preprocessing import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, make_submodular, binarize_likert_scale
+from src.preprocessing import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, \
+                              binarize_likert_scale, linear_cuts
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_graph_cuts, plot_cuts
 from src.tangles import core_algorithm
@@ -43,44 +44,73 @@ def compute_cuts(data, args, verbose):
         The bipartitions that we will use to compute tangles
     """
 
-    cuts_names = None
+    cuts = {}
+    cuts['names'] = None
+    cuts['equations'] = None
 
     if args['experiment']['preprocessing_name'] == PREPROCESSING_USE_FEATURES:
-        cuts = (data['xs'] == True).T
+        
+        cuts['values'] = (data['xs'] == True).T
+        
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_SUBMODULAR:
-        cuts = (data['xs'] == True).T
-        cuts = make_submodular(cuts)
+        
+        cuts['values'] = make_submodular((data['xs'] == True).T)
+        
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_BINARIZED_LIKERT:
-        cuts, cuts_names = binarize_likert_scale(xs=data['xs'],
-                                                 range_answers=args['preprocessing']['range_answers'])
+        
+        sets, names = binarize_likert_scale(xs=data['xs'],
+                                            range_answers=args['preprocessing']['range_answers'])
+        cuts['values'] = sets
+        cuts['names'] = names
+        
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
-        cuts = kernighan_lin(A=data['A'],
+        
+        sets = kernighan_lin(A=data['A'],
                              nb_cuts=args['preprocessing']['nb_cuts'],
                              lb_f=args['preprocessing']['lb_f'],
                              seed=args['experiment']['seed'],
                              verbose=verbose)
-        cuts = np.unique(cuts, axis=0)
+        sets = np.unique(sets, axis=0)
+        cuts['values'] = sets
+        
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KMODES:
-        cuts = find_kmodes_cuts(xs=data['xs'],
+        
+        sets = find_kmodes_cuts(xs=data['xs'],
                                 max_nb_clusters=args['preprocessing'][',ax_nb_clusters'])
-        cuts = np.unique(cuts, axis=0)
+        sets = np.unique(sets, axis=0)
+        cuts['values'] = sets
+        
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_COARSENING:
-        cuts = coarsening_cuts(A=data['A'],
+        
+        sets = coarsening_cuts(A=data['A'],
                                nb_cuts=args['preprocessing']['coarsening.nb_cuts'],
                                n_max=args['preprocessing']['coarsening.n_max'])
-        cuts = np.unique(cuts, axis=0)
+        sets = np.unique(sets, axis=0)
+        cuts['values'] = sets
+        
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_FID_MAT:
-        cuts = fid_mat(xs=data['A'],
+        
+        sets = fid_mat(xs=data['A'],
                        nb_cuts=args['preprocessing']['nb_cuts'],
                        lb_f=args['preprocessing']['lb_f'],
                        seed=args['experiment']['seed'],
                        verbose=verbose)
-        cuts = np.unique(cuts, axis=0)
+        sets = np.unique(sets, axis=0)
+        cuts['values'] = sets
+        
+    elif args['experiment']['preprocessing_name'] == PREPROCESSING_LINEAR_CUTS:
+        
+        sets, equations = linear_cuts(xs=data['xs'],
+                                 equations=args['preprocessing']['equations'],
+                                 verbose=verbose)
 
-    return cuts, cuts_names
+        cuts['values'] = sets
+        cuts['equations'] = equations
+        
+    return cuts
 
 
-def order_cuts(cuts, cuts_names, order_function):
+def order_cuts(cuts, order_function):
     """
     Compute the order of a series of bipartitions
 
@@ -99,16 +129,32 @@ def order_cuts(cuts, cuts_names, order_function):
         The cost of the corresponding cut
     """
 
-    cost_cuts = np.zeros(len(cuts), dtype=float)
+    value_cuts, name_cuts, eq_cuts = cuts['values'], cuts['names'], cuts['equations']
 
-    for i_cut, cut in enumerate(cuts):
+    cost_cuts = np.zeros(len(value_cuts), dtype=float)
+
+    for i_cut, cut in enumerate(value_cuts):
         cost_cuts[i_cut] = order_function(cut)
 
     idx = np.argsort(cost_cuts)
-    if cuts_names is not None:
-        cuts_names = cuts_names[idx]
+    if name_cuts is not None:
+        name_cuts = name_cuts[idx]
+        
+    if eq_cuts is not None:
+        eq_cuts = eq_cuts[idx]
 
-    return cuts[idx], cost_cuts[idx], cuts_names
+    return cuts, cost_cuts[idx]
+
+
+def pick_cuts_up_to_order(cuts, orders, percentile):
+    
+    # TODO: Remove names and eq too but it still works now
+    
+    mask_orders_to_pick = orders <= np.percentile(orders, q=percentile)
+    orders = orders[mask_orders_to_pick]
+    cuts['values'] = cuts['values'][mask_orders_to_pick, :]
+
+    return cuts, orders
 
 
 def get_dataset_cuts_order(args):
@@ -118,34 +164,28 @@ def get_dataset_cuts_order(args):
 
     if args['verbose'] >= 2:
         print("Find cuts", flush=True)
-    cuts, cuts_names = compute_cuts(data, args, verbose=args['verbose'])
+    cuts = compute_cuts(data, args, verbose=args['verbose'])
 
     if args['verbose'] >= 2:
         print(f"\tI found {len(cuts)} unique cuts\n")
         print("Compute order", flush=True)
-    cuts, orders, cuts_names = order_cuts(cuts, cuts_names, order_function)
+    cuts, orders = order_cuts(cuts, order_function)
 
-    mask_orders_to_pick = orders <= np.percentile(orders, q=args['experiment']['percentile_orders'])
-    orders = orders[mask_orders_to_pick]
-    cuts = cuts[mask_orders_to_pick, :]
-
+    cuts, orders = pick_cuts_up_to_order(cuts, orders, percentile=args['experiment']['percentile_orders'])
     max_considered_order = orders[-1]
     if args['verbose'] >= 2:
         print(f"\tI will stop at order: {max_considered_order}")
-        print(f'\tI will use {len(cuts)} cuts\n', flush=True)
+        print(f'\tI will use {len(cuts["values"])} cuts\n', flush=True)
 
     if args['plot']['cuts']:
-
-        xs = data.get('xs', None)
-        ys = data.get('ys', None)
-        G = data.get('G', None)
-
-        if G is not None:
-            plot_graph_cuts(G, ys, cuts[:args['plot']['nb_cuts']], orders, args['plot_dir'])
-        if xs is not None:
-            plot_cuts(xs, ys, cuts[:args['plot']['nb_cuts']], orders, args['plot_dir'])
-
-    return data, orders, cuts, cuts_names
+        if args['verbose'] >= 2:
+            print(f"\tPlotting cuts")
+            
+        plot_cuts(data, cuts, orders, 
+                  nb_cuts_to_plot=args['plot']['nb_cuts'], 
+                  path=args['plot_dir'])
+        
+    return data, orders, cuts
 
 
 def tangle_computation(cuts, orders, agreement, verbose):
@@ -171,7 +211,7 @@ def tangle_computation(cuts, orders, agreement, verbose):
             if verbose >= 2:
                 print(f"\tCompute tangles of order {order} with {len(idx_cuts_order_i)} new cuts", flush=True)
 
-            cuts_order_i = cuts[idx_cuts_order_i]
+            cuts_order_i = cuts['values'][idx_cuts_order_i]
             new_tree = core_algorithm(tangles_tree=tangles_tree,
                                       current_cuts=cuts_order_i,
                                       idx_current_cuts=idx_cuts_order_i,
