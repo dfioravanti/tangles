@@ -57,7 +57,8 @@ def implicit_order(xs, n_samples, cut):
     metric = DistanceMetric.get_metric('manhattan')
 
     distance = metric.pairwise(in_cut, out_cut)
-    similarity = np.exp(-distance * (1 / n_features))
+    #similarity = np.exp(-distance * (1 / n_features))
+    similarity = 1. / (distance / np.max(distance))
     expected_similarity = np.average(similarity)
 
     return np.round(expected_similarity, 2)
