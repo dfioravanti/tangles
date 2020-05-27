@@ -129,19 +129,20 @@ def order_cuts(cuts, order_function):
         The cost of the corresponding cut
     """
 
-    value_cuts, name_cuts, eq_cuts = cuts['values'], cuts['names'], cuts['equations']
+    values_cuts, name_cuts, eq_cuts = cuts['values'], cuts['names'], cuts['equations']
 
-    cost_cuts = np.zeros(len(value_cuts), dtype=float)
-
-    for i_cut, cut in enumerate(value_cuts):
+    cost_cuts = np.zeros(len(values_cuts), dtype=float)
+    for i_cut, cut in enumerate(values_cuts):
         cost_cuts[i_cut] = order_function(cut)
 
     idx = np.argsort(cost_cuts)
+    
+    cuts['values'] = values_cuts[idx] 
     if name_cuts is not None:
-        name_cuts = name_cuts[idx]
+        cuts['names'] = name_cuts[idx]
         
     if eq_cuts is not None:
-        eq_cuts = eq_cuts[idx]
+        cuts['equations'] = eq_cuts[idx]
 
     return cuts, cost_cuts[idx]
 
@@ -153,6 +154,10 @@ def pick_cuts_up_to_order(cuts, orders, percentile):
     mask_orders_to_pick = orders <= np.percentile(orders, q=percentile)
     orders = orders[mask_orders_to_pick]
     cuts['values'] = cuts['values'][mask_orders_to_pick, :]
+    if cuts['names'] is not None:
+        cuts['names'] = cuts['names'][mask_orders_to_pick]
+    if cuts['equations'] is not None:
+        cuts['equations'] = cuts['equations'][mask_orders_to_pick]
 
     return cuts, orders
 
@@ -167,7 +172,7 @@ def get_dataset_cuts_order(args):
     cuts = compute_cuts(data, args, verbose=args['verbose'])
 
     if args['verbose'] >= 2:
-        print(f"\tI found {len(cuts)} unique cuts\n")
+        print(f'\tI found {len(cuts["values"])} unique cuts\n')
         print("Compute order", flush=True)
     cuts, orders = order_cuts(cuts, order_function)
 
@@ -346,12 +351,11 @@ def centers_in_range_answers(cs, range_answers):
 
 def compute_soft_predictions(contracted_tree, cuts, orders, verbose):
 
-    cost_function = lambda array: np.exp(-normalize(array))
+    costs = np.exp(-normalize(orders))
 
     compute_soft_predictions_children(node=contracted_tree.root,
                                       cuts=cuts,
-                                      orders=orders,
-                                      cost_function=cost_function,
+                                      costs=costs,
                                       verbose=verbose)
 
     

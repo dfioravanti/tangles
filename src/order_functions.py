@@ -2,6 +2,8 @@ import numpy as np
 
 from sklearn.neighbors._dist_metrics import DistanceMetric
 
+from src.utils import normalize
+
 
 def implicit_order(xs, n_samples, cut):
     """
@@ -27,6 +29,7 @@ def implicit_order(xs, n_samples, cut):
         The average order for the cut
     """
 
+    _, n_features = xs.shape
     if np.all(cut) or np.all(~cut):
         return 0
 
@@ -51,12 +54,13 @@ def implicit_order(xs, n_samples, cut):
         else:
             out_cut = xs[~cut, :]
 
-    dist = DistanceMetric.get_metric('manhattan')
+    metric = DistanceMetric.get_metric('manhattan')
 
-    orders = dist.pairwise(in_cut, out_cut)
-    expected_order = 1 / np.average(orders) * 100
+    distance = metric.pairwise(in_cut, out_cut)
+    similarity = np.exp(-distance * (1 / n_features))
+    expected_similarity = np.average(similarity)
 
-    return np.round(expected_order, 2)
+    return np.round(expected_similarity, 2)
 
 
 def cut_order(A, cut):

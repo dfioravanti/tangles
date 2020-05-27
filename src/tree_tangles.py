@@ -381,7 +381,7 @@ def contract_tree(tree):
     return contracted_tree
 
 
-def compute_soft_predictions_node(node, characterizing_cuts, cuts, orders, cost_function, verbose):
+def compute_soft_predictions_node(node, characterizing_cuts, cuts, costs, verbose):
 
     if node.left_child is None and node.right_child is None:
         if not node.last_cut_added_id in characterizing_cuts:
@@ -396,14 +396,12 @@ def compute_soft_predictions_node(node, characterizing_cuts, cuts, orders, cost_
             idx_characterizing_cuts.append(i)
             orientation_characterizing_cuts.append(False)
 
-    costs = cost_function(orders[idx_characterizing_cuts])
-
-    p = np.sum((cuts[idx_characterizing_cuts, :].T == orientation_characterizing_cuts) * costs, axis=1)
+    p = np.sum((cuts[idx_characterizing_cuts, :].T == orientation_characterizing_cuts) * costs[idx_characterizing_cuts], axis=1)
 
     return p
 
 
-def compute_soft_predictions_children(node, cuts, orders, cost_function, verbose):
+def compute_soft_predictions_children(node, cuts, costs, verbose):
 
     _, nb_points = cuts.shape
     
@@ -414,15 +412,13 @@ def compute_soft_predictions_children(node, cuts, orders, cost_function, verbose
         node.left_child.p = np.ones(nb_points)
         compute_soft_predictions_children(node=node.left_child, 
                                           cuts=cuts,
-                                          orders=orders, 
-                                          cost_function=cost_function,
+                                          costs=costs,
                                           verbose=verbose)    
     elif node.left_child is None and node.right_child is not None:
         node.right_child.p = np.ones(nb_points)
         compute_soft_predictions_children(node=node.right_child, 
                                           cuts=cuts,
-                                          orders=orders, 
-                                          cost_function=cost_function,
+                                          costs=costs,
                                           verbose=verbose)
     elif node.left_child is not None and node.right_child is not None:
         p_left = np.zeros(nb_points)
@@ -431,14 +427,12 @@ def compute_soft_predictions_children(node, cuts, orders, cost_function, verbose
         unnormalized_p_left = compute_soft_predictions_node(node=node.left_child, 
                                                             characterizing_cuts=node.characterizing_cuts_left,
                                                             cuts=cuts, 
-                                                            orders=orders, 
-                                                            cost_function=cost_function,
+                                                            costs=costs,
                                                             verbose=verbose)
         unnormalized_p_right = compute_soft_predictions_node(node=node.right_child, 
                                                             characterizing_cuts=node.characterizing_cuts_right,
                                                             cuts=cuts, 
-                                                            orders=orders, 
-                                                            cost_function=cost_function,
+                                                            costs=costs,
                                                             verbose=verbose)
 
         total_p = unnormalized_p_left + unnormalized_p_right
@@ -451,14 +445,12 @@ def compute_soft_predictions_children(node, cuts, orders, cost_function, verbose
 
         compute_soft_predictions_children(node=node.left_child, 
                                         cuts=cuts,
-                                        orders=orders, 
-                                        cost_function=cost_function,
+                                        costs=costs,
                                         verbose=verbose)   
 
         compute_soft_predictions_children(node=node.right_child, 
                                         cuts=cuts,
-                                        orders=orders, 
-                                        cost_function=cost_function,
+                                        costs=costs,
                                         verbose=verbose)
 
 def compute_hard_predictions_node(node, idx_points, max_tangles):
