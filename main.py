@@ -59,10 +59,13 @@ def main(args):
                              cuts=cuts['values'],
                              orders=orders,
                              verbose=args['verbose'])
-
+    
     if args['plot']['soft']:
         path = args['output_dir'] / 'clustering'
-        plot_soft_predictions(data, contracted_tree, path=path)
+        plot_soft_predictions(data=data,
+                              contracted_tree=contracted_tree,
+                              eq_cuts=cuts['equations'],
+                              path=path)
 
     ys_predicted = compute_hard_preditions(contracted_tree, cuts=cuts['values'])
 

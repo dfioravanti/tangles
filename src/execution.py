@@ -346,12 +346,13 @@ def centers_in_range_answers(cs, range_answers):
 
 def compute_soft_predictions(contracted_tree, cuts, orders, verbose):
 
-    costs = np.exp(-normalize(orders))
+    cost_function = lambda array: np.exp(-normalize(array))
 
     compute_soft_predictions_children(node=contracted_tree.root,
-                                  cuts=cuts,
-                                  costs=costs,
-                                  verbose=verbose)
+                                      cuts=cuts,
+                                      orders=orders,
+                                      cost_function=cost_function,
+                                      verbose=verbose)
 
     
 def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path):
