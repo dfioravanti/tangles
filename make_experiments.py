@@ -2,7 +2,7 @@ import datetime
 
 import numpy as np
 
-from src.config import DATASET_SBM, DATASET_KNN_BLOBS, DATASET_MINDSETS, PREPROCESSING_KARNIG_LIN, \
+from src.config import DATASET_SBM, DATASET_MINDSETS, PREPROCESSING_KARNIG_LIN, \
                        PREPROCESSING_FID_MAT, PREPROCESSING_USE_FEATURES, \
                        DATASET_QUESTIONNAIRE, PREPROCESSING_BINARIZED_LIKERT, PREPROCESSING_USE_FEATURES
 from src.utils import dict_product
@@ -36,11 +36,6 @@ elif parameters['-t'] == DATASET_MINDSETS:
     multi_parameters['--mind_useless'] = [0, 5, 10, 15, 20]
     multi_parameters['--mind_noise'] = np.round(np.linspace(0, 0.5, 20), 2)
     
-elif parameters['-t'] == DATASET_KNN_BLOBS:
-
-    multi_parameters['--gauss_bs'] = [[100, 100]]
-    multi_parameters['--gauss_cs'] = [[-3, -3, 3, 3], [-2, -2, 2, 2], [-1.5, -1.5, 1.5, 1.5], [-1, -1, 1, 1]]
-    multi_parameters['--gauss_k'] = np.arange(8, 20)
 
 elif parameters['-t'] == DATASET_QUESTIONNAIRE:
 
@@ -51,14 +46,8 @@ elif parameters['-t'] == DATASET_QUESTIONNAIRE:
 
 with open('parameters.txt', 'w') as f:
     for current_parameters in dict_product(multi_parameters):
-        if parameters['-t'] == DATASET_QUESTIONNAIRE:
-            parameters['-a'] = int(np.floor(current_parameters['--q_nb_samples'] / (current_parameters['--q_nb_mindsets'] + 2)))
-        if parameters['-t'] == DATASET_SBM:
-            parameters['-a'] = int(np.floor(min(current_parameters['--sbm_bs']) / 2))
-        if parameters['-t'] == DATASET_KNN_BLOBS:
-            parameters['-a'] = int(np.floor(min(current_parameters['--gauss_bs']) / 3))
-
-        p = {**parameters, **current_parameters}
+        
+        p = {**parameters, **multi_parameters}
 
         line = []
 
