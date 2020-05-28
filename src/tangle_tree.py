@@ -149,7 +149,7 @@ class TangleTreeModel:
                 else:
                     node.p = node.parent.p_left
                 self.tangles += [[node.p, node.coordinate, node.condensed_coordinate]]
-                self.maximals += [[node.p]]
+                self.maximals += [node.p]
             else:
                 Warning("No tangles just one big cluster!")
                 self.tangles += [[None, node.coordinate, node.condensed_coordinate]]

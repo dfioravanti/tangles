@@ -103,8 +103,8 @@ def get_dataset_and_order_function(args):
     elif args['experiment']['dataset_name'] == DATASET_MOONS:
         xs, ys = make_moons(n_samples=args['dataset']['n_samples'],
                             noise=args['dataset']['noise'],
-                            random_state=args['experiment']['seed'])
-        A = radius_neighbors_graph(xs, radius=args['dataset']['radius']).toarray()
+                            random_state=args['experiment']['seed'], shuffle=False)
+        A = radius_neighbors_graph(xs, radius=args['dataset']['radius'], mode="connectivity").toarray()
         G = nx.from_numpy_matrix(A)
         data['xs'] = xs
         data['ys'] = ys
@@ -148,7 +148,7 @@ def get_dataset_and_order_function(args):
     elif args['experiment']['dataset_name'] == DATASET_KNN_BLOBS:
         xs, ys, A, G = load_blobs(blob_sizes=args['dataset']['blob_sizes'],
                                       blob_centers=args['dataset']['blob_centers'],
-                                      blob_variances=args['dataset']['blob_variances'],
+                                      sigma=args['dataset']['blob_variances'],
                                       k=args['dataset']['k'],
                                       seed=args['experiment']['seed'])
 
@@ -175,12 +175,6 @@ def get_dataset_and_order_function(args):
                                       blob_variances=args['dataset']['blob_variances'],
                                       k=args['dataset']['k'],
                                       seed=args['experiment']['seed'])
-    elif args['experiment']['dataset_name'] == DATASET_BLOBS:
-        xs, ys, A, G = load_blobs(blob_sizes=args['dataset']['blob_sizes'],
-                                  blob_centers=args['dataset']['blob_centers'],
-                                  radius=args['dataset']['radius'],
-                                  sigma=args['dataset']['sigma'],
-                                  seed=args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys
