@@ -20,32 +20,35 @@ VALID_EXPERIMENTS = [
 DATASET_BINARY_QUESTIONNAIRE = "q_binary"
 DATASET_QUESTIONNAIRE = "q"
 DATASET_RETINAL = "retinal"
-DATASET_BINARY_IRIS = "iris"
+DATASET_MIES = 'mies'
 DATASET_SBM = "sbm"
-DATASET_KNN_BLOBS = "knn_blobs"
-DATASET_MULTILEVEL = "multilevel"
-DATASET_POLITICAL_BOOKS = "pol_books"
-DATASET_FLORENCE = "flo"
-DATASET_BIG5 = 'big5'
+DATASET_BLOBS = "blobs"
 DATASET_CANCER10 = 'cancer10'
 DATASET_CANCER = 'cancer'
-DATASET_MUSHROOMS = 'mushrooms'
 DATASET_MINDSETS = 'mindsets'
 DATASET_EPSILON__BLOBS = "epsilon_blobs"
+DATASET_KNN_BLOBS = "knn"
 DATASET_KNN_GAUSS_BLOBS = "knn_gauss_blobs"
 DATASET_MICROBIOME = "microbiome"
+DATASET_MOONS = 'moons'
+DATASET_MUSHROOMS = "mushrooms"
 
 DISCRETE_DATASETS = [
     DATASET_RETINAL,
     DATASET_BINARY_QUESTIONNAIRE,
     DATASET_QUESTIONNAIRE,
-    DATASET_BINARY_IRIS,
-    DATASET_BIG5,
     DATASET_CANCER10,
     DATASET_CANCER,
     DATASET_MUSHROOMS,
     DATASET_MINDSETS,
     DATASET_MICROBIOME,
+    DATASET_MINDSETS,
+    DATASET_MIES
+]
+
+CONTINUE_DATASETS = [
+    DATASET_MOONS,
+    DATASET_BLOBS
 ]
 
 GRAPH_DATASETS = [
@@ -53,12 +56,9 @@ GRAPH_DATASETS = [
     DATASET_KNN_BLOBS,
     DATASET_EPSILON__BLOBS,
     DATASET_KNN_GAUSS_BLOBS,
-    DATASET_MULTILEVEL,
-    DATASET_POLITICAL_BOOKS,
-    DATASET_FLORENCE,
 ]
 
-VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS
+VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS + CONTINUE_DATASETS
 
 # Preprocessing
 
@@ -69,6 +69,7 @@ PREPROCESSING_FID_MAT = "fid_mat"
 PREPROCESSING_COARSENING = "coarsening"
 PREPROCESSING_SUBMODULAR = 'sub'
 PREPROCESSING_BINARIZED_LIKERT = 'bin_lik'
+PREPROCESSING_LINEAR_CUTS = 'linear'
 
 VALID_PREPROCESSING = [
     PREPROCESSING_USE_FEATURES,
@@ -77,7 +78,8 @@ VALID_PREPROCESSING = [
     PREPROCESSING_COARSENING,
     PREPROCESSING_FID_MAT,
     PREPROCESSING_SUBMODULAR,
-    PREPROCESSING_BINARIZED_LIKERT
+    PREPROCESSING_BINARIZED_LIKERT,
+    PREPROCESSING_LINEAR_CUTS
 ]
 
 # Algorithm
@@ -98,12 +100,21 @@ def load_validate_settings(args_parser, root_dir):
     args = merge_config(args_parser, main_cfg)
     args = validate_settings(args)
 
+    args = deactivate_plots(args)
     args = delete_useless_parameters(args)
 
     args['prefix'] = get_prefix(args)
 
     return args
 
+def deactivate_plots(args):
+
+    if args['plot']['no_plots']:
+        for key in args['plot']:
+            if key != 'no_plots':
+                args['plot'][key] = False
+
+    return args
 
 def delete_useless_parameters(args):
 
@@ -126,7 +137,7 @@ def get_prefix(args):
 
     if args['experiment']['dataset_name'] == DATASET_SBM:
         prefix = f'SMB_{len(args["dataset"]["block_sizes"])}'
-    elif args['experiment']['dataset_name'] == DATASET_KNN_BLOBS:
+    elif args['experiment']['dataset_name'] == DATASET_BLOBS:
         prefix = f'knn_blobs_{len(args["dataset"]["blob_sizes"])}'
     else:
         prefix = args['experiment']['dataset_name']
@@ -144,7 +155,7 @@ def merge_config(args_parser, main_cfg):
     """
 
     if args_parser.seed is not None:
-        main_cfg['seed'] = args_parser.seed
+        main_cfg['experiment']['seed'] = args_parser.seed
 
     if args_parser.dataset_name is not None:
         main_cfg['experiment']['dataset_name'] = args_parser.dataset_name
@@ -162,14 +173,14 @@ def merge_config(args_parser, main_cfg):
             main_cfg['dataset'][DATASET_SBM]['p'] = args_parser.sbm_p
         if args_parser.sbm_q is not None:
             main_cfg['dataset'][DATASET_SBM]['q'] = args_parser.sbm_q
-    elif args_parser.dataset_name == DATASET_KNN_BLOBS:
+    elif args_parser.dataset_name == DATASET_BLOBS:
         if args_parser.gauss_bs is not None:
-            main_cfg['dataset'][DATASET_KNN_BLOBS]['blob_sizes'] = args_parser.gauss_bs
+            main_cfg['dataset'][DATASET_BLOBS]['blob_sizes'] = args_parser.gauss_bs
         if args_parser.gauss_cs is not None:
             centers = np.array(args_parser.gauss_cs).reshape(2, -1).tolist()
-            main_cfg['dataset'][DATASET_KNN_BLOBS]['blob_centers'] = centers
+            main_cfg['dataset'][DATASET_BLOBS]['blob_centers'] = centers
         if args_parser.gauss_k is not None:
-            main_cfg['dataset'][DATASET_KNN_BLOBS]['k'] = args_parser.gauss_k
+            main_cfg['dataset'][DATASET_BLOBS]['radius'] = args_parser.gauss_radius
     elif args_parser.dataset_name == DATASET_MINDSETS:
         if args_parser.mind_sizes is not None:
             main_cfg['dataset'][DATASET_MINDSETS]['mindset_sizes'] = args_parser.mind_sizes
@@ -202,10 +213,8 @@ def merge_config(args_parser, main_cfg):
         if args_parser.lb_f is not None:
             main_cfg['preprocessing'][PREPROCESSING_FID_MAT]['lb_f'] = args_parser.lb_f
 
-    if args_parser.plot_tangles is not None:
-        main_cfg['plot']['tangles'] = args_parser.plot_tangles
-    if args_parser.plot_cuts is not None:
-        main_cfg['plot']['cuts'] = args_parser.plot_cuts
+    if args_parser.no_plots is not None:
+        main_cfg['plot']['no_plots'] = args_parser.no_plots
 
     if args_parser.unique_id is not None:
         main_cfg['experiment']['unique_id'] = str(args_parser.unique_id)

@@ -1,15 +1,15 @@
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.neighbors import kneighbors_graph
+from sklearn.neighbors import kneighbors_graph, radius_neighbors_graph
 from sklearn.datasets import make_blobs
 
 import networkx as nx
 
 
-def load_knn_blobs(blob_sizes, blob_centers, k, seed):
+def load_blobs(blob_sizes, blob_centers, radius, sigma, seed):
 
-    xs, ys = make_blobs(n_samples=blob_sizes, centers=blob_centers, n_features=2, random_state=seed)
-    A = kneighbors_graph(xs, k).toarray()
+    xs, ys = make_blobs(n_samples=blob_sizes, centers=blob_centers, n_features=2, cluster_std=sigma, random_state=seed)
+    A = radius_neighbors_graph(xs, radius).toarray()
     G = nx.from_numpy_matrix(A)
 
     return xs, ys, A, G

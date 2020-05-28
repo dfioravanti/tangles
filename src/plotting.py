@@ -2,8 +2,13 @@ import numpy as np
 import networkx as nx
 
 import matplotlib as mpl
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
+import seaborn as sns
+
 from sklearn.manifold import TSNE
+from sklearn.preprocessing import minmax_scale
 
 from src.config import NAN
 from src.utils import get_points_to_plot
@@ -16,293 +21,172 @@ COLOR_INDIGO_RGB = (55 / 255, 0 / 255, 175 / 255) + (0.5,)
 COLOR_CARNATION_RGB = np.array((247 / 255, 96 / 255, 114 / 255, 1)).reshape((1, -1))
 CMAP = plt.cm.get_cmap('Blues')
 
-# TODO: Fix the comments in this file
-
-def plot_heatmap(data, tangles, cuts, path=None):
+def get_nb_points(data):
 
     if data['xs'] is not None:
-        plot_heatmap_points(xs=data['xs'], ys=data['ys'], cs=data['cs'],
-                           tangles=tangles, cuts=cuts, path=path)
+        return len(data['xs'])
+    elif data['A'] is not None:
+        return len(data['A'])
+    else:
+        raise KeyError('What data are you using?')
+
+def append_to_binary(number, new_digit):
+
+    return int(str(bin(number) + str(new_digit)), 2)
+
+def get_next_id(current_id, direction):
+
+    if current_id == 0:
+        if direction == 'left':
+            return 1
+        else:
+            return 2
+            
+    level = int(np.ceil(np.log2(current_id)))
+
+    if direction == 'left':
+        return current_id + 2 ** level + 1
+    else:
+        return current_id + 2 ** level + 2
+
+def plot_dataset(data, colors, ax=None, eq_cuts=None, cmap=None, add_colorbar=True, pos=None):
+
+    if data['xs'] is not None:
+        ax = plot_dataset_metric(data['xs'], data['cs'], colors, eq_cuts, ax, cmap, add_colorbar)
+    elif data['G'] is not None:
+        ax, pos = plot_dataset_graph(data['G'], data['ys'], colors, ax, cmap, add_colorbar, pos)
+
+    return ax, pos
 
 
-def plot_heatmap_points(xs, ys, cs, tangles, cuts, path=None):
-    """
-    For each tangle print a heatmap that shows how many cuts each point satisfies.
+def add_colorbar_to_ax(ax, cmap):
 
-    Parameters
-    ----------
+    cb = plt.colorbar(mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=0, vmax=1), cmap=cmap),
+                          ax=ax, orientation='vertical')   
+    cb.ax.set_title('p', y=-.05)
+
+    return ax
+
+
+def plot_dataset_graph(G, ys, colors, ax, cmap, add_colorbar, pos):
+
+    if pos is None:
+        pos = get_position(G, ys)
+
+    nx.draw_networkx(G, pos=pos, ax=ax, node_color=colors, edge_color=COLOR_SILVER, with_labels=False, edgecolors='black')
+    if add_colorbar:
+        ax = add_colorbar_to_ax(ax, cmap)
+
+    return ax, pos
+
+
+def plot_dataset_metric(xs, cs, colors, eq_cuts, ax, cmap, add_colorbar):
+
+    plt.style.use('ggplot')
+    plt.ioff()
+
+    ax.tick_params(axis='x', colors=(0,0,0,0))
+    ax.tick_params(axis='y', colors=(0,0,0,0))
+    ax.grid(True)
+
+    xs_embedded, cs_embedded = get_points_to_plot(xs, cs)
+
+    sc = ax.scatter(xs_embedded[:, 0], xs_embedded[:, 1], color=colors, vmin=0, vmax=1, edgecolor='black')
+
+    if eq_cuts is not None:
+        for eq in eq_cuts:
+            x, y =  get_lines(xs, eq)
+            ax.plot(x, y ,'k--')
     
-    Returns
-    -------
+    if add_colorbar:
+        ax = add_colorbar_to_ax(ax, cmap)
 
-    """
+    return ax
+
+def labels_to_colors(ys, cmap):
+    
+    nb_points = len(ys)
+    colors = np.zeros((nb_points, 4))
+    normalize_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
+
+    for y in np.unique(ys):
+        idx_current = (ys == y).nonzero()[0]
+        color = cmap(normalize_ys(y))
+        colors[idx_current, :] = np.array(color).reshape((1, -1))
+
+    return colors        
+
+
+def plot_soft_predictions(data, contracted_tree, eq_cuts=None, id_node=0, path=None):
+
+    plt.style.use('ggplot')
+    plt.ioff()
+
+    cmap_groundtruth = plt.cm.get_cmap('tab10')
+    cmap_heatmap = plt.cm.get_cmap('Blues')
 
     if path is not None:
         output_path = path
         output_path.mkdir(parents=True, exist_ok=True)
 
-    plt.style.use('ggplot')
-    plt.ioff()
+    if data['ys'] is not None:
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+        colors = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        ax, pos = plot_dataset(data, colors, eq_cuts=eq_cuts, ax=ax, add_colorbar=False)
 
-    mpl.rcParams.update({'font.size': 8})
-   
-    nb_points = len(xs)
-    xs_embedded, cs_embedded = get_points_to_plot(xs, cs)
-    if ys is not None:
-        ys_normalized = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
+        fig.savefig(output_path / f"groundtruth.svg")
+        plt.close(fig)
 
-    color_tangles = mpl.colors.Normalize(vmin=0, vmax=np.max(len(tangles)))
-    f, axs = plt.subplots(nrows=1, ncols=len(tangles), figsize=(20, 10), )
-
-    for i, tangle in enumerate(tangles):       
-        ax = axs[i]
-        ax.grid(b=None)
-        ax.set_title(f'Tangle number {i+1}')
-        ax.set_xticks([], [])
-        ax.set_yticks([], [])
-
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_visible(False)
-        ax.spines['top'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
+    plot_soft_prediction_node(data, contracted_tree.root, eq_cuts=eq_cuts, id_node=0, cmap=cmap_heatmap, path=path, pos=pos)
     
-        ax.set_facecolor(CMAP(0))
 
-        matching_cuts = np.zeros(nb_points, dtype='int')
-        for cut, orr in tangle.specification.items():
-            if np.sum(cuts[cut] == orr) != nb_points:
-                matching_cuts = matching_cuts + (cuts[cut] == orr)
-        
-        ax.hexbin(xs_embedded[:, 0], xs_embedded[:, 1], 
-                  C=matching_cuts, cmap=CMAP, bins='log', gridsize=25)
+def plot_soft_prediction_node(data, node, eq_cuts, id_node, cmap, path, pos):
 
-        if cs is not None:
-            ax.scatter(cs_embedded[:, 0], cs_embedded[:, 1], c=COLOR_CARNATION_RGB, marker='o', s=10)
-
-    f.tight_layout()
-
-    if path is None:
-        plt.show()
+    colors = cmap(node.p)
+    
+    if eq_cuts is not None:
+        if len(node.characterizing_cuts) != 0:
+            id_characterizing_cuts = list(node.characterizing_cuts.keys())
+            eq_characterizing_cuts = eq_cuts[id_characterizing_cuts]
+        else:
+            eq_characterizing_cuts = []
     else:
-        plt.savefig(output_path / f"Best heatmap.svg")
+            eq_characterizing_cuts = []
 
-    plt.close(f)
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+    plot_dataset(data, colors, eq_cuts=eq_characterizing_cuts, ax=ax, cmap=cmap, pos=pos)
+    fig.savefig(path / f"node_nb_{id_node:02d}.svg")
+    plt.close(fig)
+
+    if node.left_child is not None:
+        id_left = get_next_id(id_node, 'left')
+        plot_soft_prediction_node(data, node.left_child, eq_cuts, id_left, cmap, path, pos=pos)
+    if node.right_child is not None:
+        id_right = get_next_id(id_node, 'right')
+        plot_soft_prediction_node(data, node.right_child, eq_cuts, id_right, cmap, path, pos=pos)
 
 
-def plot_predictions(xs, ys, predictions_of_order, path=None):
-    """
-    For each tangle print a heatmap that shows how many cuts each point satisfies.
+def plot_hard_predictions(data, ys_predicted, path=None):
 
-    Parameters
-    ----------
-    all_cuts: array of shape [nb_cuts, nb_points]
-        the collection of all cuts
-    ys: array of shape [n_points]
-        The array of class labels
-    predictions_of_order: dict of list of Specification
-        A dictionary where the key is the order and the value is a list of all the tangles of that order
-    path:
-
-    Returns
-    -------
-
-    """
-
-    path.mkdir(parents=True, exist_ok=True)
-    plt.style.use('ggplot')
-    plt.ioff()
-    cmap = plt.cm.get_cmap('tab20')
-
-    if ys is not None:
-        normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
-
-    xs_embedded = TSNE(n_components=2).fit_transform(xs)
+    cmap_groundtruth = plt.cm.get_cmap('tab10')
+    cmap_predictions = plt.cm.get_cmap('Set2')
 
     if path is not None:
-        output_path = path / 'points prediction'
+        output_path = path
         output_path.mkdir(parents=True, exist_ok=True)
 
-    for order, prediction in predictions_of_order.items():
+    if data['ys'] is not None:
+        fig, (ax_true, ax_predicted) = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
+        colors_true = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        ax_true = plot_dataset(data, colors_true, ax=ax_true, add_colorbar=False)
+    else:
+        fig, ax_predicted = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
 
-        normalise_pred = mpl.colors.Normalize(vmin=0, vmax=np.max(prediction))
+    colors_predicted = labels_to_colors(ys_predicted, cmap=cmap_predictions)
+    ax_predicted = plot_dataset(data, colors_predicted, ax=ax_predicted, add_colorbar=False)
 
-        f, (ax_true, ax_pred) = plt.subplots(
-            nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(
-            b=None), ax_true.set_title("True clusters")
-        ax_pred.axis('off'), ax_pred.grid(
-            b=None), ax_pred.set_title("Predicted clusters")
-
-        if ys is not None:
-            for y in np.unique(ys):
-
-                xs_current = xs_embedded[ys == y]
-                color = cmap(normalise_ys(y))
-                color = np.array(color).reshape((1, -1))
-                label = f'cluster {y}'
-
-                ax_true.scatter(xs_current[:, 0], xs_current[:, 1],
-                                c=color, label=label)
-            ax_true.legend()
-        else:
-            color = np.array(COLOR_SILVER_RGB).reshape((1, -1))
-            ax_true.scatter(xs_embedded[:, 0], xs_embedded[:, 1],
-                            c=color)
-
-        for y in np.unique(prediction):
-
-            xs_current = xs_embedded[prediction == y]
-            if y != NAN:
-                color = cmap(normalise_pred(y))
-                label = f'cluster {y}'
-            else:
-                color = COLOR_SILVER_RGB
-                label = f'no cluster'
-
-            color = np.array(color).reshape((1, -1))
-            ax_pred.scatter(xs_current[:, 0], xs_current[:, 1],
-                            c=color, label=label)
-
-        ax_pred.legend()
-
-        if path is None:
-            plt.show()
-        else:
-            plt.savefig(output_path / f"Tangle order {order}.svg")
-
-        plt.close(f)
-
-def plot_soft_predictions(xs, ys, prediction, path=None):
-
-    plt.style.use('ggplot')
-    plt.ioff()
-    cmap = plt.cm.get_cmap('tab20')
-
-    if ys is not None:
-        normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
-
-    xs_embedded = TSNE(n_components=2).fit_transform(xs)
-
-    if path is not None:
-        output_path = path / 'points prediction'
-        output_path.mkdir(parents=True, exist_ok=True)
-
-
-    normalise_pred = mpl.colors.Normalize(vmin=0, vmax=np.max(prediction))
-
-    f, (ax_true, ax_pred) = plt.subplots(nrows=1, ncols=2, figsize=(15, 15))
-    ax_true.axis('off'), ax_true.grid(b=None), ax_true.set_title("True clusters")
-    ax_pred.axis('off'), ax_pred.grid(b=None), ax_pred.set_title("Predicted clusters")
-
-    if ys is not None:
-        for y in np.unique(ys):
-
-            xs_current = xs_embedded[ys == y]
-            color = cmap(normalise_ys(y))
-            color = np.array(color).reshape((1, -1))
-            label = f'cluster {y}'
-
-            ax_true.scatter(xs_current[:, 0], xs_current[:, 1],
-                                c=color, label=label)
-        ax_true.legend()
-
-        for y in range(prediction.shape[0]):
-
-            xs_current = xs_embedded[prediction[y,:] > 0]
-            if y != NAN:
-                color = cmap(normalise_ys(y))
-                color = np.array(color).reshape((1, -1))
-                label = f'cluster {y}'
-            else:
-                color = COLOR_SILVER_RGB
-                label = f'no cluster'
-
-            color = np.array(color).reshape((1, -1))
-            ax_pred.scatter(xs_current[:, 0], xs_current[:, 1],
-                            c=color, label=label, s=prediction[y]**2)
-
-        ax_pred.legend()
-
-        if path is None:
-            plt.show()
-
-        plt.close(f)
-
-
-def plot_predictions_graph(G, ys, predictions_of_order, path=None):
-    """
-    For each tangle print a heatmap that shows how many cuts each point satisfies.
-
-    Parameters
-    ----------
-    all_cuts: array of shape [nb_cuts, nb_points]
-        the collection of all cuts
-    ys: array of shape [n_points]
-        The array of class labels
-    predictions_of_order: dict of list of Specification
-        A dictionary where the key is the order and the value is a list of all the tangles of that order
-    path:
-
-    Returns
-    -------
-
-    """
-
-    path.mkdir(parents=True, exist_ok=True)
-    plt.style.use('ggplot')
-    plt.ioff()
-    cmap = plt.cm.get_cmap('tab10')
-    if ys is not None:
-        normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
-
-    if path is not None:
-        output_path = path / 'graph prediction'
-        output_path.mkdir(parents=True, exist_ok=True)
-
-    pos = get_position(G, ys)
-
-    for order, prediction in predictions_of_order.items():
-
-        normalise_pred = mpl.colors.Normalize(vmin=0, vmax=np.max(prediction))
-
-        f, (ax_true, ax_pred) = plt.subplots(
-            nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(
-            b=None), ax_true.set_title("True clusters")
-        ax_pred.axis('off'), ax_pred.grid(
-            b=None), ax_pred.set_title("Predicted clusters")
-
-        colors = np.zeros((len(ys), 4))
-        if ys is not None:
-            for y in np.unique(ys):
-                color = cmap(normalise_ys(y))
-                colors[ys == y, :] = color
-        else:
-            colors[:] = COLOR_SILVER_RGB
-
-        nx.draw_networkx(G, pos=pos, ax=ax_true,
-                         node_color=colors,
-                         edge_color=COLOR_SILVER)
-
-        colors = np.zeros((len(prediction), 4))
-        for y in np.unique(prediction):
-
-            if y != NAN:
-                color = cmap(normalise_pred(y))
-                colors[prediction == y, :] = color
-            else:
-                colors[prediction == y, :] = COLOR_SILVER_RGB
-
-        nx.draw_networkx(G, pos=pos, ax=ax_pred,
-                         node_color=colors,
-                         edge_color=COLOR_SILVER)
-
-        if path is None:
-            plt.show()
-        else:
-            plt.savefig(output_path / f"Tangle order {order}.svg")
-
-        plt.close(f)
+    fig.savefig(output_path / f"hard_clustering.svg")
+    plt.close(fig)
 
 
 def get_position(G, ys):
@@ -323,57 +207,73 @@ def get_position(G, ys):
         pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
     return pos
 
-
-def plot_cuts(xs, ys, cuts, orders, path):
-
-    path.mkdir(parents=True, exist_ok=True)
+def plot_cuts(data, cuts, orders, nb_cuts_to_plot, path):
+    
     plt.style.use('ggplot')
     plt.ioff()
-    cmap = plt.cm.get_cmap('tab10')
-    if ys is not None:
-        normalise_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
-
+    
     if path is not None:
-        path_cuts = path / 'points_cuts'
-        path_cuts.mkdir(parents=True, exist_ok=True)
-
-    _, nb_points = cuts.shape
-    xs_embedded = TSNE(n_components=2).fit_transform(xs)
-
-    for i, cut in enumerate(cuts):
-
-        fig, (ax_true, ax_cut) = plt.subplots(
-            nrows=1, ncols=2, figsize=(15, 15))
-        ax_true.axis('off'), ax_true.grid(
-            b=None), ax_true.set_title("True clusters")
-        ax_cut.axis('off'), ax_cut.grid(
-            b=None), ax_cut.set_title(f"cut of order {orders[i]}")
-
-        if ys is not None:
-            for y in np.unique(ys):
-                xs_current = xs_embedded[ys == y]
-                color = cmap(normalise_ys(y))
-                color = np.array(color).reshape((1, -1))
-                label = f'cluster {y}'
-
-                ax_true.scatter(xs_current[:, 0], xs_current[:, 1],
-                                c=color, label=label)
-            ax_true.legend()
-        else:
-            color = np.array(COLOR_SILVER_RGB).reshape((1, -1))
-            ax_true.scatter(xs_embedded[:, 0], xs_embedded[:, 1],
-                            c=color)
-
-        colors = np.zeros((nb_points, 4), dtype=float)
-        colors[~cut] = COLOR_SILVER_RGB
-        colors[cut] = COLOR_INDIGO_RGB
-
-        ax_cut.scatter(xs_embedded[:, 0], xs_embedded[:, 1], c=colors)
-
+        path = path / 'cuts'
+        path.mkdir(parents=True, exist_ok=True)
+    
+    values_cuts = cuts['values']
+    eq_cuts = cuts['equations']
+    nb_cuts_to_plot = min(nb_cuts_to_plot, len(values_cuts))
+    pos = None
+        
+    for i in np.arange(nb_cuts_to_plot):
+        eq = [eq_cuts[i]] if eq_cuts is not None else None
+            
+        fig, pos = plot_cut(data, cut=values_cuts[i], order=orders[i], eq=eq, pos=pos)
         if path is not None:
-            plt.savefig(path_cuts / f"cut number {i}.svg")
+            fig.savefig(path / f"cut number {i}.svg")
+            plt.close(fig)
 
-        plt.close(fig)
+
+def get_lines(xs, eq):
+    
+    min_x, max_x = np.min(xs[:, 0]), np.max(xs[:, 0])
+    min_y, max_y = np.min(xs[:, 1]), np.max(xs[:, 1])
+    
+    x_range = np.linspace(min_x, max_x, 100)
+    y_range = np.linspace(min_y, max_y, 100)
+    
+    if eq[0] == 0:
+        x = x_range
+        y = np.zeros_like(x_range)
+        y.fill(-eq[2] / eq[1])
+    elif eq[1] == 0:
+        x = np.zeros_like(y_range)
+        x.fill( -eq[2] / eq[0])
+        y = y_range
+    else:
+        x = x_range
+        y = -(eq[0] * x_range + eq[2]) / eq[1]
+        
+    return x, y        
+
+   
+def plot_cut(data, cut, order, eq, pos):
+
+    cmap_groundtruth = plt.cm.get_cmap('tab10')
+    cmap_cut = plt.cm.get_cmap('Blues')
+
+    if data['ys'] is not None:
+        fig, (ax_true, ax_cut) = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
+        colors_true = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        ax_true, pos = plot_dataset(data, colors_true, eq_cuts=eq, ax=ax_true, add_colorbar=False, pos=pos)
+        ax_true.set_title('Groundtruth')
+        
+    else:
+        fig, ax_cut = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+
+    ax_cut.set_title('Cut')
+    fig.suptitle(f'Cut of order: {order}')
+
+    color_cut = labels_to_colors(cut, cmap=cmap_cut)
+    ax_cut = plot_dataset(data, color_cut, ax=ax_cut, add_colorbar=False, pos=pos)
+
+    return fig, pos
 
 
 def plot_graph_cuts(G, ys, cuts, orders, path):
@@ -410,103 +310,92 @@ def plot_graph_cuts(G, ys, cuts, orders, path):
         plt.close(fig)
 
 
-def plot_evaluation(evaluations, path):
-
-    path.mkdir(parents=True, exist_ok=True)
-    plt.style.use('ggplot')
-    plt.ioff()
-
-    for nb_blocks, p_evaluations in evaluations.items():
-        fig, ax = plt.subplots(1, 1)
-        for i, (p, q_evaluations) in enumerate(p_evaluations.items()):
-
-            cmap = plt.cm.get_cmap('tab10')
-            rgb_color = np.array(cmap(i)).reshape(1, -1)
-            v_scores = []
-            for _, evaluation in q_evaluations.items():
-                v_scores.append(evaluation["v_measure_score"])
-
-            qs = list(q_evaluations.keys())
-
-            ax.scatter(qs, v_scores, c=rgb_color)
-            ax.plot(qs, v_scores, c=rgb_color[0], label=f'p = {p}')
-
-            ax.xaxis.set_ticks(qs)
-            ax.yaxis.set_ticks(np.arange(0, 1.05, 0.05))
-
-        ax.set_ylabel('V-measure')
-        ax.set_xlabel('q')
-        ax.set_title(f'Number of blocks = {nb_blocks}')
-        ax.legend()
-
-        plt.savefig(path / f"Number of blocks {nb_blocks}.svg")
-        plt.close(fig)
-
-# Plots results
+def add_lines(values, ax, left=True):
+    
+    n, m = values.shape
+    old_i = None
+    for j in np.arange(m):
+        for i in np.arange(n):
+            if values[i, j] == True:
+                
+                if old_i != i:
+                    if left:
+                        line = [(j - 0.5, i + 0.5),
+                                (j - 0.5, i - 0.5), 
+                                (j + 0.5, i - 0.5)]
+                    else:
+                        line = [(j - 0.5, i - 1.5),
+                                (j - 0.5, i - 0.5), 
+                                (j + 0.5, i - 0.5)]
+                else:
+                    line = [(j - 0.5, i - 0.5), 
+                            (j + 0.5, i - 0.5)]
+                        
+                    
+                path = patches.Polygon(line, facecolor='none', edgecolor='red',
+                                       linewidth=2, closed=False, joinstyle='round')
+                ax.add_patch(path)
+                old_i = i
+                break
 
 
-def make_homogeneity_plot(df, title, x_axis, y_axis, facet_on):
+def make_result_heatmap(data, ax, x_column, y_column, values_column):
 
-    chart = alt.Chart(df, width=800, height=300).mark_rect().encode(
-        alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(
-            field=x_axis, order='ascending',), axis=alt.Axis(grid=True)),
-        alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(
-            field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
-        alt.Color('homogeneity', type='quantitative',
-                  title='Homogeneity', scale=alt.Scale(domain=[0, 1])),
-    ).properties(
-        title=title
-    )
+    plt.rc('font', family='serif')
 
-    return chart
+    df = data.pivot(index=y_column, columns=x_column, values=values_column
+                   ).round(2).sort_index(ascending=False).sort_index(axis=1)
+    xs = df.columns.to_numpy()
+    ys = df.index.to_numpy()
+    values = df.to_numpy()
+    im = ax.imshow(values, cmap=plt.cm.get_cmap('Blues'), aspect='auto')
+
+    ax.set_xticks(np.arange(len(xs)))
+    ax.set_xticklabels(xs)
+    ax.set_xlabel(x_column, fontsize=10, labelpad=10)
+
+    ax.set_yticks(np.arange(len(ys)))
+    ax.set_yticklabels(ys)
+    ax.set_ylabel(y_column, rotation=0, fontsize=10, labelpad=15)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=0, 
+             ha="center", rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(ys)):
+        for j in range(len(xs)):
+            text = ax.text(j, i, values[i, j],
+                           ha="center", va="center", color="black")
+
+    # Turn spines off and create white grid.
+    for edge, spine in ax.spines.items():
+        spine.set_visible(False)
+
+    ax.set_xticks(np.arange(len(xs)+1)-.5, minor=True)
+    ax.set_yticks(np.arange(len(ys)+1)-.5, minor=True)
+    ax.grid(b=True, which="minor", color="w", linestyle='-', linewidth=5)
+    ax.tick_params(which="minor", bottom=False, left=False)
 
 
-def make_full_plot(df, title, x_axis, y_axis, facet_on):
+def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column):
 
-    v_measure_chart = make_homogeneity_plot(
-        df, title, x_axis, y_axis, facet_on)
+    plt.rc('font', family='serif')
+    fig, ax = plt.subplots(figsize=(15, 10))
 
-    text = alt.Chart(df, width=800, height=300).mark_text().encode(
-        alt.X(x_axis, type='ordinal', sort=alt.EncodingSortField(
-            field=x_axis, order='ascending'), axis=alt.Axis(grid=True)),
-        alt.Y(y_axis, type='ordinal', sort=alt.EncodingSortField(
-            field=y_axis, order='descending'), axis=alt.Axis(grid=True)),
-        alt.Text('order'),
-    ).facet(
-        facet=alt.Facet(facet_on, type='nominal', title=None),
-        title='best_order/max_order'
-    )
+    exp = exp_df.pivot(index=y_column, columns=x_column, values=values_column
+                      ).round(2).sort_index(ascending=False).sort_index(axis=1)
+    ref = ref_df.pivot(index=y_column, columns=x_column, values=values_column
+                      ).round(2).sort_index(ascending=False).sort_index(axis=1)
 
-    chart = alt.vconcat(v_measure_chart, text)
-    chart = graphic_settings(chart)
+    difference_df = exp - ref
 
-    return chart
+    xs = difference_df.columns.to_numpy()
+    ys = difference_df.index.to_numpy()
+    values = difference_df.to_numpy().round(2)
+    
+    heat_map = sns.heatmap(difference_df, center=0, cmap='BrBG', annot=True, linewidths=1, cbar_kws={'label': 'Difference in Rand score'})
+    heat_map.set_yticklabels(heat_map.get_yticklabels(), rotation=0) 
+    heat_map.set_ylabel(heat_map.get_ylabel(), rotation=0, labelpad=15) 
 
-
-def graphic_settings(chart):
-    chart = chart.configure_title(
-        fontSize=14,
-        font='Courier',
-        anchor='middle',
-        color='gray'
-    ).configure_axis(
-        gridOpacity=0.0,
-
-        labelFont='Courier',
-        labelColor='black',
-
-        titleFont='Courier',
-        titleColor='gray',
-        grid=False
-    ).configure_axisX(
-        labelAngle=0,
-    ).configure_legend(
-        labelFont='Courier',
-        labelColor='black',
-
-        titleFont='Courier',
-        titleColor='gray',
-        titleAnchor='middle'
-    ).configure_view(strokeOpacity=0)
-
-    return chart
+    return fig, ax

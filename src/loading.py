@@ -1,21 +1,32 @@
 from functools import partial
 
+from sklearn.neighbors import radius_neighbors_graph
+from sklearn.datasets import make_moons
+
+import networkx as nx
+
+from src.config import DATASET_SBM, DATASET_QUESTIONNAIRE, DATASET_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
+    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS
 
 from src.config import DATASET_BINARY_QUESTIONNAIRE, DATASET_SBM, DATASET_QUESTIONNAIRE, \
-    DATASET_POLITICAL_BOOKS, DATASET_FLORENCE, DATASET_BIG5, DATASET_KNN_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
+    DATASET_KNN_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
     DATASET_MUSHROOMS, DATASET_MINDSETS, DATASET_RETINAL, DATASET_MICROBIOME, \
     DATASET_EPSILON__BLOBS, DATASET_KNN_GAUSS_BLOBS
 from src.datasets.big5 import load_BIG5
 from src.datasets.cancer import load_CANCER
 from src.datasets.cancer10 import load_CANCER10
 from src.datasets.graphs import load_SBM, load_POLI_BOOKS, load_FLORENCE
-from src.datasets.kNN import load_knn_blobs
+from src.datasets.kNN import load_blobs
 from src.datasets.kNN_gaussian import load_knn_gauss_blobs
 from src.datasets.k_epsilon import load_eps_blobs
 from src.datasets.microbiome import load_MICROBIOME
+from src.datasets.cancer import load_CANCER
+from src.datasets.cancer10 import load_CANCER10
+from src.datasets.graphs import load_SBM
+from src.datasets.kNN import load_blobs
+from src.datasets.mies import load_MIES
 from src.datasets.mindsets import make_mindsets
-from src.datasets.mushrooms import load_MUSHROOMS
-from src.datasets.questionnaire import make_binary_questionnaire, make_questionnaire
+from src.datasets.questionnaire import make_questionnaire
 from src.datasets.retinal import load_RETINAL
 from src.order_functions import implicit_order, cut_order
 
@@ -51,26 +62,31 @@ def get_dataset_and_order_function(args):
     """
 
     data = {}
+    data['xs'] = None
+    data['ys'] = None
+    data['cs'] = None
+    data['A'] = None
+    data['G'] = None
 
     data['xs'] = data['ys'] = data['cs'] = data["G"] = data["A"] = None
 
     if args['experiment']['dataset_name'] == DATASET_MINDSETS:
         xs, ys, cs = make_mindsets(mindset_sizes=args['dataset']['mindset_sizes'],
-                               nb_questions=args['dataset']['nb_questions'],
-                               nb_useless=args['dataset']['nb_useless'],
-                               noise=args['dataset']['noise'],
-                               seed=args['experiment']['seed'])
+                                   nb_questions=args['dataset']['nb_questions'],
+                                   nb_useless=args['dataset']['nb_useless'],
+                                   noise=args['dataset']['noise'],
+                                   seed=args['experiment']['seed'])
         data['xs'] = xs
         data['ys'] = ys
         data['cs'] = cs
         order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_QUESTIONNAIRE:
         xs, ys, cs = make_questionnaire(nb_samples=args['dataset']['nb_samples'],
-                                    nb_features=args['dataset']['nb_features'],
-                                    nb_mindsets=args['dataset']['nb_mindsets'],
-                                    centers=args['dataset']['centers'],
-                                    range_answers=args['dataset']['range_answers'],
-                                    seed=args['experiment']['seed'])
+                                        nb_features=args['dataset']['nb_features'],
+                                        nb_mindsets=args['dataset']['nb_mindsets'],
+                                        centers=args['dataset']['centers'],
+                                        range_answers=args['dataset']['range_answers'],
+                                        seed=args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys
@@ -84,20 +100,19 @@ def get_dataset_and_order_function(args):
         data['xs'] = xs
         data['ys'] = ys
         order_function = partial(implicit_order, xs, 200)
-    elif args['experiment']['dataset_name'] == DATASET_MUSHROOMS:
-        xs, ys = load_MUSHROOMS(args['dataset']['path_csv'], args['dataset']['path_yaml'])
-
+    elif args['experiment']['dataset_name'] == DATASET_MOONS:
+        xs, ys = make_moons(n_samples=args['dataset']['n_samples'],
+                            noise=args['dataset']['noise'],
+                            random_state=args['experiment']['seed'])
+        A = radius_neighbors_graph(xs, radius=args['dataset']['radius']).toarray()
+        G = nx.from_numpy_matrix(A)
         data['xs'] = xs
         data['ys'] = ys
-        order_function = partial(implicit_order, xs, None)
+        data['A'] = A
+        data['G'] = G
+        order_function = partial(cut_order, A)
     elif args['experiment']['dataset_name'] == DATASET_CANCER:
         xs, ys = load_CANCER(args['dataset']['nb_bins'])
-
-        data['xs'] = xs
-        data['ys'] = ys
-        order_function = partial(implicit_order, xs, None)
-    elif args['experiment']['dataset_name'] == DATASET_BIG5:
-        xs, ys = load_BIG5(args['dataset']['path'])
 
         data['xs'] = xs
         data['ys'] = ys
@@ -130,23 +145,8 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['G'] = G
         order_function = partial(cut_order, A)
-    elif args['experiment']['dataset_name'] == DATASET_POLITICAL_BOOKS:
-        A, ys, G = load_POLI_BOOKS(path_nodes=args['dataset']['path_nodes'],
-                                   path_edges=args['dataset']['path_edges'])
-
-        data['A'] = A
-        data['ys'] = ys
-        data['G'] = G
-        order_function = partial(cut_order, A)
-    elif args['experiment']['dataset_name'] == DATASET_FLORENCE:
-        A, ys, G = load_FLORENCE()
-
-        data['A'] = A
-        data['ys'] = ys
-        data['G'] = G
-        order_function = partial(cut_order, A)
     elif args['experiment']['dataset_name'] == DATASET_KNN_BLOBS:
-        xs, ys, A, G = load_knn_blobs(blob_sizes=args['dataset']['blob_sizes'],
+        xs, ys, A, G = load_blobs(blob_sizes=args['dataset']['blob_sizes'],
                                       blob_centers=args['dataset']['blob_centers'],
                                       blob_variances=args['dataset']['blob_variances'],
                                       k=args['dataset']['k'],
@@ -175,11 +175,17 @@ def get_dataset_and_order_function(args):
                                       blob_variances=args['dataset']['blob_variances'],
                                       k=args['dataset']['k'],
                                       seed=args['experiment']['seed'])
+    elif args['experiment']['dataset_name'] == DATASET_BLOBS:
+        xs, ys, A, G = load_blobs(blob_sizes=args['dataset']['blob_sizes'],
+                                  blob_centers=args['dataset']['blob_centers'],
+                                  radius=args['dataset']['radius'],
+                                  sigma=args['dataset']['sigma'],
+                                  seed=args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
-        order_function = partial(cut_order, A)
+        order_function = partial(implicit_order, xs, None)
 
     return data, order_function

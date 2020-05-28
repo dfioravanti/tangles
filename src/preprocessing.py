@@ -3,11 +3,40 @@ import pandas as pd
 
 from kmodes.kmodes import KModes
 
-
 import src.coarsening as coarsening
 
 
-def binarize_likert_scale(xs, range_answers):
+def linear_cuts(xs, equations, verbose=0):
+    
+    n_points, _ = xs.shape
+    n_cuts = len(equations)
+    ones = np.ones((n_points, 1))
+    
+    expanded_xs = np.hstack((xs, ones))
+    sets = np.zeros((n_cuts, n_points), dtype=bool)
+    equations = np.array(equations)
+        
+    for i, equation in enumerate(equations):
+        
+        x = equation[0]
+        sign_x = 1 if x >= 0 else -1
+        equation = sign_x * equation
+        
+        side = expanded_xs @ equation
+        sets[i, :] = (side >= 0)
+            
+    return sets, equations
+
+
+def binarize_likert_scale(xs, range_answers, n_bins):
+
+    if n_bins > 0:
+        df = pd.DataFrame(data=xs)
+        df_bined = pd.DataFrame()
+        for column in df.columns:
+            df_bined[column] = pd.qcut(df[column], q=n_bins, labels=False) + 1
+
+        xs = df_bined.values
 
     min_answer = range_answers[0]
     max_answer = range_answers[1]
@@ -35,69 +64,6 @@ def binarize_likert_scale(xs, range_answers):
     cut_names = np.array(cut_names)
 
     return cuts, cut_names
-
-
-def make_submodular(cuts):
-    """
-    Given a set of cuts we make it submodular.
-    A set of cuts S is submodular if for any two orientation A,B of cuts in S we have that
-    either A union B or A intersection B is in S.
-    We achieve this by adding all the expressions composed by unions.
-    The algorithm is explained in the paper.
-
-    All the hashing stuff is necessary because numpy arrays are not hashable.
-
-    # TODO: It does not scale up very well. We might need to rethink this
-
-    Parameters
-    ----------
-    cuts: array of shape [n_cuts, n_users]
-        The original cuts that we need to make submodular
-
-    Returns
-    -------
-    new_cuts: array of shape [?, n_users]
-        The submodular cuts
-    """
-
-    if len(cuts) == 1:
-        return cuts
-
-    unions = {}
-
-    for current_cut in cuts:
-        v = current_cut
-        k = hash(v.tostring())
-        current_unions = {k: v}
-
-        for cut in unions.values():
-            v = cut | current_cut
-            k = hash(v.tostring())
-            current_unions.setdefault(k, v)
-
-            v = current_cut | ~cut
-            k = hash(v.tostring())
-            current_unions.setdefault(k, v)
-
-            v = ~(~cut & current_cut)
-            k = hash(v.tostring())
-            current_unions.setdefault(k, v)
-
-            v = ~(~cut & current_cut)
-            k = hash(v.tostring())
-            current_unions.setdefault(k, v)
-
-        unions.update(current_unions)
-
-    # Remove empty cut and all cut
-    empty, all = np.zeros_like(current_cut, dtype=bool), np.ones_like(current_cut, dtype=bool)
-    hash_empty, hash_all = hash(empty.tostring()), hash(all.tostring())
-    unions.pop(hash_empty, None)
-    unions.pop(hash_all, None)
-
-    new_cuts = np.array(list(unions.values()), dtype='bool')
-
-    return new_cuts
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -162,8 +128,9 @@ def maximize(xs, A, B, D):
     return g_max, a_res, b_res
 
 
-def kernighan_lin(A, nb_cuts, lb_f, verbose):
+def kernighan_lin(A, nb_cuts, lb_f, seed, verbose):
     cuts = []
+    np.random.seed(seed)
 
     for i in range(nb_cuts):
         f = np.random.uniform(lb_f, 0.5)
@@ -231,8 +198,10 @@ def kernighan_lin_algorithm(xs, fraction):
 #
 # ----------------------------------------------------------------------------------------------------------------------
 
-def fid_mat(xs, nb_cuts, lb_f, verbose):
+def fid_mat(xs, nb_cuts, lb_f, seed, verbose):
     cuts = []
+
+    np.random.seed(seed)
 
     for i in range(nb_cuts):
         if verbose >= 3:

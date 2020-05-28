@@ -14,9 +14,7 @@ import pandas as pd
 from src.order_functions import implicit_order
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
-from src.execution import compute_clusters, compute_evaluation, get_dataset_cuts_order, tangle_computation, plotting, \
-    compute_maximal_tangles, compute_clusters_maximals, print_tangles_names, tangles_to_range_answers, \
-    compute_fuzzy_clusters, soft_plotting  # , compute_soft_evaluation
+from src.execution import get_dataset_cuts_order, tangle_computation
 from src.plotting import get_position
 from src.tangle_tree import TangleTreeModel
 from src.utils import get_points_to_plot, get_positions_from_labels
