@@ -6,9 +6,9 @@ from sklearn.datasets import make_blobs
 import networkx as nx
 
 
-def load_blobs(blob_sizes, blob_centers, radius, seed):
+def load_blobs(blob_sizes, blob_centers, radius, sigma, seed):
 
-    xs, ys = make_blobs(n_samples=blob_sizes, centers=blob_centers, n_features=2, random_state=seed)
+    xs, ys = make_blobs(n_samples=blob_sizes, centers=blob_centers, n_features=2, cluster_std=sigma, random_state=seed)
     A = radius_neighbors_graph(xs, radius).toarray()
     G = nx.from_numpy_matrix(A)
 

@@ -117,12 +117,13 @@ def get_dataset_and_order_function(args):
         xs, ys, A, G = load_blobs(blob_sizes=args['dataset']['blob_sizes'],
                                   blob_centers=args['dataset']['blob_centers'],
                                   radius=args['dataset']['radius'],
+                                  sigma=args['dataset']['sigma'],
                                   seed=args['experiment']['seed'])
 
         data['xs'] = xs
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
-        order_function = partial(cut_order, A)
+        order_function = partial(implicit_order, xs, None)
 
     return data, order_function

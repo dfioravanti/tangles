@@ -52,14 +52,11 @@ def compute_cuts(data, args, verbose):
         
         cuts['values'] = (data['xs'] == True).T
         
-    elif args['experiment']['preprocessing_name'] == PREPROCESSING_SUBMODULAR:
-        
-        cuts['values'] = make_submodular((data['xs'] == True).T)
-        
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_BINARIZED_LIKERT:
         
         sets, names = binarize_likert_scale(xs=data['xs'],
-                                            range_answers=args['preprocessing']['range_answers'])
+                                            range_answers=args['preprocessing']['range_answers'],
+                                            n_bins=args['preprocessing']['n_bins'])
         cuts['values'] = sets
         cuts['names'] = names
         

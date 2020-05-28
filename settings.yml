@@ -1,17 +1,17 @@
 
 # allowed types: single, batch
 experiment:
-  seed: 80
-  dataset_name: cancer
+  seed: 10
+  dataset_name: blobs
   preprocessing_name: bin_lik
-  agreement: 50
+  agreement: 30
   percentile_orders: 100
 
 dataset:
 
   moons:
     n_samples: 300
-    noise: 0.2
+    noise: 0.1
     radius: 0.3
 
   retinal:
@@ -24,9 +24,10 @@ dataset:
     q: 0.78
 
   blobs:
-    blob_sizes: [60, 60, 60, 60]
-    blob_centers: [[-2, 2], [-2, -2], [2, -2], [2, 2]]
+    blob_sizes: [60, 60]
+    blob_centers: [[-2, -2], [2, -2]]
     radius: 0.5
+    sigma: 1
 
   mindsets:
     mindset_sizes: [100, 100]
@@ -71,7 +72,8 @@ preprocessing:
                 [0, 1, 1]]
 
   bin_lik:
-    range_answers: [1, 10]
+    n_bins: 20
+    range_answers: [1, 20]
 
   karnig_lin:
     nb_cuts: 100

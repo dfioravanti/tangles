@@ -4,8 +4,11 @@ id, Type of experiment
 1590585263, Mindsets
 1590636599, cancer 10 bins
 1590639814, cancer 20 bins
-1590636983, 4 gaussian blobs sigma =1
-1590638446, 4 gaussian blobs sigma =1
+1590636983, 4 gaussian blobs sigma = 1
+1590638446, 4 gaussian blobs sigma = 1.5
 
 1590640026, Moons high noise
-1590644361,
+1590644361, Moons low noise
+
+1590636983, 2 gaussian blobs sigma = 1
+1590647207, 2 gaussian blobs sigma = 1.5

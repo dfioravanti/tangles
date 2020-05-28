@@ -28,7 +28,15 @@ def linear_cuts(xs, equations, verbose=0):
     return sets, equations
 
 
-def binarize_likert_scale(xs, range_answers):
+def binarize_likert_scale(xs, range_answers, n_bins):
+
+    if n_bins > 0:
+        df = pd.DataFrame(data=xs)
+        df_bined = pd.DataFrame()
+        for column in df.columns:
+            df_bined[column] = pd.qcut(df[column], q=n_bins, labels=False) + 1
+
+        xs = df_bined.values
 
     min_answer = range_answers[0]
     max_answer = range_answers[1]
