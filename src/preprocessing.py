@@ -150,7 +150,7 @@ def kernighan_lin_algorithm(xs, fraction):
     A, B = initial_partition(xs, fraction)
 
     i = 0
-    while i < 10:
+    while True:
         A_copy = A.copy()
         B_copy = B.copy()
         xs_copy = xs.copy()
@@ -219,18 +219,15 @@ def fid_mat_algorithm(xs, r, verbose):
     nb_cells, _ = xs.shape
     A, B = initial_partition(xs, np.random.uniform(r, 0.5))
 
-    cell_array = [np.argwhere(row == True).flatten() for row in xs]
-
-    # p_max is the maximal degree and thus the maximal gain a vertex can have for a single move
-    p_max = int(np.max(np.sum(xs, axis=1)))
+    cell_array = [np.argwhere(row > 0).flatten() for row in xs]
 
     # while not converged
     i = 0
-    while i < 10:
+    while True:
         A_copy = A.copy()
         B_copy = B.copy()
         not_locked = np.full([nb_cells], True)
-        gain_bucket, gain_list = compute_initial_gains(A, B, cell_array, p_max)
+        gain_list = compute_initial_gains(A, B, cell_array, xs)
         g_max = -np.inf
         g_acc = 0
         move_max = np.empty_like(A)
@@ -238,7 +235,7 @@ def fid_mat_algorithm(xs, r, verbose):
 
         # iterate over all vertices and move them
         while sum(not_locked > 0):
-            base_cell, g = choose_cell_greedy(A_copy, B_copy, gain_bucket, r, not_locked, p_max)
+            base_cell, g = choose_cell_greedy(A_copy, B_copy, gain_list, r, not_locked)
 
             if base_cell is None:
                 break
@@ -251,11 +248,11 @@ def fid_mat_algorithm(xs, r, verbose):
                 move_max[:] = move_acc[:]
 
             if A_copy[base_cell]:
-                A_copy, B_copy, gain_bucket, gain_list, not_locked = \
-                    move_and_update(base_cell, A_copy, B_copy, gain_bucket, gain_list, not_locked, cell_array)
+                A_copy, B_copy, gain_list, not_locked = \
+                    move_and_update(base_cell, A_copy, B_copy, gain_list, not_locked, cell_array, xs)
             else:
-                B_copy, A_copy, gain_bucket, gain_list, not_locked = \
-                    move_and_update(base_cell, B_copy, A_copy, gain_bucket, gain_list, not_locked, cell_array)
+                B_copy, A_copy, gain_list, not_locked = \
+                    move_and_update(base_cell, B_copy, A_copy, gain_list, not_locked, cell_array, xs)
 
         if g_max > 0:
             # moving nodes from initial partition that improve the cut
@@ -274,25 +271,22 @@ def fid_mat_algorithm(xs, r, verbose):
 
 ## g(i) = FromSingle(i) - ToEmpty(i)
 # computed gains like in pseudocode but not sure if this is fastest? O(n^2)
-def compute_initial_gains(A, B, cell_array, p_max):
+def compute_initial_gains(A, B, cell_array, xs):
     nb_cells = len(cell_array)
-    gain_bucket = np.empty([2*p_max+1, ], object)
-    gain_bucket[...] = [[] for _ in range(2*p_max+1)]
-    gain_list = np.full([nb_cells], None)
+    gain_list = np.full(nb_cells, 0)
 
     for cell_index in range(nb_cells):
         gain = 0
         for adj_cell in cell_array[cell_index]:
             if A[cell_index]:
-                gain += compute_gain_for_net(A, B, adj_cell)
+                gain += compute_gain_for_net(A, B, adj_cell) * xs[cell_index, adj_cell]
             elif B[cell_index]:
-                gain += compute_gain_for_net(B, A, adj_cell)
+                gain += compute_gain_for_net(B, A, adj_cell) * xs[cell_index, adj_cell]
 
         # add cell to the sorted bucket list
-        gain_bucket[gain].append(cell_index)
         gain_list[cell_index] = gain
 
-    return gain_bucket, gain_list
+    return gain_list
 
 
 def compute_gain_for_net(F, T, other_index):
@@ -307,21 +301,23 @@ def compute_gain_for_net(F, T, other_index):
         return 0
 
 
-def choose_cell_greedy(A, B, gain_bucket, r, not_locked, p_max):
+def choose_cell_greedy(A, B, gain_list, r, not_locked):
 
-    possible_partition = is_balanced(A, B, r, sum(not_locked))
+    possible_partition = is_balanced(A, r)
+
+    idx = np.arange(len(gain_list))[not_locked]
+    cells = gain_list[not_locked]
 
     # choose cell that is not locked, does not harm the ratio and maximizes the gain
-    for index in np.arange(p_max, -p_max-1, -1):
-        for cell in gain_bucket[index]:
-            partition = [A[cell], B[cell]]
-            if not_locked[cell] & np.logical_and(partition, possible_partition).any():
-                return cell, index
+    for cell in idx[np.argsort(-cells)]:
+        partition = [A[cell], B[cell]]
+        if not_locked[cell] & np.logical_and(partition, possible_partition).any():
+            return cell, gain_list[cell]
 
     return None, 0
 
 
-def is_balanced(A, B, r, smax):
+def is_balanced(A, r):
     sumA = sum(A)
     cardinalityA_1 = sumA - 1
     cardinalityA_2 = sumA + 1
@@ -334,12 +330,9 @@ def is_balanced(A, B, r, smax):
 
 
 
-def move_and_update(base_cell, F, T, gain_bucket, gain_list, not_locked, cell_array):
+def move_and_update(base_cell, F, T, gain_list, not_locked, cell_array, xs):
     # lock base cell
     not_locked[base_cell] = False
-    # remove the base cell from the bucket list
-    gain_bucket[gain_list[base_cell]].remove(base_cell)
-
     # switch block
     F[base_cell] = 0
     T[base_cell] = 1
@@ -348,31 +341,27 @@ def move_and_update(base_cell, F, T, gain_bucket, gain_list, not_locked, cell_ar
     for other_cell in cell_array[base_cell]:
         # check critical nets before move
         Tn = T[other_cell]
-        # Fn = F[other_cell] + 1
+        Fn = F[other_cell] + 1
         if not_locked[other_cell]:
             if Tn == 0:
-                gain_bucket, gain_list = adjust_gain(gain_bucket, gain_list, other_cell, +2)
+                gain_list = adjust_gain(gain_list, other_cell, +xs[base_cell, other_cell])
             elif Tn == 1:
-                gain_bucket, gain_list = adjust_gain(gain_bucket, gain_list, other_cell, -2)
+                gain_list = adjust_gain(gain_list, other_cell, -xs[base_cell, other_cell])
 
             # # chance net distribution to reflect the move
-            # Tn += 1
-            # Fn -= 1
-            #
-            # if Fn == 0:
-            #     gain_bucket, gain_list = adjust_gain(gain_bucket, gain_list, other_cell, -1)
-            # elif Fn == 1:
-            #     gain_bucket, gain_list = adjust_gain(gain_bucket, gain_list, other_cell, +1)
+            Tn += 1
+            Fn -= 1
+            if Fn == 0:
+                gain_list = adjust_gain(gain_list, other_cell, -xs[base_cell, other_cell])
+            elif Fn == 1:
+                gain_list = adjust_gain(gain_list, other_cell, +xs[base_cell, other_cell])
 
-    return F, T, gain_bucket, gain_list, not_locked
+    return F, T, gain_list, not_locked
 
 
-def adjust_gain(g_bucket, g_list, cell, value):
-    g_bucket[g_list[cell]].remove(cell)
+def adjust_gain(g_list, cell, value):
     g_list[cell] += value
-    g_bucket[g_list[cell]].append(cell)
-
-    return g_bucket, g_list
+    return g_list
 
 
 # ----------------------------------------------------------------------------------------------------------------------
