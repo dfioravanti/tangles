@@ -1,14 +1,31 @@
 id, Type of experiment
 0, Local experiments
 1590579968, SBM
-1590585263, Mindsets
-1590636599, cancer 10 bins
-1590639814, cancer 20 bins
-1590636983, 4 gaussian blobs sigma = 1
-1590638446, 4 gaussian blobs sigma = 1.5
+1590672352, SBM test nb cuts
+1590679038, SBM 20 cuts keep 80%
+1590585263, Mindsets (old)
+1590663805, Mindsets
+1590669671, Mindsets better resolution
+1590676940, Mindsets better resolution 100-50%
+1590680669, Mindsets better resolution 80%
+1590686580, Mindsets 0->40 questions
+ 
+1590636599, cancer_10_bins
+1590639814, cancer_20_bins
 
-1590640026, Moons high noise
-1590644361, Moons low noise
+1590636983, 4_gaussian_blobs_sigma_1_binning
+1590638446, 4_gaussian_blobs_sigma_1.5_binning
+1590647108, 2_gaussian_blobs_sigma_1_binning
+1590647207, 2_gaussian_blobs_sigma_1.5_binning
 
-1590636983, 2 gaussian blobs sigma = 1
-1590647207, 2 gaussian blobs sigma = 1.5
+11, 2_gaussian_blobs_sigma_1_graph
+10, 2_gaussian_blobs_sigma_1.5_graph 
+12, 4_gaussian_blobs_sigma_1_graph
+13, 4_gaussian_blobs_sigma_1.5_graph
+
+1547845985, sbm 3 balanced sparse experiment
+1547889898, sbm 3 unbalanced sparse experiment
+1547847854, sbm 4 balanced sparse experiment
+1547898989, sbm 4 unbalanced sparse experiment
+
+14, LFR
