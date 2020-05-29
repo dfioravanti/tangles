@@ -45,4 +45,4 @@ if __name__ == "__main__":
     parser.add_argument('-s', dest='seed', action='store', type=int)
     args = parser.parse_args()
 
-    benchmark_SMB("./", seed=args.seed)
+    benchmark_SMB("./", seed=args.seed)LFR

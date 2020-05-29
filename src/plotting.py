@@ -310,37 +310,34 @@ def plot_graph_cuts(G, ys, cuts, orders, path):
         plt.close(fig)
 
 
-def add_lines(values, ax, left=True):
+def add_lines(values, ax, plot_first=False):
     
     n, m = values.shape
     old_i = None
-    for j in np.arange(m):
-        for i in np.arange(n):
-            if values[i, j] == True:
-                
-                if old_i != i:
-                    if left:
-                        line = [(j - 0.5, i + 0.5),
-                                (j - 0.5, i - 0.5), 
-                                (j + 0.5, i - 0.5)]
-                    else:
-                        line = [(j - 0.5, i - 1.5),
-                                (j - 0.5, i - 0.5), 
-                                (j + 0.5, i - 0.5)]
+    first=True
+    for column in np.arange(m):
+        for row in np.arange(n):
+            if values[row, column] == True:
+                                
+                if old_i != row and not (first and not plot_first):
+                        line = [(column, row+1.05),
+                                (column, row),
+                                (column+1.05, row),
+                                ]
                 else:
-                    line = [(j - 0.5, i - 0.5), 
-                            (j + 0.5, i - 0.5)]
-                        
+                    line = [(column, row), 
+                            (column + 1.05, row)]
+                first=False
                     
                 path = patches.Polygon(line, facecolor='none', edgecolor='red',
-                                       linewidth=2, closed=False, joinstyle='round')
+                                       linewidth=5, closed=False, joinstyle='round')
                 ax.add_patch(path)
-                old_i = i
+                old_i = row
                 break
 
 
-def make_result_heatmap(data, ax, x_column, y_column, values_column):
-
+def make_result_heatmap(data, ax, x_column, y_column, values_column, x_label, y_label):
+    
     plt.rc('font', family='serif')
 
     df = data.pivot(index=y_column, columns=x_column, values=values_column
@@ -348,37 +345,17 @@ def make_result_heatmap(data, ax, x_column, y_column, values_column):
     xs = df.columns.to_numpy()
     ys = df.index.to_numpy()
     values = df.to_numpy()
-    im = ax.imshow(values, cmap=plt.cm.get_cmap('Blues'), aspect='auto')
+    
+    heat_map = sns.heatmap(values, cmap='Blues', annot=True, linewidths=5,)
+    heat_map.set_yticklabels(ys, rotation=0) 
+    heat_map.set_xticklabels(xs, rotation=0) 
+    heat_map.set_xlabel(x_label, rotation=0, fontsize=20, labelpad=15) 
+    heat_map.set_ylabel(y_label, rotation=90, fontsize=20, labelpad=15) 
 
-    ax.set_xticks(np.arange(len(xs)))
-    ax.set_xticklabels(xs)
-    ax.set_xlabel(x_column, fontsize=10, labelpad=10)
-
-    ax.set_yticks(np.arange(len(ys)))
-    ax.set_yticklabels(ys)
-    ax.set_ylabel(y_column, rotation=0, fontsize=10, labelpad=15)
-
-    # Rotate the tick labels and set their alignment.
-    plt.setp(ax.get_xticklabels(), rotation=0, 
-             ha="center", rotation_mode="anchor")
-
-    # Loop over data dimensions and create text annotations.
-    for i in range(len(ys)):
-        for j in range(len(xs)):
-            text = ax.text(j, i, values[i, j],
-                           ha="center", va="center", color="black")
-
-    # Turn spines off and create white grid.
-    for edge, spine in ax.spines.items():
-        spine.set_visible(False)
-
-    ax.set_xticks(np.arange(len(xs)+1)-.5, minor=True)
-    ax.set_yticks(np.arange(len(ys)+1)-.5, minor=True)
-    ax.grid(b=True, which="minor", color="w", linestyle='-', linewidth=5)
-    ax.tick_params(which="minor", bottom=False, left=False)
+    return ax
 
 
-def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column):
+def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column, x_label, y_label):
 
     plt.rc('font', family='serif')
     fig, ax = plt.subplots(figsize=(15, 10))
@@ -396,6 +373,7 @@ def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column):
     
     heat_map = sns.heatmap(difference_df, center=0, cmap='BrBG', annot=True, linewidths=1, cbar_kws={'label': 'Difference in Rand score'})
     heat_map.set_yticklabels(heat_map.get_yticklabels(), rotation=0) 
-    heat_map.set_ylabel(heat_map.get_ylabel(), rotation=0, labelpad=15) 
+    heat_map.set_xlabel(x_label, rotation=0, labelpad=15) 
+    heat_map.set_ylabel(y_label, rotation=0, labelpad=15) 
 
     return fig, ax

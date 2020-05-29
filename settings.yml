@@ -1,11 +1,11 @@
 
 # allowed types: single, batch
 experiment:
-  seed: 10
-  dataset_name: blobs
-  preprocessing_name: bin_lik
+  seed: 50
+  dataset_name: gblobs
+  preprocessing_name: fid_mat
   agreement: 30
-  percentile_orders: 100
+  percentile_orders: 80
 
 dataset:
 
@@ -19,18 +19,25 @@ dataset:
     max_idx: 75
 
   sbm:
-    block_sizes: [100, 100]
-    p: 0.92
-    q: 0.78
+    block_sizes: [50, 75, 100, 100]
+    p: 0.3
+    q: 0.1
 
   blobs:
-    blob_sizes: [60, 60]
-    blob_centers: [[-2, -2], [2, -2]]
-    radius: 0.5
-    sigma: 1
+    blob_sizes: [60, 60, 60, 60]
+    blob_centers: [[-2, -2], [-2, 2], [2, -2], [2, 2]]
+    radius: 1.5
+    sigma: [[1, 1], [1, 1], [1, 1], [1, 1]]
+
+  gblobs:
+    blob_sizes: [60, 60, 60, 60]
+    blob_centers: [[-2, -2], [-2, 2], [2, -2], [2, 2]]
+    k: 24
+    sigma: 1.5
+
 
   mindsets:
-    mindset_sizes: [100, 100]
+    mindset_sizes: [500, 500]
     nb_questions: 20
     nb_useless: 0
     noise: 0.2
@@ -42,15 +49,22 @@ dataset:
     centers: False
     range_answers: [1, 5]
 
-  pol_books:
-    path_edges: datasets/pol_books/political-books-edges.csv
-    path_nodes: datasets/pol_books/political-books-nodes.csv
+  lfr:
+    nb_nodes: 250
+    tau1: 3
+    tau2: 1.5
+    mu: 0.1
+    average_degree: 5
+    min_community: 20
 
   cancer:
     nb_bins: 10
 
   big5:
     path: datasets/big5.csv
+
+  wawe:
+    path: 
 
   cancer10:
     path: datasets/breast_cancer.csv
@@ -72,8 +86,8 @@ preprocessing:
                 [0, 1, 1]]
 
   bin_lik:
-    n_bins: 20
-    range_answers: [1, 20]
+    n_bins: 10
+    range_answers: [1, 10]
 
   karnig_lin:
     nb_cuts: 100
@@ -84,12 +98,12 @@ preprocessing:
     n_max: 20
 
   fid_mat:
-    nb_cuts: 50
-    lb_f: 0.4
+    nb_cuts: 30
+    lb_f: 0.1
 
 # -1 in nb_cuts means all
 plot:
-  no_plots: false
+  no_plots: true
   tree: True
   tangles: False
   cuts: False

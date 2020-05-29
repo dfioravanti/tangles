@@ -1,5 +1,6 @@
 id, Type of experiment
 0, Local experiments
+1587919855, SBM (old)
 1590579968, SBM
 1590672352, SBM test nb cuts
 1590679038, SBM 20 cuts keep 80%
@@ -13,10 +14,6 @@ id, Type of experiment
 1590636599, cancer_10_bins
 1590639814, cancer_20_bins
 
-1590636983, 4_gaussian_blobs_sigma_1_binning
-1590638446, 4_gaussian_blobs_sigma_1.5_binning
-1590647108, 2_gaussian_blobs_sigma_1_binning
-1590647207, 2_gaussian_blobs_sigma_1.5_binning
 
 11, 2_gaussian_blobs_sigma_1_graph
 10, 2_gaussian_blobs_sigma_1.5_graph 
@@ -29,3 +26,18 @@ id, Type of experiment
 1547898989, sbm 4 unbalanced sparse experiment
 
 14, LFR
+
+15, 2_gaussian_blobs_sigma_1_binning
+16, 2_gaussian_blobs_sigma_1.5_binning
+17, 4_gaussian_blobs_sigma_1_binning
+18, 4_gaussian_blobs_sigma_1.5_binning
+
+20, 2_gaussian_blobs_sigma_1_graph2
+21, 2_gaussian_blobs_sigma_1.5_graph2
+22, 4_gaussian_blobs_sigma_1_graph2
+23, 4_gaussian_blobs_sigma_1.5_graph2
+
+48, 2_gaussian_blobs_sigma_1_graph2
+49, 2_gaussian_blobs_sigma_1.5_graph2
+50, 4_gaussian_blobs_sigma_1_graph2
+51, 4_gaussian_blobs_sigma_1.5_graph2

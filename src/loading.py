@@ -1,21 +1,24 @@
 from functools import partial
 
+import pandas as pd
+
 from sklearn.neighbors import radius_neighbors_graph
 from sklearn.datasets import make_moons
 
 import networkx as nx
 
-from src.config import DATASET_SBM, DATASET_QUESTIONNAIRE, DATASET_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
-    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS
+from src.config import DATASET_SBM, DATASET_LFR, DATASET_QUESTIONNAIRE, DATASET_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
+    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS, DATASET_WAWE, DATASET_KNN_GAUSS_BLOBS
 
 from src.datasets.cancer import load_CANCER
 from src.datasets.cancer10 import load_CANCER10
-from src.datasets.graphs import load_SBM
+from src.datasets.graphs import load_SBM, load_LFR
 from src.datasets.kNN import load_blobs
 from src.datasets.mies import load_MIES
 from src.datasets.mindsets import make_mindsets
 from src.datasets.questionnaire import make_questionnaire
 from src.datasets.retinal import load_RETINAL
+from src.datasets.gauss_blob import load_knn_gauss_blobs
 from src.order_functions import implicit_order, cut_order
 
 
@@ -125,5 +128,46 @@ def get_dataset_and_order_function(args):
         data['A'] = A
         data['G'] = G
         order_function = partial(implicit_order, xs, None)
+        order_function = partial(cut_order, A)
+
+        
+    elif args['experiment']['dataset_name'] == DATASET_LFR:
+        A, ys, G = load_LFR(nb_nodes=args['dataset']['nb_nodes'],
+                            tau1=args['dataset']['tau1'],
+                            tau2=args['dataset']['tau2'],
+                            mu=args['dataset']['mu'],
+                            average_degree=args['dataset']['average_degree'],
+                            min_community=args['dataset']['min_community'],
+                            seed=args['experiment']['seed'])
+
+        data['A'] = A
+        data['ys'] = ys
+        data['G'] = G
+        order_function = partial(cut_order, A)
+        
+    elif args['experiment']['dataset_name'] == DATASET_WAWE:
+        df = pd.read_csv('datasets/waveform.csv')
+        xs = df[df.columns[:-1]].to_numpy()
+        ys = df[df.columns[-1]].to_numpy()
+
+        data['xs'] = xs
+        data['ys'] = ys
+        
+        order_function = partial(implicit_order, xs, 300)
+
+    elif args['experiment']['dataset_name'] == DATASET_KNN_GAUSS_BLOBS:
+        xs, ys, A, G = load_knn_gauss_blobs(blob_sizes=args['dataset']['blob_sizes'],
+                                      blob_centers=args['dataset']['blob_centers'],
+                                      blob_variances=args['dataset']['sigma'],
+                                      k=args['dataset']['k'],
+                                      seed=args['experiment']['seed'])
+        order_function = partial(cut_order, A)
+
+        data['xs'] = xs
+        data['A'] = A
+        data['ys'] = ys
+        data['G'] = G
 
     return data, order_function
+
+    

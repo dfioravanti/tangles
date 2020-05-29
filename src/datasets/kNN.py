@@ -9,7 +9,8 @@ import networkx as nx
 def load_blobs(blob_sizes, blob_centers, radius, sigma, seed):
 
     xs, ys = make_blobs(n_samples=blob_sizes, centers=blob_centers, n_features=2, cluster_std=sigma, random_state=seed)
-    A = radius_neighbors_graph(xs, radius).toarray()
+    ten_percent = int(len(xs) * 0.1)
+    A = kneighbors_graph(xs, n_neighbors=ten_percent).toarray()
     G = nx.from_numpy_matrix(A)
 
     return xs, ys, A, G
