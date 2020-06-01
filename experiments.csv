@@ -1,43 +1,27 @@
 id, Type of experiment
 0, Local experiments
-1587919855, SBM (old)
+1589802894, SBM full tree
 1590579968, SBM
 1590672352, SBM test nb cuts
 1590679038, SBM 20 cuts keep 80%
+
 1590585263, Mindsets (old)
 1590663805, Mindsets
-1590669671, Mindsets better resolution
-1590676940, Mindsets better resolution 100-50%
-1590680669, Mindsets better resolution 80%
+
+1590676940, Mindsets 100-50% 20 questions
+1590906539, Mindsets 100-50% 40 questions
+
 1590686580, Mindsets 0->40 questions
- 
-1590636599, cancer_10_bins
-1590639814, cancer_20_bins
+1590905834, Mindsets a vs size 0 and 0.1 noise 20 cuts
+1590906222, Mindsets a vs size 0 and 0.1 noise 40 cuts
+1591017278, Mindsets a vs size 0.2 noise 40 cuts
+1590928392, Mindsets o vs p with 0.1 noise 40 cuts 0 10 20 30 40 noisy
+1590919210, Unbalanced
 
+1590925112, SBM a vs size 0.2 and 0.4 lb 20 cuts
+1590928658, SBM o vs p with 0.2 and 0.4 lb 20 cuts
+1590935943, SBM nb questions 100 points
+1590934402, SBM Unbalanced
 
-11, 2_gaussian_blobs_sigma_1_graph
-10, 2_gaussian_blobs_sigma_1.5_graph 
-12, 4_gaussian_blobs_sigma_1_graph
-13, 4_gaussian_blobs_sigma_1.5_graph
-
-1547845985, sbm 3 balanced sparse experiment
-1547889898, sbm 3 unbalanced sparse experiment
-1547847854, sbm 4 balanced sparse experiment
-1547898989, sbm 4 unbalanced sparse experiment
-
-14, LFR
-
-15, 2_gaussian_blobs_sigma_1_binning
-16, 2_gaussian_blobs_sigma_1.5_binning
-17, 4_gaussian_blobs_sigma_1_binning
-18, 4_gaussian_blobs_sigma_1.5_binning
-
-20, 2_gaussian_blobs_sigma_1_graph2
-21, 2_gaussian_blobs_sigma_1.5_graph2
-22, 4_gaussian_blobs_sigma_1_graph2
-23, 4_gaussian_blobs_sigma_1.5_graph2
-
-48, 2_gaussian_blobs_sigma_1_graph2
-49, 2_gaussian_blobs_sigma_1.5_graph2
-50, 4_gaussian_blobs_sigma_1_graph2
-51, 4_gaussian_blobs_sigma_1.5_graph2
+1591014530, SMB true a vs of
+1591003606, Mindsets true a vs of

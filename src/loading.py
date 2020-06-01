@@ -166,6 +166,9 @@ def get_dataset_and_order_function(args):
         data['A'] = A
         data['ys'] = ys
         data['G'] = G
+        
+        order_function = partial(cut_order, A)
+
 
     return data, order_function
 

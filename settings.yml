@@ -1,11 +1,11 @@
 
 # allowed types: single, batch
 experiment:
-  seed: 50
-  dataset_name: gblobs
-  preprocessing_name: fid_mat
-  agreement: 30
-  percentile_orders: 80
+  seed: 30
+  dataset_name: blobs
+  preprocessing_name: bin_lik
+  agreement: 20
+  percentile_orders: 100
 
 dataset:
 
@@ -26,14 +26,14 @@ dataset:
   blobs:
     blob_sizes: [60, 60, 60, 60]
     blob_centers: [[-2, -2], [-2, 2], [2, -2], [2, 2]]
-    radius: 1.5
-    sigma: [[1, 1], [1, 1], [1, 1], [1, 1]]
+    k: 20
+    blob_variances: [[1, 1], [1, 1], [1, 1], [1, 1]]
 
   gblobs:
     blob_sizes: [60, 60, 60, 60]
     blob_centers: [[-2, -2], [-2, 2], [2, -2], [2, 2]]
     k: 24
-    sigma: 1.5
+    sigma: [[1, 1], [1, 1], [1, 1], [1, 1]]
 
 
   mindsets:
@@ -86,8 +86,8 @@ preprocessing:
                 [0, 1, 1]]
 
   bin_lik:
-    n_bins: 10
-    range_answers: [1, 10]
+    n_bins: 20
+    range_answers: [1, 20]
 
   karnig_lin:
     nb_cuts: 100
@@ -103,7 +103,7 @@ preprocessing:
 
 # -1 in nb_cuts means all
 plot:
-  no_plots: true
+  no_plots: False
   tree: True
   tangles: False
   cuts: False

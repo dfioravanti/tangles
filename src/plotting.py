@@ -87,7 +87,8 @@ def plot_dataset_metric(xs, cs, colors, eq_cuts, ax, cmap, add_colorbar):
 
     ax.tick_params(axis='x', colors=(0,0,0,0))
     ax.tick_params(axis='y', colors=(0,0,0,0))
-    ax.grid(True)
+    ax.set_aspect('equal', 'box')
+    ax.grid()
 
     xs_embedded, cs_embedded = get_points_to_plot(xs, cs)
 
@@ -130,7 +131,7 @@ def plot_soft_predictions(data, contracted_tree, eq_cuts=None, id_node=0, path=N
         output_path.mkdir(parents=True, exist_ok=True)
 
     if data['ys'] is not None:
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(11, 10))
         colors = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
         ax, pos = plot_dataset(data, colors, eq_cuts=eq_cuts, ax=ax, add_colorbar=False)
 
@@ -168,8 +169,8 @@ def plot_soft_prediction_node(data, node, eq_cuts, id_node, cmap, path, pos):
 
 def plot_hard_predictions(data, ys_predicted, path=None):
 
-    cmap_groundtruth = plt.cm.get_cmap('tab10')
-    cmap_predictions = plt.cm.get_cmap('Set2')
+    cmap_groundtruth = plt.cm.get_cmap('BuPu')
+    cmap_predictions = plt.cm.get_cmap('OrRd')
 
     if path is not None:
         output_path = path
@@ -338,7 +339,8 @@ def add_lines(values, ax, plot_first=False):
 
 def make_result_heatmap(data, ax, x_column, y_column, values_column, x_label, y_label):
     
-    plt.rc('font', family='serif')
+    plt.rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+    plt.rc('text', usetex=True)
 
     df = data.pivot(index=y_column, columns=x_column, values=values_column
                    ).round(2).sort_index(ascending=False).sort_index(axis=1)
@@ -346,11 +348,13 @@ def make_result_heatmap(data, ax, x_column, y_column, values_column, x_label, y_
     ys = df.index.to_numpy()
     values = df.to_numpy()
     
-    heat_map = sns.heatmap(values, cmap='Blues', annot=True, linewidths=5,)
-    heat_map.set_yticklabels(ys, rotation=0) 
-    heat_map.set_xticklabels(xs, rotation=0) 
-    heat_map.set_xlabel(x_label, rotation=0, fontsize=20, labelpad=15) 
-    heat_map.set_ylabel(y_label, rotation=90, fontsize=20, labelpad=15) 
+    values = np.nan_to_num(values)
+
+    heat_map = sns.heatmap(values, cmap='Blues', annot=True, linewidths=5, vmax=1.0)
+    heat_map.set_yticklabels(ys, rotation=0, fontsize=30) 
+    heat_map.set_xticklabels(xs, rotation=0, fontsize=30) 
+    heat_map.set_xlabel(x_label, rotation=0, fontsize=40, labelpad=15) 
+    heat_map.set_ylabel(y_label, rotation=90, fontsize=40, labelpad=15) 
 
     return ax
 
