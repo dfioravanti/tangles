@@ -1,11 +1,11 @@
 
 # allowed types: single, batch
 experiment:
-  seed: 30
-  dataset_name: blobs
-  preprocessing_name: bin_lik
-  agreement: 20
-  percentile_orders: 100
+  seed: 80
+  dataset_name: mindsets
+  preprocessing_name: features
+  agreement: 200
+  percentile_orders: 15
 
 dataset:
 
@@ -37,10 +37,10 @@ dataset:
 
 
   mindsets:
-    mindset_sizes: [500, 500]
-    nb_questions: 20
-    nb_useless: 0
-    noise: 0.2
+    mindset_sizes: [100, 100]
+    nb_questions: 40
+    nb_useless: 50
+    noise: 0.30
 
   q:
     nb_samples: 1000
@@ -103,7 +103,7 @@ preprocessing:
 
 # -1 in nb_cuts means all
 plot:
-  no_plots: False
+  no_plots: True
   tree: True
   tangles: False
   cuts: False

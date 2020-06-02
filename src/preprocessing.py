@@ -1,35 +1,31 @@
 import numpy as np
 import pandas as pd
-
 from kmodes.kmodes import KModes
 
 import src.coarsening as coarsening
 
 
 def linear_cuts(xs, equations, verbose=0):
-    
     n_points, _ = xs.shape
     n_cuts = len(equations)
     ones = np.ones((n_points, 1))
-    
+
     expanded_xs = np.hstack((xs, ones))
     sets = np.zeros((n_cuts, n_points), dtype=bool)
     equations = np.array(equations)
-        
+
     for i, equation in enumerate(equations):
-        
         x = equation[0]
         sign_x = 1 if x >= 0 else -1
         equation = sign_x * equation
-        
+
         side = expanded_xs @ equation
         sets[i, :] = (side >= 0)
-            
+
     return sets, equations
 
 
 def binarize_likert_scale(xs, range_answers, n_bins):
-
     if n_bins > 0:
         df = pd.DataFrame(data=xs)
         df_bined = pd.DataFrame()
@@ -52,7 +48,7 @@ def binarize_likert_scale(xs, range_answers, n_bins):
     for column in df.columns:
         for cut_value in cut_values:
             new_col = np.zeros(nb_points, dtype=bool)
-            new_col[df[column] < cut_value] = 0 
+            new_col[df[column] < cut_value] = 0
             new_col[df[column] >= cut_value] = 1
 
             short_name = f'{column}_{cut_value}-{max_answer}'
@@ -135,7 +131,7 @@ def kernighan_lin(A, nb_cuts, lb_f, seed, verbose):
     for i in range(nb_cuts):
         f = np.random.uniform(lb_f, 0.5)
         if verbose >= 3:
-            print(f'\tlooking for cut {i+1}/{nb_cuts} with f={f:.02}')
+            print(f'\tlooking for cut {i + 1}/{nb_cuts} with f={f:.02}')
         cut = kernighan_lin_algorithm(A, f)
         cuts.append(cut)
 
@@ -192,6 +188,7 @@ def kernighan_lin_algorithm(xs, fraction):
         i += 1
 
     return A
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Fiduccia-Mattheyses-Algorithm
@@ -302,7 +299,6 @@ def compute_gain_for_net(F, T, other_index):
 
 
 def choose_cell_greedy(A, B, gain_list, r, not_locked):
-
     possible_partition = is_balanced(A, r)
 
     idx = np.arange(len(gain_list))[not_locked]
@@ -324,10 +320,9 @@ def is_balanced(A, r):
 
     W = len(A)
 
-    leftbound = r*W
-    rightbound = W - r*W
+    leftbound = r * W
+    rightbound = W - r * W
     return [leftbound <= cardinalityA_1 <= rightbound, leftbound <= cardinalityA_2 <= rightbound]
-
 
 
 def move_and_update(base_cell, F, T, gain_list, not_locked, cell_array, xs):
@@ -370,7 +365,6 @@ def adjust_gain(g_list, cell, value):
 
 
 def coarsening_cuts(A, nb_cuts, n_max):
-
     find_cuts = coarsening.FindCuts(A=A,
                                     merge_fn=coarsening.max_cut_merging,
                                     partition_fn=coarsening.compute_spectral_wcut)

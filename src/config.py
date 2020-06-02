@@ -1,10 +1,10 @@
 from pathlib import Path
 
 import numpy as np
-
 import yaml
 
 # Global constants for validations of inputs
+# TODO: there must be a better way to do this nightmare
 
 # Experiments
 EXPERIMENT_SINGLE = 'single'
@@ -34,7 +34,6 @@ DATASET_MICROBIOME = "microbiome"
 DATASET_MOONS = 'moons'
 DATASET_WAWE = 'wawe'
 DATASET_KNN_GAUSS_BLOBS = 'gblobs'
-
 
 DISCRETE_DATASETS = [
     DATASET_RETINAL,
@@ -92,6 +91,7 @@ VALID_ALGORITHM = [
 
 NAN = -9999
 
+
 def load_validate_settings(args_parser, root_dir):
     main_cfg_file = 'settings.yml'
 
@@ -107,8 +107,8 @@ def load_validate_settings(args_parser, root_dir):
 
     return args
 
-def deactivate_plots(args):
 
+def deactivate_plots(args):
     if args['plot']['no_plots']:
         for key in args['plot']:
             if key != 'no_plots':
@@ -116,8 +116,8 @@ def deactivate_plots(args):
 
     return args
 
-def delete_useless_parameters(args):
 
+def delete_useless_parameters(args):
     dataset_name = args['experiment']['dataset_name']
     value = args['dataset'][dataset_name]
     args['dataset'].clear()
@@ -134,7 +134,6 @@ def delete_useless_parameters(args):
 
 
 def get_prefix(args):
-
     if args['experiment']['dataset_name'] == DATASET_SBM:
         prefix = f'SMB_{len(args["dataset"]["block_sizes"])}'
     elif args['experiment']['dataset_name'] == DATASET_BLOBS:
@@ -201,7 +200,6 @@ def merge_config(args_parser, main_cfg):
             main_cfg['dataset'][DATASET_QUESTIONNAIRE]['range_answers'] = args_parser.q_range_answers
             main_cfg['preprocessing'][PREPROCESSING_BINARIZED_LIKERT]['range_answers'] = args_parser.q_range_answers
 
-
     if args_parser.preprocessing_name == PREPROCESSING_KARNIG_LIN:
         if args_parser.nb_cuts is not None:
             main_cfg['preprocessing'][PREPROCESSING_KARNIG_LIN]['nb_cuts'] = args_parser.nb_cuts
@@ -228,7 +226,6 @@ def load_settings(file):
 
 
 def validate_settings(args):
-
     if args['experiment']['dataset_name'] not in VALID_DATASETS:
         raise ValueError(f'The dataset name must be in: {VALID_DATASETS}')
 
@@ -244,7 +241,6 @@ def validate_settings(args):
 
 
 def set_up_dirs(args, root_dir):
-
     args['root_dir'] = Path(root_dir)
     args['output_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id'] / args['prefix']}")
     args['plot_dir'] = Path(f"{args['output_dir'] / 'plots'}")

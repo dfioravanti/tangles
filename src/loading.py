@@ -52,6 +52,8 @@ def get_dataset_and_order_function(args):
         The partially evaluated order function
     """
 
+    # TODO: move data to a class
+
     data = {}
     data['xs'] = None
     data['ys'] = None

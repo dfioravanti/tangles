@@ -1,47 +1,48 @@
 import re
-from copy import deepcopy
 
 import numpy as np
 import pandas as pd
-
 from sklearn.metrics import adjusted_rand_score
 
-from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_BLOBS, PREPROCESSING_FID_MAT, \
-    PREPROCESSING_SUBMODULAR, PREPROCESSING_BINARIZED_LIKERT, PREPROCESSING_LINEAR_CUTS
+from src.config import PREPROCESSING_COARSENING, DATASET_SBM, PREPROCESSING_FID_MAT, \
+    PREPROCESSING_BINARIZED_LIKERT, PREPROCESSING_LINEAR_CUTS
 from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
-from src.config import NAN
-from src.preprocessing import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, \
-                              binarize_likert_scale, linear_cuts
 from src.loading import get_dataset_and_order_function
-from src.plotting import plot_graph_cuts, plot_cuts
+from src.plotting import plot_cuts
+from src.preprocessing import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, \
+    binarize_likert_scale, linear_cuts
 from src.tangles import core_algorithm
 from src.tree_tangles import TangleTree, compute_soft_predictions_children, compute_hard_predictions_node
 from src.utils import change_lower, change_upper, normalize
 
-import matplotlib.pyplot as plt
 
+# TODO: More consistent names. Order should alwasys be cost, etc
 
 def compute_cuts(data, args, verbose):
     """
     Given a set of points or an adjacency matrix this function returns the set of cuts that we will use
-    to compute tangles.
-    This different types of preprocessing are available
-
-     1. PREPROCESSING_USE_FEATURES: consider the features as cuts
-     2. PREPROCESSING_MAKE_SUBMODULAR: consider the features as cuts and then make them submodular
-     3. PREPROCESSING_RANDOM_COVER: Given an adjacency matrix build a cover of the graph and use that as starting
-                                          point for creating the cuts
+    to compute tangles. If it makes sense it computes the names and equations of the cuts for better interpretability
+    and post-processing.
 
     Parameters
     ----------
-    data: dictionary containing all the input data in various representations
-    preprocessing: SimpleNamespace
-        The parameters of the preprocessing
+    data: dict
+        dictionary containing all the input data in various representations
+    args: SimpleNamespace
+        The arguments to the program
+    verbose: int
+        the verbose level of the printing
 
     Returns
     -------
-    cuts: array of shape [n_cuts, n_points]
-        The bipartitions that we will use to compute tangles
+    cuts: dict
+        a dictionary with the following keys
+            values: array of shape [n_cuts, n_points]
+                The cuts that we will use to compute tangles
+            names: array of shape [n_cuts]
+                The name of the cuts
+            equations: array of shape [n_cuts]
+                The planar equations of the cuts
     """
 
     cuts = {}
@@ -49,19 +50,19 @@ def compute_cuts(data, args, verbose):
     cuts['equations'] = None
 
     if args['experiment']['preprocessing_name'] == PREPROCESSING_USE_FEATURES:
-        
+
         cuts['values'] = (data['xs'] == True).T
-        
+
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_BINARIZED_LIKERT:
-        
+
         sets, names = binarize_likert_scale(xs=data['xs'],
                                             range_answers=args['preprocessing']['range_answers'],
                                             n_bins=args['preprocessing']['n_bins'])
         cuts['values'] = sets
         cuts['names'] = names
-        
+
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
-        
+
         sets = kernighan_lin(A=data['A'],
                              nb_cuts=args['preprocessing']['nb_cuts'],
                              lb_f=args['preprocessing']['lb_f'],
@@ -69,24 +70,24 @@ def compute_cuts(data, args, verbose):
                              verbose=verbose)
         sets = np.unique(sets, axis=0)
         cuts['values'] = sets
-        
+
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KMODES:
-        
+
         sets = find_kmodes_cuts(xs=data['xs'],
                                 max_nb_clusters=args['preprocessing'][',ax_nb_clusters'])
         sets = np.unique(sets, axis=0)
         cuts['values'] = sets
-        
+
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_COARSENING:
-        
+
         sets = coarsening_cuts(A=data['A'],
                                nb_cuts=args['preprocessing']['coarsening.nb_cuts'],
                                n_max=args['preprocessing']['coarsening.n_max'])
         sets = np.unique(sets, axis=0)
         cuts['values'] = sets
-        
+
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_FID_MAT:
-        
+
         sets = fid_mat(xs=data['A'],
                        nb_cuts=args['preprocessing']['nb_cuts'],
                        lb_f=args['preprocessing']['lb_f'],
@@ -94,34 +95,49 @@ def compute_cuts(data, args, verbose):
                        verbose=verbose)
         sets = np.unique(sets, axis=0)
         cuts['values'] = sets
-        
+
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_LINEAR_CUTS:
-        
+
         sets, equations = linear_cuts(xs=data['xs'],
-                                 equations=args['preprocessing']['equations'],
-                                 verbose=verbose)
+                                      equations=args['preprocessing']['equations'],
+                                      verbose=verbose)
 
         cuts['values'] = sets
         cuts['equations'] = equations
-        
+
     return cuts
 
 
 def order_cuts(cuts, order_function):
     """
-    Compute the order of a series of bipartitions
+    Compute the order of a series of cuts and orders them according to the order
 
     Parameters
     ----------
-    cuts: array of shape [n_points, n_cuts]
-        The bipartitions that we want to know the order of
+    cuts: dict
+        a dictionary with the following keys
+            values: array of shape [n_cuts, n_points]
+                The cuts that we will use to compute tangles
+            names: array of shape [n_cuts]
+                The name of the cuts
+            equations: array of shape [n_cuts]
+                The planar equations of the cuts
     order_function: function
         The order function
 
+    TODO: add order to the cuts and move cuts to an object instead of a dict
+
     Returns
     -------
-    cuts: array of shape [n_cuts, n_points]
-        The cuts reodered according to their cost
+    cuts: dict
+        a dictionary with the following keys
+            values: array of shape [n_cuts, n_points]
+                The cuts ordered by cost
+            names: array of shape [n_cuts]
+                The name of the cuts
+            equations: array of shape [n_cuts]
+                The planar equations of the cuts
+
     cost_cuts: array of shape [n_cuts]
         The cost of the corresponding cut
     """
@@ -133,11 +149,11 @@ def order_cuts(cuts, order_function):
         cost_cuts[i_cut] = order_function(cut)
 
     idx = np.argsort(cost_cuts)
-    
-    cuts['values'] = values_cuts[idx] 
+
+    cuts['values'] = values_cuts[idx]
     if name_cuts is not None:
         cuts['names'] = name_cuts[idx]
-        
+
     if eq_cuts is not None:
         cuts['equations'] = eq_cuts[idx]
 
@@ -145,9 +161,30 @@ def order_cuts(cuts, order_function):
 
 
 def pick_cuts_up_to_order(cuts, orders, percentile):
-    
+    """
+    Drop the cuts whose order is in a percentile above percentile.
+
+    Parameters
+    ----------
+    cuts: dict
+        a dictionary with the following keys
+            values: array of shape [n_cuts, n_points]
+                The cuts that we will use to compute tangles
+            names: array of shape [n_cuts]
+                The name of the cuts
+            equations: array of shape [n_cuts]
+                The planar equations of the cuts
+    orders: array of shape [n_cuts]
+        The cost of the corresponding cut
+    percentile
+
+    Returns
+    -------
+
+    """
+
     # TODO: Remove names and eq too but it still works now
-    
+
     mask_orders_to_pick = orders <= np.percentile(orders, q=percentile)
     orders = orders[mask_orders_to_pick]
     cuts['values'] = cuts['values'][mask_orders_to_pick, :]
@@ -160,6 +197,23 @@ def pick_cuts_up_to_order(cuts, orders, percentile):
 
 
 def get_dataset_cuts_order(args):
+    """
+    Function to load the datasets, compute the cuts and the orders.
+
+    TODO: Break this function on smaller parts. In particular pre-processing should be decouple from the datasets
+
+    Parameters
+    ----------
+    args: SimpleNamespace
+        The arguments to the program
+
+    Returns
+    -------
+    data
+    orders
+    cuts
+    """
+
     if args['verbose'] >= 2:
         print("Load data\n", flush=True)
     data, order_function = get_dataset_and_order_function(args)
@@ -182,15 +236,40 @@ def get_dataset_cuts_order(args):
     if args['plot']['cuts']:
         if args['verbose'] >= 2:
             print(f"\tPlotting cuts")
-            
-        plot_cuts(data, cuts, orders, 
-                  nb_cuts_to_plot=args['plot']['nb_cuts'], 
+
+        plot_cuts(data, cuts, orders,
+                  nb_cuts_to_plot=args['plot']['nb_cuts'],
                   path=args['plot_dir'])
-        
+
     return data, orders, cuts
 
 
 def tangle_computation(cuts, orders, agreement, verbose):
+    """
+
+
+
+    Parameters
+    ----------
+    cuts: dict
+        a dictionary with the following keys
+            values: array of shape [n_cuts, n_points]
+                The cuts that we will use to compute tangles
+            names: array of shape [n_cuts]
+                The name of the cuts
+            equations: array of shape [n_cuts]
+                The planar equations of the cuts
+    orders: array of shape [n_cuts]
+        The cost of the corresponding cut
+    agreement: int
+        The agreement parameter
+    verbose:
+        verbosity level
+    Returns
+    -------
+    tangles_tree: TangleTree
+        The tangle search tree
+    """
 
     if verbose >= 2:
         print(f"Using agreement = {agreement} \n")
@@ -230,7 +309,7 @@ def tangle_computation(cuts, orders, agreement, verbose):
 
                 if verbose >= 2:
                     print(f"\t\tI found {len(new_tree.active)} tangles of order {order}", flush=True)
-        
+
         old_order = order
 
     if tangles_tree is not None:
@@ -239,28 +318,7 @@ def tangle_computation(cuts, orders, agreement, verbose):
     return tangles_tree
 
 
-def get_parameters(args):
-
-    parameters = {}
-    parameters['seed'] = args.seeds
-
-    if args.experiment.dataset_name == DATASET_SBM:
-        parameters['block_sizes'] = [args.dataset.sbm.block_sizes]
-        parameters['p'] = args.dataset.sbm.ps
-        parameters['q'] = args.dataset.sbm.qs
-    elif args.experiment.dataset_name == DATASET_KNN_BLOBS:
-        parameters['blob_sizes'] = [args.dataset.knn_blobs.blob_sizes]
-        parameters['blobs_center'] = args.dataset.knn_blobs.blobs_centers
-        parameters['k'] = args.dataset.knn_blobs.ks
-
-    if args.args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
-        parameters['nb_cuts'] = [args.args['preprocessing'].nb_cuts]
-
-    return parameters
-
-
 def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
-
     path.mkdir(parents=True, exist_ok=True)
 
     if verbose >= 2:
@@ -277,10 +335,10 @@ def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
             for tangle in tangles:
                 tmp = pd.DataFrame([tangle.specification])
                 answers = answers.append(tmp)
-            #answers = answers.astype(str)
+            # answers = answers.astype(str)
 
-            #useless_columns = (answers.nunique(axis=0) == 1)
-            #answers.loc[:, useless_columns] = 'Ignore'
+            # useless_columns = (answers.nunique(axis=0) == 1)
+            # answers.loc[:, useless_columns] = 'Ignore'
 
             answers.columns = questions_names
 
@@ -290,7 +348,6 @@ def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
 
 
 def tangles_to_range_answers(tangles, cut_names, interval_values, path):
-
     # the questions are of the form 'name greater of equal than value'
     # this regex gets the name and the value
     template = re.compile(r"(\w+) .+ (\d+)")
@@ -330,8 +387,7 @@ def tangles_to_range_answers(tangles, cut_names, interval_values, path):
 
 
 def centers_in_range_answers(cs, range_answers):
-
-    #name_questions = [f'{q']
+    # name_questions = [f'{q']
 
     p = []
     for _, row in range_answers.iterrows():
@@ -339,7 +395,7 @@ def centers_in_range_answers(cs, range_answers):
         for c in cs:
             l = []
             for component_c, answer in zip(c, row.tolist()):
-                l.append(component_c in answer)        
+                l.append(component_c in answer)
             agreement.append(np.mean(l))
         p.append(max(agreement))
 
@@ -347,7 +403,6 @@ def centers_in_range_answers(cs, range_answers):
 
 
 def compute_soft_predictions(contracted_tree, cuts, orders, verbose):
-
     costs = np.exp(-normalize(orders))
 
     compute_soft_predictions_children(node=contracted_tree.root,
@@ -355,9 +410,8 @@ def compute_soft_predictions(contracted_tree, cuts, orders, verbose):
                                       costs=costs,
                                       verbose=verbose)
 
-    
-def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path):
 
+def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path):
     ARS = adjusted_rand_score(ys, ys_predicted)
 
     print(f'Adjusted Rand Score: {ARS}', flush=True)
@@ -369,17 +423,17 @@ def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path)
 
 
 def compute_hard_preditions(condensed_tree, cuts):
-    
     _, nb_points = cuts.shape
-
     idx_points = np.arange(nb_points)
     ys_predicted = np.zeros(nb_points, dtype=int)
 
-    clusters = compute_hard_predictions_node(node=condensed_tree.root,
-                                             idx_points=idx_points,
-                                             max_tangles=condensed_tree.maximals)
+    if not condensed_tree.is_empty:
 
-    for y, idx_points in clusters.items():
-        ys_predicted[idx_points] = y
+        clusters = compute_hard_predictions_node(node=condensed_tree.root,
+                                                 idx_points=idx_points,
+                                                 max_tangles=condensed_tree.maximals)
+
+        for y, idx_points in clusters.items():
+            ys_predicted[idx_points] = y
 
     return ys_predicted

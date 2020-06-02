@@ -265,6 +265,7 @@ class TangleTree(object):
 
         return labels
 
+
 class ContractedTangleTree(TangleTree):
 
     def __init__(self, tree):
@@ -311,6 +312,7 @@ def contract_until_split(node):
         node.is_left_child = parent.is_left_child
         node.did_split = parent.did_split
 
+
 def process_split(node):
 
     characterizing_cuts_left = node.left_child.characterizing_cuts
@@ -334,6 +336,8 @@ def process_split(node):
 def contract_tree(tree):
 
     contracted_tree = ContractedTangleTree(tree)
+    if tree.is_empty:
+        return tree
 
     will_split = []
     nodes_to_contract = []
