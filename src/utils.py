@@ -51,7 +51,7 @@ def get_hash(d):
         The md5 hash of the dictionary
     """
 
-    return hashlib.md5(json.dumps(d, sort_keys=True).encode('utf-8')).hexdigest()
+    return hashlib.md5(json.dumps(d, sort_keys=True, default=str).encode('utf-8')).hexdigest()
 
 
 def normalize(array):
