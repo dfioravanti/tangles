@@ -269,7 +269,8 @@ class TangleTree(object):
 class ContractedTangleTree(TangleTree):
 
     def __init__(self, tree):
-        
+
+        self.is_empty = tree.is_empty
         self.maximals = []
         self.will_split = []
         self.root = self._convert_subtree(parent=None, node=tree.root)
