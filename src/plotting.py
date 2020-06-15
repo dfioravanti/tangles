@@ -16,10 +16,10 @@ CMAP = plt.cm.get_cmap('Blues')
 
 
 def get_nb_points(data):
-    if data['xs'] is not None:
-        return len(data['xs'])
-    elif data['A'] is not None:
-        return len(data['A'])
+    if data.xs is not None:
+        return len(data.xs)
+    elif data.A is not None:
+        return len(data.A)
     else:
         raise KeyError('What data are you using?')
 
@@ -44,10 +44,10 @@ def get_next_id(current_id, direction):
 
 
 def plot_dataset(data, colors, ax=None, eq_cuts=None, cmap=None, add_colorbar=True, pos=None):
-    if data['xs'] is not None:
-        ax = plot_dataset_metric(data['xs'], data['cs'], colors, eq_cuts, ax, cmap, add_colorbar)
-    elif data['G'] is not None:
-        ax, pos = plot_dataset_graph(data['G'], data['ys'], colors, ax, cmap, add_colorbar, pos)
+    if data.xs is not None:
+        ax = plot_dataset_metric(data.xs, data.cs, colors, eq_cuts, ax, cmap, add_colorbar)
+    elif data.G is not None:
+        ax, pos = plot_dataset_graph(data.G, data.ys, colors, ax, cmap, add_colorbar, pos)
 
     return ax, pos
 
@@ -120,9 +120,9 @@ def plot_soft_predictions(data, contracted_tree, eq_cuts=None, id_node=0, path=N
         output_path = path
         output_path.mkdir(parents=True, exist_ok=True)
 
-    if data['ys'] is not None:
+    if data.ys is not None:
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(11, 10))
-        colors = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        colors = labels_to_colors(data.ys, cmap=cmap_groundtruth)
         ax, pos = plot_dataset(data, colors, eq_cuts=eq_cuts, ax=ax, add_colorbar=False)
 
         fig.savefig(output_path / f"groundtruth.svg")
@@ -165,9 +165,9 @@ def plot_hard_predictions(data, ys_predicted, path=None):
         output_path = path
         output_path.mkdir(parents=True, exist_ok=True)
 
-    if data['ys'] is not None:
+    if data.ys is not None:
         fig, (ax_true, ax_predicted) = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
-        colors_true = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        colors_true = labels_to_colors(data.ys, cmap=cmap_groundtruth)
         ax_true = plot_dataset(data, colors_true, ax=ax_true, add_colorbar=False)
     else:
         fig, ax_predicted = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
@@ -198,7 +198,7 @@ def get_position(G, ys):
     return pos
 
 
-def plot_cuts(data, cuts, orders, nb_cuts_to_plot, path):
+def plot_cuts(data, cuts, nb_cuts_to_plot, path):
     plt.style.use('ggplot')
     plt.ioff()
 
@@ -206,15 +206,16 @@ def plot_cuts(data, cuts, orders, nb_cuts_to_plot, path):
         path = path / 'cuts'
         path.mkdir(parents=True, exist_ok=True)
 
-    values_cuts = cuts['values']
-    eq_cuts = cuts['equations']
-    nb_cuts_to_plot = min(nb_cuts_to_plot, len(values_cuts))
+    value_cuts = cuts.values
+    order_cuts = cuts.costs
+    eq_cuts = cuts.equations
+    nb_cuts_to_plot = min(nb_cuts_to_plot, len(value_cuts))
     pos = None
 
     for i in np.arange(nb_cuts_to_plot):
         eq = [eq_cuts[i]] if eq_cuts is not None else None
 
-        fig, pos = plot_cut(data, cut=values_cuts[i], order=orders[i], eq=eq, pos=pos)
+        fig, pos = plot_cut(data, cut=value_cuts[i], order=order_cuts[i], eq=eq, pos=pos)
         if path is not None:
             fig.savefig(path / f"cut number {i}.svg")
             plt.close(fig)
@@ -246,9 +247,9 @@ def plot_cut(data, cut, order, eq, pos):
     cmap_groundtruth = plt.cm.get_cmap('tab10')
     cmap_cut = plt.cm.get_cmap('Blues')
 
-    if data['ys'] is not None:
+    if data.ys is not None:
         fig, (ax_true, ax_cut) = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
-        colors_true = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        colors_true = labels_to_colors(data.ys, cmap=cmap_groundtruth)
         ax_true, pos = plot_dataset(data, colors_true, eq_cuts=eq, ax=ax_true, add_colorbar=False, pos=pos)
         ax_true.set_title('Groundtruth')
 
@@ -334,6 +335,7 @@ def make_result_heatmap(data, ax, x_column, y_column, values_column, x_label, y_
 
     values = np.nan_to_num(values)
 
+    sns.set(font_scale=2)
     heat_map = sns.heatmap(values, cmap='Blues', annot=True, linewidths=5, vmax=1.0)
     heat_map.set_yticklabels(ys, rotation=0, fontsize=30)
     heat_map.set_xticklabels(xs, rotation=0, fontsize=30)

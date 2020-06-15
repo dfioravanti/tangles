@@ -382,14 +382,13 @@ def contract_tree(tree):
         for i in i_to_pop[::-1]:
             will_split.pop(i)
 
-
     return contracted_tree
 
 
 def compute_soft_predictions_node(node, characterizing_cuts, cuts, costs, verbose):
 
     if node.left_child is None and node.right_child is None:
-        if not node.last_cut_added_id in characterizing_cuts:
+        if node.last_cut_added_id not in characterizing_cuts:
             characterizing_cuts[node.last_cut_added_id] = Orientation(node.last_cut_added_orientation)
 
     idx_characterizing_cuts, orientation_characterizing_cuts = [], []
@@ -401,14 +400,14 @@ def compute_soft_predictions_node(node, characterizing_cuts, cuts, costs, verbos
             idx_characterizing_cuts.append(i)
             orientation_characterizing_cuts.append(False)
 
-    p = np.sum((cuts[idx_characterizing_cuts, :].T == orientation_characterizing_cuts) * costs[idx_characterizing_cuts], axis=1)
+    p = np.sum((cuts.values[idx_characterizing_cuts, :].T == orientation_characterizing_cuts) * costs[idx_characterizing_cuts], axis=1)
 
     return p
 
 
 def compute_soft_predictions_children(node, cuts, costs, verbose):
 
-    _, nb_points = cuts.shape
+    _, nb_points = cuts.values.shape
     
     if node.parent is None:
         node.p = np.ones(nb_points)  
@@ -457,6 +456,7 @@ def compute_soft_predictions_children(node, cuts, costs, verbose):
                                         cuts=cuts,
                                         costs=costs,
                                         verbose=verbose)
+
 
 def compute_hard_predictions_node(node, idx_points, max_tangles):
 

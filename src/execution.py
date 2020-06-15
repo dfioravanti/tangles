@@ -1,24 +1,121 @@
 import re
+from functools import partial
 
 import numpy as np
 import pandas as pd
+from sklearn.datasets import make_moons, make_blobs
 from sklearn.metrics import adjusted_rand_score
 
-from src.config import PREPROCESSING_COARSENING, DATASET_SBM, PREPROCESSING_FID_MAT, \
-    PREPROCESSING_BINARIZED_LIKERT, PREPROCESSING_LINEAR_CUTS
-from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
-from src.loading import get_dataset_and_order_function
+from src.types import Dataset, CutFinding, Data, Cuts, Preprocessing, CostFunction
+from src.cut_finding import find_kmodes_cuts, kernighan_lin, fid_mat, binning, linear_cuts
+from src.loading import make_mindsets, make_likert_questionnaire, load_RETINAL, load_CANCER, load_SBM, load_LFR
 from src.plotting import plot_cuts
-from src.preprocessing import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, \
-    binarize_likert_scale, linear_cuts
 from src.tangles import core_algorithm
 from src.tree_tangles import TangleTree, compute_soft_predictions_children, compute_hard_predictions_node
 from src.utils import change_lower, change_upper, normalize
+from src.cost_functions import edges_cut_cost, implicit_cost
 
 
-# TODO: More consistent names. Order should alwasys be cost, etc
+def get_dataset(args):
+    """
+    Function that returns the desired dataset and the order function in the format that we expect.
+    Datasets are always in the format of
+        - xs: Features that we need for clustering, like questions for the questionnaire or the adjacency matrix for
+              the graph
+        - ys: Class label
+    Order functions are assumed to be functions that only need a bipartition as inputs and return the order
+    of that bipartion. We assume that all the other args['dataset'] are loaded via partial evaluation in this function.
 
-def compute_cuts(data, args, verbose):
+    args['dataset']
+    ----------
+    dataset: SimpleNamespace
+        The args['dataset'] of the dataset to load
+    seed: int
+        The seed for the RNG
+
+    Returns
+    -------
+    data: Data
+        the dataset in various representation
+    """
+
+    if args['experiment']['dataset'] == Dataset.mindsets:
+        xs, ys, cs = make_mindsets(mindset_sizes=args['dataset']['mindset_sizes'],
+                                   nb_questions=args['dataset']['nb_questions'],
+                                   nb_useless=args['dataset']['nb_useless'],
+                                   noise=args['dataset']['noise'],
+                                   seed=args['experiment']['seed'])
+
+        return Data(xs=xs, ys=ys, cs=cs)
+
+    if args['experiment']['dataset'] == Dataset.questionnaire_likert:
+        xs, ys, cs = make_likert_questionnaire(nb_samples=args['dataset']['nb_samples'],
+                                               nb_features=args['dataset']['nb_features'],
+                                               nb_mindsets=args['dataset']['nb_mindsets'],
+                                               centers=args['dataset']['centers'],
+                                               range_answers=args['dataset']['range_answers'],
+                                               seed=args['experiment']['seed'])
+
+        return Data(xs=xs, ys=ys, cs=cs)
+
+    if args['experiment']['dataset'] == Dataset.retinal:
+        xs, ys = load_RETINAL(root_path=args['root_dir'],
+                              nb_bins=args['dataset']['nb_bins'],
+                              max_idx=args['dataset']['max_idx'])
+
+        return Data(xs=xs, ys=ys)
+
+    if args['experiment']['dataset'] == Dataset.moons:
+        xs, ys = make_moons(n_samples=args['dataset']['n_samples'],
+                            noise=args['dataset']['noise'],
+                            random_state=args['experiment']['seed'])
+
+        return Data(xs=xs, ys=ys)
+
+    if args['experiment']['dataset'] == Dataset.breast_cancer_wisconsin:
+        xs, ys = load_CANCER(args['dataset']['nb_bins'])
+
+        return Data(xs=xs, ys=ys)
+
+    if args['experiment']['dataset'] == Dataset.SBM:
+        A, ys, G = load_SBM(block_sizes=args['dataset']['block_sizes'],
+                            p_in=args['dataset']['p'],
+                            p_out=args['dataset']['q'],
+                            seed=args['experiment']['seed'])
+
+        return Data(ys=ys, A=A, G=G)
+
+    if args['experiment']['dataset'] == Dataset.gaussian_mixture:
+        xs, ys = make_blobs(n_samples=args['dataset']['blob_sizes'],
+                            centers=args['dataset']['blob_centers'],
+                            n_features=args['dataset']['blob_centers'],
+                            cluster_std=args['dataset']['blob_variances'],
+                            random_state=args['experiment']['seed'])
+
+        return Data(xs=xs, ys=ys)
+
+    if args['experiment']['dataset'] == Dataset.LFR:
+        A, ys, G = load_LFR(nb_nodes=args['dataset']['nb_nodes'],
+                            tau1=args['dataset']['tau1'],
+                            tau2=args['dataset']['tau2'],
+                            mu=args['dataset']['mu'],
+                            average_degree=args['dataset']['average_degree'],
+                            min_community=args['dataset']['min_community'],
+                            seed=args['experiment']['seed'])
+
+        return Data(ys=ys, A=A, G=G)
+
+    if args['experiment']['dataset'] == Dataset.wave:
+        df = pd.read_csv('datasets/waveform.csv')
+        xs = df[df.columns[:-1]].to_numpy()
+        ys = df[df.columns[-1]].to_numpy()
+
+        return Data(xs=xs, ys=ys)
+
+    raise ValueError('Wrong name for a dataset')
+
+
+def get_cuts(data, args, verbose):
     """
     Given a set of points or an adjacency matrix this function returns the set of cuts that we will use
     to compute tangles. If it makes sense it computes the names and equations of the cuts for better interpretability
@@ -26,8 +123,8 @@ def compute_cuts(data, args, verbose):
 
     Parameters
     ----------
-    data: dict
-        dictionary containing all the input data in various representations
+    data: Data
+        all the input data in various representations
     args: SimpleNamespace
         The arguments to the program
     verbose: int
@@ -35,172 +132,153 @@ def compute_cuts(data, args, verbose):
 
     Returns
     -------
-    cuts: dict
-        a dictionary with the following keys
-            values: array of shape [n_cuts, n_points]
-                The cuts that we will use to compute tangles
-            names: array of shape [n_cuts]
-                The name of the cuts
-            equations: array of shape [n_cuts]
-                The planar equations of the cuts
+    cuts: Cuts
+        the cuts that we will use
     """
 
-    cuts = {}
-    cuts['names'] = None
-    cuts['equations'] = None
+    if args['experiment']['cut_finding'] == CutFinding.features:
 
-    if args['experiment']['preprocessing_name'] == PREPROCESSING_USE_FEATURES:
+        values = (data.xs == True).T
+        return Cuts(values=values)
 
-        cuts['values'] = (data['xs'] == True).T
+    if args['experiment']['cut_finding'] == CutFinding.binning:
 
-    elif args['experiment']['preprocessing_name'] == PREPROCESSING_BINARIZED_LIKERT:
+        values, names = binning(xs=data.xs,
+                                range_answers=args['cut_finding']['range_answers'],
+                                n_bins=args['cut_finding']['n_bins'])
+        return Cuts(values=values, names=names)
 
-        sets, names = binarize_likert_scale(xs=data['xs'],
-                                            range_answers=args['preprocessing']['range_answers'],
-                                            n_bins=args['preprocessing']['n_bins'])
-        cuts['values'] = sets
-        cuts['names'] = names
+    if args['experiment']['cut_finding'] == CutFinding.Kernighan_Lin:
 
-    elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
+        values = kernighan_lin(A=data.A,
+                               nb_cuts=args['cut_finding']['nb_cuts'],
+                               lb_f=args['cut_finding']['lb_f'],
+                               seed=args['experiment']['seed'],
+                               verbose=verbose)
+        values = np.unique(values, axis=0)
+        return Cuts(values=values)
 
-        sets = kernighan_lin(A=data['A'],
-                             nb_cuts=args['preprocessing']['nb_cuts'],
-                             lb_f=args['preprocessing']['lb_f'],
-                             seed=args['experiment']['seed'],
-                             verbose=verbose)
-        sets = np.unique(sets, axis=0)
-        cuts['values'] = sets
+    if args['experiment']['cut_finding'] == CutFinding.kmodes:
 
-    elif args['experiment']['preprocessing_name'] == PREPROCESSING_KMODES:
+        values = find_kmodes_cuts(xs=data.xs,
+                                  max_nb_clusters=args['cut_finding']['max_nb_clusters'])
+        values = np.unique(values, axis=0)
+        return Cuts(values=values)
 
-        sets = find_kmodes_cuts(xs=data['xs'],
-                                max_nb_clusters=args['preprocessing'][',ax_nb_clusters'])
-        sets = np.unique(sets, axis=0)
-        cuts['values'] = sets
+    if args['experiment']['cut_finding'] == CutFinding.Fiduccia_Mattheyses:
 
-    elif args['experiment']['preprocessing_name'] == PREPROCESSING_COARSENING:
+        values = fid_mat(xs=data.A,
+                         nb_cuts=args['cut_finding']['nb_cuts'],
+                         lb_f=args['cut_finding']['lb_f'],
+                         seed=args['experiment']['seed'],
+                         verbose=verbose)
+        values = np.unique(values, axis=0)
+        return Cuts(values=values)
 
-        sets = coarsening_cuts(A=data['A'],
-                               nb_cuts=args['preprocessing']['coarsening.nb_cuts'],
-                               n_max=args['preprocessing']['coarsening.n_max'])
-        sets = np.unique(sets, axis=0)
-        cuts['values'] = sets
+    if args['experiment']['cut_finding'] == CutFinding.linear:
 
-    elif args['experiment']['preprocessing_name'] == PREPROCESSING_FID_MAT:
+        values, equations = linear_cuts(xs=data.xs,
+                                        equations=args['cut_finding']['equations'],
+                                        verbose=verbose)
 
-        sets = fid_mat(xs=data['A'],
-                       nb_cuts=args['preprocessing']['nb_cuts'],
-                       lb_f=args['preprocessing']['lb_f'],
-                       seed=args['experiment']['seed'],
-                       verbose=verbose)
-        sets = np.unique(sets, axis=0)
-        cuts['values'] = sets
+        return Cuts(values=values, equations=equations)
 
-    elif args['experiment']['preprocessing_name'] == PREPROCESSING_LINEAR_CUTS:
+    raise ValueError('Wrong name for a cut finding function')
 
-        sets, equations = linear_cuts(xs=data['xs'],
-                                      equations=args['preprocessing']['equations'],
-                                      verbose=verbose)
 
-        cuts['values'] = sets
-        cuts['equations'] = equations
+def apply_preprocess(data, args):
+
+    if args['experiment']['preprocessing'] == Preprocessing.none:
+        return data
+
+    if args['experiment']['preprocessing'] == Preprocessing.feature_map:
+        raise NotImplementedError('TODO')
+
+    if args['experiment']['preprocessing'] == Preprocessing.knn_graph:
+        raise NotImplementedError('TODO')
+
+    if args['experiment']['preprocessing'] == Preprocessing.radius_neighbors_graph:
+        raise NotImplementedError('TODO')
+
+    raise ValueError('Wrong name for a preprocessing function')
+
+
+def get_cost_function(data, args):
+
+    if args['experiment']['cost_function'] == CostFunction.implicit:
+        if data.xs is None:
+            raise ValueError('You need xs to compute the implicit cost function')
+
+        return partial(implicit_cost, data.xs, args['cost_function']['nb_points'])
+
+    if args['experiment']['cost_function'] == CostFunction.nb_edges_cut:
+        if data.A is None:
+            raise ValueError('You need A to compute the edge cost')
+
+        return partial(edges_cut_cost, data.A)
+
+    raise ValueError('Wrong name for a cost function')
+
+
+def compute_cost_and_order_cuts(cuts, cost_function):
+    """
+    Compute the cost of a series of cuts and costs them according to their cost
+
+    Parameters
+    ----------
+    cuts: Cuts
+        the cuts that we will consider
+    cost_function: function
+        The order function
+
+    Returns
+    -------
+    cuts: Cuts
+        the cuts ordered by costs
+    """
+
+    cost_cuts = np.zeros(len(cuts.values), dtype=float)
+    for i_cut, cut in enumerate(cuts.values):
+        cost_cuts[i_cut] = cost_function(cut)
+    idx = np.argsort(cost_cuts)
+
+    cuts.values = cuts.values[idx]
+    cuts.costs = cost_cuts[idx]
+    if cuts.names is not None:
+        cuts.names = cuts.names[idx]
+    if cuts.equations is not None:
+        cuts.equations = cuts.equations[idx]
 
     return cuts
 
 
-def order_cuts(cuts, order_function):
-    """
-    Compute the order of a series of cuts and orders them according to the order
-
-    Parameters
-    ----------
-    cuts: dict
-        a dictionary with the following keys
-            values: array of shape [n_cuts, n_points]
-                The cuts that we will use to compute tangles
-            names: array of shape [n_cuts]
-                The name of the cuts
-            equations: array of shape [n_cuts]
-                The planar equations of the cuts
-    order_function: function
-        The order function
-
-    TODO: add order to the cuts and move cuts to an object instead of a dict
-
-    Returns
-    -------
-    cuts: dict
-        a dictionary with the following keys
-            values: array of shape [n_cuts, n_points]
-                The cuts ordered by cost
-            names: array of shape [n_cuts]
-                The name of the cuts
-            equations: array of shape [n_cuts]
-                The planar equations of the cuts
-
-    cost_cuts: array of shape [n_cuts]
-        The cost of the corresponding cut
-    """
-
-    values_cuts, name_cuts, eq_cuts = cuts['values'], cuts['names'], cuts['equations']
-
-    cost_cuts = np.zeros(len(values_cuts), dtype=float)
-    for i_cut, cut in enumerate(values_cuts):
-        cost_cuts[i_cut] = order_function(cut)
-
-    idx = np.argsort(cost_cuts)
-
-    cuts['values'] = values_cuts[idx]
-    if name_cuts is not None:
-        cuts['names'] = name_cuts[idx]
-
-    if eq_cuts is not None:
-        cuts['equations'] = eq_cuts[idx]
-
-    return cuts, cost_cuts[idx]
-
-
-def pick_cuts_up_to_order(cuts, orders, percentile):
+def pick_cuts_up_to_order(cuts, percentile):
     """
     Drop the cuts whose order is in a percentile above percentile.
 
     Parameters
     ----------
-    cuts: dict
-        a dictionary with the following keys
-            values: array of shape [n_cuts, n_points]
-                The cuts that we will use to compute tangles
-            names: array of shape [n_cuts]
-                The name of the cuts
-            equations: array of shape [n_cuts]
-                The planar equations of the cuts
-    orders: array of shape [n_cuts]
-        The cost of the corresponding cut
+    cuts: Cuts
     percentile
 
     Returns
     -------
-
     """
 
-    # TODO: Remove names and eq too but it still works now
+    mask_orders_to_pick = cuts.costs <= np.percentile(cuts.costs, q=percentile)
+    cuts.costs = cuts.costs[mask_orders_to_pick]
+    cuts.values = cuts.values[mask_orders_to_pick, :]
+    if cuts.names is not None:
+        cuts.names = cuts.names[mask_orders_to_pick]
+    if cuts.equations is not None:
+        cuts.equations = cuts.equations[mask_orders_to_pick]
 
-    mask_orders_to_pick = orders <= np.percentile(orders, q=percentile)
-    orders = orders[mask_orders_to_pick]
-    cuts['values'] = cuts['values'][mask_orders_to_pick, :]
-    if cuts['names'] is not None:
-        cuts['names'] = cuts['names'][mask_orders_to_pick]
-    if cuts['equations'] is not None:
-        cuts['equations'] = cuts['equations'][mask_orders_to_pick]
-
-    return cuts, orders
+    return cuts
 
 
-def get_dataset_cuts_order(args):
+def get_data_and_cuts(args):
     """
-    Function to load the datasets, compute the cuts and the orders.
-
-    TODO: Break this function on smaller parts. In particular pre-processing should be decouple from the datasets
+    Function to load the datasets, compute the cuts and the costs.
 
     Parameters
     ----------
@@ -209,58 +287,48 @@ def get_dataset_cuts_order(args):
 
     Returns
     -------
-    data
-    orders
-    cuts
+    data: Data
+    cuts: Cuts
     """
 
     if args['verbose'] >= 2:
         print("Load data\n", flush=True)
-    data, order_function = get_dataset_and_order_function(args)
+    data = get_dataset(args)
 
     if args['verbose'] >= 2:
         print("Find cuts", flush=True)
-    cuts = compute_cuts(data, args, verbose=args['verbose'])
-
+    cuts = get_cuts(data, args, verbose=args['verbose'])
     if args['verbose'] >= 2:
-        print(f'\tI found {len(cuts["values"])} unique cuts\n')
-        print("Compute order", flush=True)
-    cuts, orders = order_cuts(cuts, order_function)
+        print(f'\tI found {len(cuts.values)} cuts\n')
 
-    cuts, orders = pick_cuts_up_to_order(cuts, orders, percentile=args['experiment']['percentile_orders'])
-    max_considered_order = orders[-1]
+    print("Compute cost", flush=True)
+    cost_function = get_cost_function(data, args)
+    cuts = compute_cost_and_order_cuts(cuts, cost_function)
+
+    cuts = pick_cuts_up_to_order(cuts,
+                                 percentile=args['experiment']['percentile_orders'])
     if args['verbose'] >= 2:
+        max_considered_order = cuts.costs[-1]
         print(f"\tI will stop at order: {max_considered_order}")
-        print(f'\tI will use {len(cuts["values"])} cuts\n', flush=True)
+        print(f'\tI will use {len(cuts.values)} cuts\n', flush=True)
 
     if args['plot']['cuts']:
         if args['verbose'] >= 2:
             print(f"\tPlotting cuts")
 
-        plot_cuts(data, cuts, orders,
+        plot_cuts(data, cuts,
                   nb_cuts_to_plot=args['plot']['nb_cuts'],
                   path=args['plot_dir'])
 
-    return data, orders, cuts
+    return data, cuts
 
 
-def tangle_computation(cuts, orders, agreement, verbose):
+def tangle_computation(cuts, agreement, verbose):
     """
-
-
 
     Parameters
     ----------
-    cuts: dict
-        a dictionary with the following keys
-            values: array of shape [n_cuts, n_points]
-                The cuts that we will use to compute tangles
-            names: array of shape [n_cuts]
-                The name of the cuts
-            equations: array of shape [n_cuts]
-                The planar equations of the cuts
-    orders: array of shape [n_cuts]
-        The cost of the corresponding cut
+    cuts: Cuts
     agreement: int
         The agreement parameter
     verbose:
@@ -278,28 +346,29 @@ def tangle_computation(cuts, orders, agreement, verbose):
     tangles_tree = TangleTree()
     old_order = None
 
-    unique_orders = np.unique(orders)
+    unique_orders = np.unique(cuts.costs)
 
     for order in unique_orders:
 
         if old_order is None:
-            idx_cuts_order_i = np.where(orders <= order)[0]
+            idx_cuts_order_i = np.where(cuts.costs <= order)[0]
         else:
-            idx_cuts_order_i = np.where(np.all([orders > old_order, orders <= order], axis=0))[0]
+            idx_cuts_order_i = np.where(np.all([cuts.costs > old_order,
+                                                cuts.costs <= order], axis=0))[0]
 
         if len(idx_cuts_order_i) > 0:
 
             if verbose >= 2:
                 print(f"\tCompute tangles of order {order} with {len(idx_cuts_order_i)} new cuts", flush=True)
 
-            cuts_order_i = cuts['values'][idx_cuts_order_i]
+            cuts_order_i = cuts.values[idx_cuts_order_i]
             new_tree = core_algorithm(tangles_tree=tangles_tree,
                                       current_cuts=cuts_order_i,
                                       idx_current_cuts=idx_cuts_order_i,
                                       agreement=agreement)
 
             if new_tree is None:
-                max_order = orders[-1]
+                max_order = cuts.costs[-1]
                 if verbose >= 2:
                     print('\t\tI could not add all the new cuts')
                     print(f'\n\tI stopped the computation at order {old_order} instead of {max_order}', flush=True)
@@ -402,8 +471,8 @@ def centers_in_range_answers(cs, range_answers):
     print(range_answers)
 
 
-def compute_soft_predictions(contracted_tree, cuts, orders, verbose):
-    costs = np.exp(-normalize(orders))
+def compute_soft_predictions(contracted_tree, cuts, verbose):
+    costs = np.exp(-normalize(cuts.costs))
 
     compute_soft_predictions_children(node=contracted_tree.root,
                                       cuts=cuts,
@@ -423,7 +492,7 @@ def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path)
 
 
 def compute_hard_preditions(condensed_tree, cuts):
-    _, nb_points = cuts.shape
+    _, nb_points = cuts.values.shape
     idx_points = np.arange(nb_points)
     ys_predicted = np.zeros(nb_points, dtype=int)
 

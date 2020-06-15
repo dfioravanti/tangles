@@ -1,9 +1,9 @@
 import numpy as np
 
-from sklearn.neighbors._dist_metrics import DistanceMetric
+from sklearn.neighbors import DistanceMetric
 
 
-def implicit_order(xs, n_samples, cut):
+def implicit_cost(xs, n_samples, cut):
     """
     This function computes the implicit order of a cut.
     It is zero if the cut is either the whole set or the empty set
@@ -29,7 +29,7 @@ def implicit_order(xs, n_samples, cut):
     if np.all(cut) or np.all(~cut):
         return 0
 
-    if n_samples is None:
+    if n_samples == -1:
 
         in_cut = xs[cut, :]
         out_cut = xs[~cut, :]
@@ -59,10 +59,10 @@ def implicit_order(xs, n_samples, cut):
     return np.round(expected_similarity, 2)
 
 
-def cut_order(A, cut):
+def edges_cut_cost(A, cut):
 
     """
-    Compute the value of a graph cut, i.e. the number of vertex that are cutted by the bipartition
+    Compute the value of a graph cut, i.e. the number of vertex that are cut by the bipartition
 
     Parameters
     ----------

@@ -1,177 +1,200 @@
-from functools import partial
-
+import numpy as np
 import pandas as pd
 
-from sklearn.neighbors import radius_neighbors_graph
-from sklearn.datasets import make_moons
+from sklearn.neighbors import kneighbors_graph
+from sklearn.datasets import load_breast_cancer, make_blobs
 
 import networkx as nx
 
-from src.config import DATASET_SBM, DATASET_LFR, DATASET_QUESTIONNAIRE, DATASET_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
-    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS, DATASET_WAWE, DATASET_KNN_GAUSS_BLOBS
 
-from src.datasets.cancer import load_CANCER
-from src.datasets.cancer10 import load_CANCER10
-from src.datasets.graphs import load_SBM, load_LFR
-from src.datasets.kNN import load_blobs
-from src.datasets.mies import load_MIES
-from src.datasets.mindsets import make_mindsets
-from src.datasets.questionnaire import make_questionnaire
-from src.datasets.retinal import load_RETINAL
-from src.datasets.gauss_blob import load_knn_gauss_blobs
-from src.order_functions import implicit_order, cut_order
+def load_BIG5(path):
 
+    df = pd.read_csv(path, header=0, sep='\t')
+    df = df.drop(['race', 'age', 'engnat', 'gender', 'hand', 'source', 'country'], axis=1)
 
-def get_dataset_and_order_function(args):
-    """
+    xs = df.to_numpy()
+    idx = np.random.choice(len(xs), size=300, replace=False)
+    xs = xs[idx]
+    ys = None
 
-    Function that returns the desired dataset and the order function in the format that we expect.
-    Datasets are always in the format of
-        - xs: Features that we need for clustering, like questions for the questionnaire or the adjacency matrix for
-              the graph
-        - ys: Class label
-    Order functions are assumed to be functions that only need a bipartition as inputs and return the order
-    of that bipartion. We assume that all the other args['dataset'] are loaded via partial evaluation in this function.
-
-    args['dataset']
-    ----------
-    dataset: SimpleNamespace
-        The args['dataset'] of the dataset to load
-    seed: int
-        The seed for the RNG
-
-    Returns
-    -------
-    xs: array of shape [n_points, n_features] or array of shape [n_points, n_points]
-        The points in our space or an adjacency matrix
-    ys: array of shape [n_points]
-        The array of class labels
-    G: Graph or None
-        The graph associated with the adjacency matrix
-    order_function: function
-        The partially evaluated order function
-    """
-
-    # TODO: move data to a class
-
-    data = {}
-    data['xs'] = None
-    data['ys'] = None
-    data['cs'] = None
-    data['A'] = None
-    data['G'] = None
-
-    if args['experiment']['dataset_name'] == DATASET_MINDSETS:
-        xs, ys, cs = make_mindsets(mindset_sizes=args['dataset']['mindset_sizes'],
-                                   nb_questions=args['dataset']['nb_questions'],
-                                   nb_useless=args['dataset']['nb_useless'],
-                                   noise=args['dataset']['noise'],
-                                   seed=args['experiment']['seed'])
-        data['xs'] = xs
-        data['ys'] = ys
-        data['cs'] = cs
-        order_function = partial(implicit_order, xs, None)
-    elif args['experiment']['dataset_name'] == DATASET_QUESTIONNAIRE:
-        xs, ys, cs = make_questionnaire(nb_samples=args['dataset']['nb_samples'],
-                                        nb_features=args['dataset']['nb_features'],
-                                        nb_mindsets=args['dataset']['nb_mindsets'],
-                                        centers=args['dataset']['centers'],
-                                        range_answers=args['dataset']['range_answers'],
-                                        seed=args['experiment']['seed'])
-
-        data['xs'] = xs
-        data['ys'] = ys
-        data['cs'] = cs
-        order_function = partial(implicit_order, xs, None)
-    elif args['experiment']['dataset_name'] == DATASET_RETINAL:
-        xs, ys = load_RETINAL(root_path=args['root_dir'],
-                              nb_bins=args['dataset']['nb_bins'],
-                              max_idx=args['dataset']['max_idx'])
-
-        data['xs'] = xs
-        data['ys'] = ys
-        order_function = partial(implicit_order, xs, 200)
-    elif args['experiment']['dataset_name'] == DATASET_MOONS:
-        xs, ys = make_moons(n_samples=args['dataset']['n_samples'],
-                            noise=args['dataset']['noise'],
-                            random_state=args['experiment']['seed'], shuffle=False)
-        A = radius_neighbors_graph(xs, radius=args['dataset']['radius'], mode="connectivity").toarray()
-        G = nx.from_numpy_matrix(A)
-        data['xs'] = xs
-        data['ys'] = ys
-        data['A'] = A
-        data['G'] = G
-        order_function = partial(cut_order, A)
-    elif args['experiment']['dataset_name'] == DATASET_CANCER:
-        xs, ys = load_CANCER(args['dataset']['nb_bins'])
-
-        data['xs'] = xs
-        data['ys'] = ys
-        order_function = partial(implicit_order, xs, None)
-    elif args['experiment']['dataset_name'] == DATASET_SBM:
-        A, ys, G = load_SBM(block_sizes=args['dataset']['block_sizes'],
-                            p_in=args['dataset']['p'],
-                            p_out=args['dataset']['q'],
-                            seed=args['experiment']['seed'])
-
-        data['A'] = A
-        data['ys'] = ys
-        data['G'] = G
-        order_function = partial(cut_order, A)
-    elif args['experiment']['dataset_name'] == DATASET_BLOBS:
-        xs, ys, A, G = load_blobs(blob_sizes=args['dataset']['blob_sizes'],
-                                      blob_centers=args['dataset']['blob_centers'],
-                                      sigma=args['dataset']['blob_variances'],
-                                      k=args['dataset']['k'],
-                                      seed=args['experiment']['seed'])
-
-        data['xs'] = xs
-        data['ys'] = ys
-        data['A'] = A
-        data['G'] = G
-        order_function = partial(implicit_order, xs, None)
-        order_function = partial(cut_order, A)
-
-        
-    elif args['experiment']['dataset_name'] == DATASET_LFR:
-        A, ys, G = load_LFR(nb_nodes=args['dataset']['nb_nodes'],
-                            tau1=args['dataset']['tau1'],
-                            tau2=args['dataset']['tau2'],
-                            mu=args['dataset']['mu'],
-                            average_degree=args['dataset']['average_degree'],
-                            min_community=args['dataset']['min_community'],
-                            seed=args['experiment']['seed'])
-
-        data['A'] = A
-        data['ys'] = ys
-        data['G'] = G
-        order_function = partial(cut_order, A)
-        
-    elif args['experiment']['dataset_name'] == DATASET_WAWE:
-        df = pd.read_csv('datasets/waveform.csv')
-        xs = df[df.columns[:-1]].to_numpy()
-        ys = df[df.columns[-1]].to_numpy()
-
-        data['xs'] = xs
-        data['ys'] = ys
-        
-        order_function = partial(implicit_order, xs, 300)
-
-    elif args['experiment']['dataset_name'] == DATASET_KNN_GAUSS_BLOBS:
-        xs, ys, A, G = load_knn_gauss_blobs(blob_sizes=args['dataset']['blob_sizes'],
-                                      blob_centers=args['dataset']['blob_centers'],
-                                      blob_variances=args['dataset']['sigma'],
-                                      k=args['dataset']['k'],
-                                      seed=args['experiment']['seed'])
-
-        data['xs'] = xs
-        data['A'] = A
-        data['ys'] = ys
-        data['G'] = G
-        
-        order_function = partial(cut_order, A)
+    return xs, ys
 
 
-    return data, order_function
+def load_CANCER():
 
-    
+    data = load_breast_cancer()
+    feature_names, xs, ys = data.feature_names, data.data, data.target
+
+    return xs, ys
+
+
+def load_CANCER10(path):
+
+    df = pd.read_csv(path, header=0)
+    name_columns = df.columns.values
+
+    ys = np.array(df["class"])
+    xs = df[name_columns[:-1]]
+
+    xs = xs.to_numpy()
+
+    return xs, ys
+
+
+def load_knn_gauss_blobs(blob_sizes, blob_centers, blob_variances, k, seed):
+
+    xs, ys = make_blobs(n_samples=blob_sizes, centers=blob_centers, cluster_std=blob_variances, n_features=2, random_state=seed)
+    A = kneighbors_graph(xs, k, mode="distance").toarray()
+
+    sigma = np.median(A[A > 0])
+
+    A[A > 0] = np.exp(- A[A > 0] / (2*sigma**2))
+
+    G = nx.from_numpy_matrix(A)
+
+    return xs, ys, A, G
+
+
+def load_LFR(nb_nodes, tau1, tau2, mu, min_community, average_degree, seed):
+
+    A = np.zeros((nb_nodes, nb_nodes), dtype=bool)
+    ys = np.zeros(nb_nodes, dtype=int)
+    G = nx.LFR_benchmark_graph(nb_nodes, tau1, tau2, mu,
+                                   min_community=min_community, average_degree=average_degree,
+                                   seed=seed)
+
+    for node, ad in G.adjacency():
+        A[node, list(ad.keys())] = True
+
+    partitions = {frozenset(G.nodes[v]['community']) for v in G}
+    for cls, points in enumerate(partitions):
+        ys[list(points)] = cls
+
+    return A, ys, G
+
+
+def load_SBM(block_sizes, p_in, p_out, seed):
+
+    nb_nodes = np.sum(block_sizes)
+
+    A = np.zeros((nb_nodes, nb_nodes), dtype=bool)
+    ys = np.zeros(nb_nodes, dtype=int)
+    G = nx.random_partition_graph(block_sizes, p_in, p_out, seed=seed)
+
+    for node, ad in G.adjacency():
+        A[node, list(ad.keys())] = True
+
+    for cls, points in enumerate(G.graph["partition"]):
+        ys[list(points)] = cls
+
+    return A, ys, G
+
+
+def load_MIES(root_path):
+
+    path = root_path / 'datasets/mies/data.csv'
+
+    df = pd.read_csv(path, sep='\t')
+
+    # drop users that somehow did no answered to intro, extro, no
+    df = df[df['IE'] != 0]
+
+    answers = df.filter(regex=r'Q\d+A')
+    labels = df['IE']
+
+    xs = answers.to_numpy()
+    ys = labels.to_numpy()
+
+    return xs, ys
+
+
+def make_mindsets(mindset_sizes, nb_questions, nb_useless, noise, seed):
+
+    if seed is not None:
+        np.random.seed(seed)
+
+    nb_points = sum(mindset_sizes)
+    nb_mindsets = len(mindset_sizes)
+
+    xs, ys = [], []
+
+    # create ground truth mindset
+    mindsets = np.random.randint(2, size=(nb_mindsets, nb_questions))
+
+    for idx_mindset, size_mindset in enumerate(mindset_sizes):
+
+        # Points without noise
+        xs_mindset = np.tile(mindsets[idx_mindset], (size_mindset, 1))
+        ys_mindset = np.repeat(idx_mindset, repeats=size_mindset, axis=0)
+
+        # Add noise
+        noise_per_question = np.random.rand(size_mindset, nb_questions)
+        flip_question = noise_per_question <= noise
+        xs_mindset[flip_question] = np.logical_not(xs_mindset[flip_question])
+
+        xs.append(xs_mindset)
+        ys.append(ys_mindset)
+
+    xs = np.vstack(xs)
+    ys = np.concatenate(ys)
+
+    # add noise question like gender etc.
+    if nb_useless is not None:
+        useless = np.random.randint(2, size=[nb_points, nb_useless])
+        xs = np.hstack((xs, useless))
+
+    return xs, ys, mindsets
+
+
+def make_likert_questionnaire(nb_samples, nb_features, nb_mindsets, centers, range_answers, seed=None):
+
+    if seed is not None:
+        np.random.seed(seed)
+
+    min_answer = range_answers[0]
+    max_answer = range_answers[1]
+
+    xs = np.zeros((nb_samples, nb_features), dtype=int)
+    ys = np.zeros(nb_samples, dtype=int)
+
+    idxs = np.array_split(np.arange(nb_samples), nb_mindsets)
+
+    if not centers:
+        centers = np.random.random_integers(low=min_answer, high=max_answer, size=(nb_mindsets, nb_features))
+    else:
+        raise NotImplementedError
+
+    for i in np.arange(nb_mindsets):
+
+        nb_points = len(idxs[i])
+        answers_mindset = np.random.normal(loc=centers[i], size=(nb_points, nb_features))
+        answers_mindset = np.rint(answers_mindset)
+        answers_mindset[answers_mindset > max_answer] = max_answer
+        answers_mindset[answers_mindset < min_answer] = min_answer
+
+        xs[idxs[i]] = answers_mindset
+        ys[idxs[i]] = i
+
+    return xs, ys, centers
+
+
+def load_RETINAL(root_path, nb_bins, max_idx):
+
+    path_xs = root_path / "datasets/retinal/rgc_data_X.npy"
+    xs = np.load(path_xs).T
+
+    if nb_bins != False:
+        xs_df = pd.DataFrame(xs)
+        xs_df = xs_df.apply(lambda x: pd.qcut(x, q=nb_bins, labels=list(range(1, nb_bins+1))), axis=0)
+        xs = xs_df.to_numpy()
+        xs = xs.astype(int)
+
+    path_ys = root_path / "datasets/retinal/rgc_data_ci.npy"
+    ys = np.load(path_ys)
+
+    idx_to_take = (ys <= max_idx)
+
+    xs = xs[idx_to_take]
+    ys = ys[idx_to_take]
+
+    return xs, ys

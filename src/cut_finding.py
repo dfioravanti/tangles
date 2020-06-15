@@ -25,7 +25,7 @@ def linear_cuts(xs, equations, verbose=0):
     return sets, equations
 
 
-def binarize_likert_scale(xs, range_answers, n_bins):
+def binning(xs, range_answers, n_bins):
     if n_bins > 0:
         df = pd.DataFrame(data=xs)
         df_bined = pd.DataFrame()

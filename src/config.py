@@ -3,107 +3,45 @@ from pathlib import Path
 import numpy as np
 import yaml
 
-# Global constants for validations of inputs
-# TODO: there must be a better way to do this nightmare
-
-# Experiments
-EXPERIMENT_SINGLE = 'single'
-EXPERIMENT_BATCH = 'batch'
-
-VALID_EXPERIMENTS = [
-    EXPERIMENT_SINGLE,
-    EXPERIMENT_BATCH
-]
-
-# Datasets
-
-DATASET_BINARY_QUESTIONNAIRE = "q_binary"
-DATASET_QUESTIONNAIRE = "q"
-DATASET_RETINAL = "retinal"
-DATASET_MIES = 'mies'
-DATASET_SBM = "sbm"
-DATASET_LFR = "lfr"
-DATASET_BLOBS = "blobs"
-DATASET_CANCER10 = 'cancer10'
-DATASET_CANCER = 'cancer'
-DATASET_MINDSETS = 'mindsets'
-DATASET_EPSILON__BLOBS = "epsilon_blobs"
-DATASET_KNN_BLOBS = 'knn_blobs'
-DATASET_KNN_GAUSS_BLOBS = "knn_gauss_blobs"
-DATASET_MICROBIOME = "microbiome"
-DATASET_MOONS = 'moons'
-DATASET_WAWE = 'wawe'
-DATASET_KNN_GAUSS_BLOBS = 'gblobs'
-
-DISCRETE_DATASETS = [
-    DATASET_RETINAL,
-    DATASET_BINARY_QUESTIONNAIRE,
-    DATASET_QUESTIONNAIRE,
-    DATASET_CANCER10,
-    DATASET_CANCER,
-    DATASET_MINDSETS,
-    DATASET_MIES
-]
-
-CONTINUE_DATASETS = [
-    DATASET_MOONS,
-    DATASET_BLOBS,
-    DATASET_WAWE,
-    DATASET_KNN_GAUSS_BLOBS
-]
-
-GRAPH_DATASETS = [
-    DATASET_SBM,
-    DATASET_LFR
-]
-
-VALID_DATASETS = DISCRETE_DATASETS + GRAPH_DATASETS + CONTINUE_DATASETS
-
-# Preprocessing
-
-PREPROCESSING_USE_FEATURES = "features"
-PREPROCESSING_KMODES = "kmodes"
-PREPROCESSING_KARNIG_LIN = "karnig_lin"
-PREPROCESSING_FID_MAT = "fid_mat"
-PREPROCESSING_COARSENING = "coarsening"
-PREPROCESSING_SUBMODULAR = 'sub'
-PREPROCESSING_BINARIZED_LIKERT = 'bin_lik'
-PREPROCESSING_LINEAR_CUTS = 'linear'
-
-VALID_PREPROCESSING = [
-    PREPROCESSING_USE_FEATURES,
-    PREPROCESSING_KARNIG_LIN,
-    PREPROCESSING_KMODES,
-    PREPROCESSING_COARSENING,
-    PREPROCESSING_FID_MAT,
-    PREPROCESSING_SUBMODULAR,
-    PREPROCESSING_BINARIZED_LIKERT,
-    PREPROCESSING_LINEAR_CUTS
-]
-
-# Algorithm
-
-ALGORITHM_CORE = "core"
-
-VALID_ALGORITHM = [
-    ALGORITHM_CORE
-]
+from src.types import Dataset, Preprocessing, CutFinding, CostFunction
 
 NAN = -9999
 
 
-def load_validate_settings(args_parser, root_dir):
-    main_cfg_file = 'settings.yml'
+def load_validate_parser(args):
+    pass
 
-    main_cfg = load_settings(f'{root_dir}/{main_cfg_file}')
 
-    args = merge_config(args_parser, main_cfg)
-    args = validate_settings(args)
+def delete_useless_parameters(args):
 
-    args = deactivate_plots(args)
-    args = delete_useless_parameters(args)
+    for operation in ['dataset', 'preprocessing', 'cut_finding', 'cost_function']:
 
-    args['prefix'] = get_prefix(args)
+        name = args['experiment'][operation].value
+        try:
+            value = args[operation][name]
+        except KeyError:
+            value = {}
+        args[operation].clear()
+        args[operation] = value
+
+    return args
+
+
+def validate_settings(args, mode='cfg_file'):
+
+    args = validate_names(args)
+    args['experiment']['unique_id'] = str(args['experiment']['unique_id'])
+
+    if mode == 'cfg_file':
+        args = delete_useless_parameters(args)
+
+    return args
+
+
+def load_validate_config_file(cfg_file_path):
+
+    args = load_settings(cfg_file_path)
+    args = validate_settings(args, mode='cfg_file')
 
     return args
 
@@ -115,33 +53,6 @@ def deactivate_plots(args):
                 args['plot'][key] = False
 
     return args
-
-
-def delete_useless_parameters(args):
-    dataset_name = args['experiment']['dataset_name']
-    value = args['dataset'][dataset_name]
-    args['dataset'].clear()
-    args['dataset'] = value
-
-    preprocessing_name = args['experiment']['preprocessing_name']
-    if preprocessing_name not in [PREPROCESSING_USE_FEATURES, PREPROCESSING_SUBMODULAR]:
-        value = args['preprocessing'][preprocessing_name]
-        args['preprocessing'].clear()
-        args['preprocessing'] = value
-    else:
-        args['preprocessing'].clear()
-    return args
-
-
-def get_prefix(args):
-    if args['experiment']['dataset_name'] == DATASET_SBM:
-        prefix = f'SMB_{len(args["dataset"]["block_sizes"])}'
-    elif args['experiment']['dataset_name'] == DATASET_BLOBS:
-        prefix = f'knn_blobs_{len(args["dataset"]["blob_sizes"])}'
-    else:
-        prefix = args['experiment']['dataset_name']
-
-    return prefix
 
 
 def merge_config(args_parser, main_cfg):
@@ -225,24 +136,34 @@ def load_settings(file):
         return yaml.load(f, Loader=yaml.UnsafeLoader)
 
 
-def validate_settings(args):
-    if args['experiment']['dataset_name'] not in VALID_DATASETS:
-        raise ValueError(f'The dataset name must be in: {VALID_DATASETS}')
+def validate_names(args):
 
-    if args['experiment']['dataset_name'] in DISCRETE_DATASETS:
-        args['experiment']['dataset_type'] = 'discrete'
-    elif args['experiment']['dataset_name'] in GRAPH_DATASETS:
-        args['experiment']['dataset_type'] = 'graph'
+    try:
+        args['experiment']['dataset'] = Dataset(args['experiment']['dataset'])
+    except ValueError:
+        raise ValueError(f'The dataset name must be in: {Dataset.list()}')
 
-    if args['experiment']['preprocessing_name'] not in VALID_PREPROCESSING:
-        raise ValueError(f'The preprocessing name must be in: {VALID_PREPROCESSING}')
+    try:
+        args['experiment']['preprocessing'] = Preprocessing(args['experiment']['preprocessing'])
+    except ValueError:
+        raise ValueError(f'All the preprocessing name must be in: {Preprocessing.list()}')
+
+    try:
+        args['experiment']['cut_finding'] = (CutFinding(args['experiment']['cut_finding']))
+    except ValueError:
+        raise ValueError(f'The cut-finding strategy name must be in: {CutFinding.list()}')
+
+    try:
+        args['experiment']['cost_function'] = (CostFunction(args['experiment']['cost_function']))
+    except ValueError:
+        raise ValueError(f'The cost function name must be in: {CostFunction.list()}')
 
     return args
 
 
 def set_up_dirs(args, root_dir):
     args['root_dir'] = Path(root_dir)
-    args['output_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id'] / args['prefix']}")
+    args['output_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id']}")
     args['plot_dir'] = Path(f"{args['output_dir'] / 'plots'}")
     args['answers_dir'] = Path(f"{args['output_dir'] / 'answers'}")
 

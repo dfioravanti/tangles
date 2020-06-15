@@ -1,7 +1,7 @@
 
 import numpy as np
 
-from src.preprocessing import linear_cuts
+from src.cut_finding import linear_cuts
 
 class Test_linear_cuts(object):
     

@@ -1,13 +1,42 @@
 
 # allowed types: single, batch
 experiment:
+  unique_id: 0
   seed: 80
-  dataset_name: mindsets
-  preprocessing_name: features
-  agreement: 200
-  percentile_orders: 15
+  dataset: mind
+  preprocessing: none
+  cut_finding: fea
+  cost_function: imp
+  agreement: 30
+  percentile_orders: 80
+
+cost_function:
+  imp:
+    nb_points: -1
+
+preprocessing:
+
+  ftr_map:
+    name: 'circle'
+
+  knn:
+    k: 14
+
+  rng:
+    radious: 0.3
 
 dataset:
+
+  gau_mix:
+    sizes: [120, 60, 60]
+    centers: [[-1, -1], [1, 1], [1, -1]]
+    variances: [[1, 1], [1, 1], [1, 1]]
+
+  mind:
+    mindset_sizes: [100, 100]
+    nb_questions: 40
+    nb_useless: 50
+    noise: 0.30
 
   moons:
     n_samples: 300
@@ -15,7 +44,6 @@ dataset:
     radius: 0.3
 
   retinal:
-    nb_bins: 10
     max_idx: 75
 
   sbm:
@@ -23,26 +51,7 @@ dataset:
     p: 0.3
     q: 0.1
 
-  blobs:
-    blob_sizes: [60, 60, 60, 60]
-    blob_centers: [[-2, -2], [-2, 2], [2, -2], [2, 2]]
-    k: 20
-    blob_variances: [[1, 1], [1, 1], [1, 1], [1, 1]]
-
-  gblobs:
-    blob_sizes: [60, 60, 60, 60]
-    blob_centers: [[-2, -2], [-2, 2], [2, -2], [2, 2]]
-    k: 24
-    sigma: [[1, 1], [1, 1], [1, 1], [1, 1]]
-
-
-  mindsets:
-    mindset_sizes: [100, 100]
-    nb_questions: 40
-    nb_useless: 50
-    noise: 0.30
-
-  q:
+  qst_lkr:
     nb_samples: 1000
     nb_features: 70
     nb_mindsets: 5
@@ -73,7 +82,7 @@ dataset:
     path_csv: datasets/mushrooms.csv
     path_yaml: datasets/mushrooms.yaml
 
-preprocessing:
+cut_finding:
 
   linear:
     equations: [[1, 0, 0.5],
@@ -84,27 +93,27 @@ preprocessing:
                 [0, 1, -1],
                 [0, 1, 0.5],
                 [0, 1, 1]]
-
   bin_lik:
     n_bins: 20
     range_answers: [1, 20]
-
-  karnig_lin:
-    nb_cuts: 100
-    lb_f: 0.1
 
   coarsening:
     nb_cuts: 300
     n_max: 20
 
+  karnig_lin:
+    nb_cuts: 100
+    lb_f: 0.1
+
   fid_mat:
     nb_cuts: 30
-    lb_f: 0.1
+    lb_f: 0.2
+
 
 # -1 in nb_cuts means all
 plot:
   no_plots: True
-  tree: True
+  tree: False
   tangles: False
   cuts: False
   nb_cuts: 10
