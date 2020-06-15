@@ -9,7 +9,8 @@ import pandas as pd
 from sklearn.cluster import SpectralClustering, AffinityPropagation, KMeans, AgglomerativeClustering
 from sklearn.metrics import homogeneity_score, adjusted_rand_score
 
-from src.datasets import load_SBM
+from src.loading import load_SBM
+
 
 def benchmark_SMB(path, seed):
 
