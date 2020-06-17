@@ -63,9 +63,9 @@ class Data(object):
 
 class Cuts(object):
 
-    def __init__(self, values, names=None, equations=None):
+    def __init__(self, values, names=None, equations=None, costs=None):
 
         self.values = values
         self.names = names
         self.equations = equations
-        self.costs = None
+        self.costs = costs
