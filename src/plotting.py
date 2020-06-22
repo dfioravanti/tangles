@@ -1,18 +1,11 @@
-import numpy as np
-import networkx as nx
-
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
 import seaborn as sns
 
-from sklearn.manifold import TSNE
-from sklearn.preprocessing import minmax_scale
-
-from src.config import NAN
 from src.utils import get_points_to_plot
-
 
 # Standard colors for uniform plots
 COLOR_SILVER = '#C0C0C0'
@@ -21,27 +14,27 @@ COLOR_INDIGO_RGB = (55 / 255, 0 / 255, 175 / 255) + (0.5,)
 COLOR_CARNATION_RGB = np.array((247 / 255, 96 / 255, 114 / 255, 1)).reshape((1, -1))
 CMAP = plt.cm.get_cmap('Blues')
 
-def get_nb_points(data):
 
-    if data['xs'] is not None:
-        return len(data['xs'])
-    elif data['A'] is not None:
-        return len(data['A'])
+def get_nb_points(data):
+    if data.xs is not None:
+        return len(data.xs)
+    elif data.A is not None:
+        return len(data.A)
     else:
         raise KeyError('What data are you using?')
 
-def append_to_binary(number, new_digit):
 
+def append_to_binary(number, new_digit):
     return int(str(bin(number) + str(new_digit)), 2)
 
-def get_next_id(current_id, direction):
 
+def get_next_id(current_id, direction):
     if current_id == 0:
         if direction == 'left':
             return 1
         else:
             return 2
-            
+
     level = int(np.ceil(np.log2(current_id)))
 
     if direction == 'left':
@@ -49,31 +42,30 @@ def get_next_id(current_id, direction):
     else:
         return current_id + 2 ** level + 2
 
-def plot_dataset(data, colors, ax=None, eq_cuts=None, cmap=None, add_colorbar=True, pos=None):
 
-    if data['xs'] is not None:
-        ax = plot_dataset_metric(data['xs'], data['cs'], colors, eq_cuts, ax, cmap, add_colorbar)
-    elif data['G'] is not None:
-        ax, pos = plot_dataset_graph(data['G'], data['ys'], colors, ax, cmap, add_colorbar, pos)
+def plot_dataset(data, colors, ax=None, eq_cuts=None, cmap=None, add_colorbar=True, pos=None):
+    if data.xs is not None:
+        ax = plot_dataset_metric(data.xs, data.cs, colors, eq_cuts, ax, cmap, add_colorbar)
+    elif data.G is not None:
+        ax, pos = plot_dataset_graph(data.G, data.ys, colors, ax, cmap, add_colorbar, pos)
 
     return ax, pos
 
 
 def add_colorbar_to_ax(ax, cmap):
-
     cb = plt.colorbar(mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=0, vmax=1), cmap=cmap),
-                          ax=ax, orientation='vertical')   
+                      ax=ax, orientation='vertical')
     cb.ax.set_title('p', y=-.05)
 
     return ax
 
 
 def plot_dataset_graph(G, ys, colors, ax, cmap, add_colorbar, pos):
-
     if pos is None:
         pos = get_position(G, ys)
 
-    nx.draw_networkx(G, pos=pos, ax=ax, node_color=colors, edge_color=COLOR_SILVER, with_labels=False, edgecolors='black')
+    nx.draw_networkx(G, pos=pos, ax=ax, node_color=colors, edge_color=COLOR_SILVER, with_labels=False,
+                     edgecolors='black')
     if add_colorbar:
         ax = add_colorbar_to_ax(ax, cmap)
 
@@ -81,13 +73,13 @@ def plot_dataset_graph(G, ys, colors, ax, cmap, add_colorbar, pos):
 
 
 def plot_dataset_metric(xs, cs, colors, eq_cuts, ax, cmap, add_colorbar):
-
     plt.style.use('ggplot')
     plt.ioff()
 
-    ax.tick_params(axis='x', colors=(0,0,0,0))
-    ax.tick_params(axis='y', colors=(0,0,0,0))
-    ax.grid(True)
+    ax.tick_params(axis='x', colors=(0, 0, 0, 0))
+    ax.tick_params(axis='y', colors=(0, 0, 0, 0))
+    ax.set_aspect('equal', 'box')
+    ax.grid()
 
     xs_embedded, cs_embedded = get_points_to_plot(xs, cs)
 
@@ -95,16 +87,16 @@ def plot_dataset_metric(xs, cs, colors, eq_cuts, ax, cmap, add_colorbar):
 
     if eq_cuts is not None:
         for eq in eq_cuts:
-            x, y =  get_lines(xs, eq)
-            ax.plot(x, y ,'k--')
-    
+            x, y = get_lines(xs, eq)
+            ax.plot(x, y, 'k--')
+
     if add_colorbar:
         ax = add_colorbar_to_ax(ax, cmap)
 
     return ax
 
+
 def labels_to_colors(ys, cmap):
-    
     nb_points = len(ys)
     colors = np.zeros((nb_points, 4))
     normalize_ys = mpl.colors.Normalize(vmin=0, vmax=np.max(ys))
@@ -114,11 +106,10 @@ def labels_to_colors(ys, cmap):
         color = cmap(normalize_ys(y))
         colors[idx_current, :] = np.array(color).reshape((1, -1))
 
-    return colors        
+    return colors
 
 
 def plot_soft_predictions(data, contracted_tree, eq_cuts=None, id_node=0, path=None):
-
     plt.style.use('ggplot')
     plt.ioff()
 
@@ -129,21 +120,21 @@ def plot_soft_predictions(data, contracted_tree, eq_cuts=None, id_node=0, path=N
         output_path = path
         output_path.mkdir(parents=True, exist_ok=True)
 
-    if data['ys'] is not None:
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
-        colors = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+    if data.ys is not None:
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(11, 10))
+        colors = labels_to_colors(data.ys, cmap=cmap_groundtruth)
         ax, pos = plot_dataset(data, colors, eq_cuts=eq_cuts, ax=ax, add_colorbar=False)
 
         fig.savefig(output_path / f"groundtruth.svg")
         plt.close(fig)
 
-    plot_soft_prediction_node(data, contracted_tree.root, eq_cuts=eq_cuts, id_node=0, cmap=cmap_heatmap, path=path, pos=pos)
-    
+    plot_soft_prediction_node(data, contracted_tree.root, eq_cuts=eq_cuts, id_node=0, cmap=cmap_heatmap, path=path,
+                              pos=pos)
+
 
 def plot_soft_prediction_node(data, node, eq_cuts, id_node, cmap, path, pos):
-
     colors = cmap(node.p)
-    
+
     if eq_cuts is not None:
         if len(node.characterizing_cuts) != 0:
             id_characterizing_cuts = list(node.characterizing_cuts.keys())
@@ -151,7 +142,7 @@ def plot_soft_prediction_node(data, node, eq_cuts, id_node, cmap, path, pos):
         else:
             eq_characterizing_cuts = []
     else:
-            eq_characterizing_cuts = []
+        eq_characterizing_cuts = []
 
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
     plot_dataset(data, colors, eq_cuts=eq_characterizing_cuts, ax=ax, cmap=cmap, pos=pos)
@@ -167,17 +158,16 @@ def plot_soft_prediction_node(data, node, eq_cuts, id_node, cmap, path, pos):
 
 
 def plot_hard_predictions(data, ys_predicted, path=None):
-
-    cmap_groundtruth = plt.cm.get_cmap('tab10')
-    cmap_predictions = plt.cm.get_cmap('Set2')
+    cmap_groundtruth = plt.cm.get_cmap('BuPu')
+    cmap_predictions = plt.cm.get_cmap('OrRd')
 
     if path is not None:
         output_path = path
         output_path.mkdir(parents=True, exist_ok=True)
 
-    if data['ys'] is not None:
+    if data.ys is not None:
         fig, (ax_true, ax_predicted) = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
-        colors_true = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        colors_true = labels_to_colors(data.ys, cmap=cmap_groundtruth)
         ax_true = plot_dataset(data, colors_true, ax=ax_true, add_colorbar=False)
     else:
         fig, ax_predicted = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
@@ -207,63 +197,62 @@ def get_position(G, ys):
         pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
     return pos
 
-def plot_cuts(data, cuts, orders, nb_cuts_to_plot, path):
-    
+
+def plot_cuts(data, cuts, nb_cuts_to_plot, path):
     plt.style.use('ggplot')
     plt.ioff()
-    
+
     if path is not None:
         path = path / 'cuts'
         path.mkdir(parents=True, exist_ok=True)
-    
-    values_cuts = cuts['values']
-    eq_cuts = cuts['equations']
-    nb_cuts_to_plot = min(nb_cuts_to_plot, len(values_cuts))
+
+    value_cuts = cuts.values
+    order_cuts = cuts.costs
+    eq_cuts = cuts.equations
+    nb_cuts_to_plot = min(nb_cuts_to_plot, len(value_cuts))
     pos = None
-        
+
     for i in np.arange(nb_cuts_to_plot):
         eq = [eq_cuts[i]] if eq_cuts is not None else None
-            
-        fig, pos = plot_cut(data, cut=values_cuts[i], order=orders[i], eq=eq, pos=pos)
+
+        fig, pos = plot_cut(data, cut=value_cuts[i], order=order_cuts[i], eq=eq, pos=pos)
         if path is not None:
             fig.savefig(path / f"cut number {i}.svg")
             plt.close(fig)
 
 
 def get_lines(xs, eq):
-    
     min_x, max_x = np.min(xs[:, 0]), np.max(xs[:, 0])
     min_y, max_y = np.min(xs[:, 1]), np.max(xs[:, 1])
-    
+
     x_range = np.linspace(min_x, max_x, 100)
     y_range = np.linspace(min_y, max_y, 100)
-    
+
     if eq[0] == 0:
         x = x_range
         y = np.zeros_like(x_range)
         y.fill(-eq[2] / eq[1])
     elif eq[1] == 0:
         x = np.zeros_like(y_range)
-        x.fill( -eq[2] / eq[0])
+        x.fill(-eq[2] / eq[0])
         y = y_range
     else:
         x = x_range
         y = -(eq[0] * x_range + eq[2]) / eq[1]
-        
-    return x, y        
 
-   
+    return x, y
+
+
 def plot_cut(data, cut, order, eq, pos):
-
     cmap_groundtruth = plt.cm.get_cmap('tab10')
     cmap_cut = plt.cm.get_cmap('Blues')
 
-    if data['ys'] is not None:
+    if data.ys is not None:
         fig, (ax_true, ax_cut) = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
-        colors_true = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
+        colors_true = labels_to_colors(data.ys, cmap=cmap_groundtruth)
         ax_true, pos = plot_dataset(data, colors_true, eq_cuts=eq, ax=ax_true, add_colorbar=False, pos=pos)
         ax_true.set_title('Groundtruth')
-        
+
     else:
         fig, ax_cut = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
 
@@ -277,7 +266,6 @@ def plot_cut(data, cut, order, eq, pos):
 
 
 def plot_graph_cuts(G, ys, cuts, orders, path):
-
     path.mkdir(parents=True, exist_ok=True)
     plt.style.use('ggplot')
     plt.ioff()
@@ -310,92 +298,72 @@ def plot_graph_cuts(G, ys, cuts, orders, path):
         plt.close(fig)
 
 
-def add_lines(values, ax, left=True):
-    
+def add_lines(values, ax, plot_first=False):
     n, m = values.shape
     old_i = None
-    for j in np.arange(m):
-        for i in np.arange(n):
-            if values[i, j] == True:
-                
-                if old_i != i:
-                    if left:
-                        line = [(j - 0.5, i + 0.5),
-                                (j - 0.5, i - 0.5), 
-                                (j + 0.5, i - 0.5)]
-                    else:
-                        line = [(j - 0.5, i - 1.5),
-                                (j - 0.5, i - 0.5), 
-                                (j + 0.5, i - 0.5)]
+    first = True
+    for column in np.arange(m):
+        for row in np.arange(n):
+            if values[row, column] == True:
+
+                if old_i != row and not (first and not plot_first):
+                    line = [(column, row + 1.05),
+                            (column, row),
+                            (column + 1.05, row),
+                            ]
                 else:
-                    line = [(j - 0.5, i - 0.5), 
-                            (j + 0.5, i - 0.5)]
-                        
-                    
+                    line = [(column, row),
+                            (column + 1.05, row)]
+                first = False
+
                 path = patches.Polygon(line, facecolor='none', edgecolor='red',
-                                       linewidth=2, closed=False, joinstyle='round')
+                                       linewidth=5, closed=False, joinstyle='round')
                 ax.add_patch(path)
-                old_i = i
+                old_i = row
                 break
 
 
-def make_result_heatmap(data, ax, x_column, y_column, values_column):
-
-    plt.rc('font', family='serif')
+def make_result_heatmap(data, ax, x_column, y_column, values_column, x_label, y_label):
+    plt.rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+    plt.rc('text', usetex=True)
 
     df = data.pivot(index=y_column, columns=x_column, values=values_column
-                   ).round(2).sort_index(ascending=False).sort_index(axis=1)
+                    ).round(2).sort_index(ascending=False).sort_index(axis=1)
     xs = df.columns.to_numpy()
     ys = df.index.to_numpy()
     values = df.to_numpy()
-    im = ax.imshow(values, cmap=plt.cm.get_cmap('Blues'), aspect='auto')
 
-    ax.set_xticks(np.arange(len(xs)))
-    ax.set_xticklabels(xs)
-    ax.set_xlabel(x_column, fontsize=10, labelpad=10)
+    values = np.nan_to_num(values)
 
-    ax.set_yticks(np.arange(len(ys)))
-    ax.set_yticklabels(ys)
-    ax.set_ylabel(y_column, rotation=0, fontsize=10, labelpad=15)
+    sns.set(font_scale=2)
+    heat_map = sns.heatmap(values, cmap='Blues', annot=True, linewidths=5, vmax=1.0)
+    heat_map.set_yticklabels(ys, rotation=0, fontsize=30)
+    heat_map.set_xticklabels(xs, rotation=0, fontsize=30)
+    heat_map.set_xlabel(x_label, rotation=0, fontsize=40, labelpad=15)
+    heat_map.set_ylabel(y_label, rotation=90, fontsize=40, labelpad=15)
 
-    # Rotate the tick labels and set their alignment.
-    plt.setp(ax.get_xticklabels(), rotation=0, 
-             ha="center", rotation_mode="anchor")
-
-    # Loop over data dimensions and create text annotations.
-    for i in range(len(ys)):
-        for j in range(len(xs)):
-            text = ax.text(j, i, values[i, j],
-                           ha="center", va="center", color="black")
-
-    # Turn spines off and create white grid.
-    for edge, spine in ax.spines.items():
-        spine.set_visible(False)
-
-    ax.set_xticks(np.arange(len(xs)+1)-.5, minor=True)
-    ax.set_yticks(np.arange(len(ys)+1)-.5, minor=True)
-    ax.grid(b=True, which="minor", color="w", linestyle='-', linewidth=5)
-    ax.tick_params(which="minor", bottom=False, left=False)
+    return ax
 
 
-def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column):
-
+def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column, x_label, y_label):
     plt.rc('font', family='serif')
     fig, ax = plt.subplots(figsize=(15, 10))
 
     exp = exp_df.pivot(index=y_column, columns=x_column, values=values_column
-                      ).round(2).sort_index(ascending=False).sort_index(axis=1)
+                       ).round(2).sort_index(ascending=False).sort_index(axis=1)
     ref = ref_df.pivot(index=y_column, columns=x_column, values=values_column
-                      ).round(2).sort_index(ascending=False).sort_index(axis=1)
+                       ).round(2).sort_index(ascending=False).sort_index(axis=1)
 
     difference_df = exp - ref
 
     xs = difference_df.columns.to_numpy()
     ys = difference_df.index.to_numpy()
     values = difference_df.to_numpy().round(2)
-    
-    heat_map = sns.heatmap(difference_df, center=0, cmap='BrBG', annot=True, linewidths=1, cbar_kws={'label': 'Difference in Rand score'})
-    heat_map.set_yticklabels(heat_map.get_yticklabels(), rotation=0) 
-    heat_map.set_ylabel(heat_map.get_ylabel(), rotation=0, labelpad=15) 
+
+    heat_map = sns.heatmap(difference_df, center=0, cmap='BrBG', annot=True, linewidths=1,
+                           cbar_kws={'label': 'Difference in Rand score'})
+    heat_map.set_yticklabels(heat_map.get_yticklabels(), rotation=0)
+    heat_map.set_xlabel(x_label, rotation=0, labelpad=15)
+    heat_map.set_ylabel(y_label, rotation=0, labelpad=15)
 
     return fig, ax

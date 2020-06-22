@@ -8,10 +8,10 @@ import pandas as pd
 from sklearn.cluster import SpectralClustering, KMeans, AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score
 
-from src.loading import get_dataset_and_order_function
+from src.execution import get_dataset
 
 from src.config import DATASET_SBM, DATASET_QUESTIONNAIRE, DATASET_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
-    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS
+    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS, DATASET_LFR
 
 def benchmarks(path, seed):
     
@@ -31,7 +31,7 @@ def benchmarks(path, seed):
     
     args['experiment']['dataset_name'] = DATASET_CANCER
     args['dataset']['nb_bins'] = 0
-    data_cancer, _ = get_dataset_and_order_function(args=args)
+    data_cancer, _ = get_dataset(args=args)
     
     for alg, label in algs:
         
@@ -47,7 +47,7 @@ def benchmarks(path, seed):
     args['dataset']['noise'] = 0.1
     args['dataset']['radius'] = 0.1
     args['experiment']['seed'] = seed
-    data_low_noise_moons, _ = get_dataset_and_order_function(args=args)
+    data_low_noise_moons, _ = get_dataset(args=args)
     
     for alg, label in algs:
         
@@ -61,7 +61,7 @@ def benchmarks(path, seed):
     args['dataset']['noise'] = 0.2
     args['dataset']['radius'] = 0.1
     args['experiment']['seed'] = seed
-    data_high_noise_moons, _ = get_dataset_and_order_function(args=args)
+    data_high_noise_moons, _ = get_dataset(args=args)
     
     for alg, label in algs:
         
@@ -76,7 +76,7 @@ def benchmarks(path, seed):
     args['dataset']['sigma'] = 1
     args['dataset']['radius'] = 0.3
     args['experiment']['seed'] = seed
-    data_low_noise_blobs, _ = get_dataset_and_order_function(args=args)
+    data_low_noise_blobs, _ = get_dataset(args=args)
     
     for alg, label in algs:
         
@@ -91,7 +91,7 @@ def benchmarks(path, seed):
     args['dataset']['sigma'] = 1.5
     args['dataset']['radius'] = 0.3
     args['experiment']['seed'] = seed
-    data_low_noise_blobs, _ = get_dataset_and_order_function(args=args)
+    data_low_noise_blobs, _ = get_dataset(args=args)
     
     for alg, label in algs:
         
@@ -113,7 +113,7 @@ def benchmarks(path, seed):
     args['dataset']['sigma'] = 1
     args['dataset']['radius'] = 0.3
     args['experiment']['seed'] = seed
-    data_low_noise_blobs, _ = get_dataset_and_order_function(args=args)
+    data_low_noise_blobs, _ = get_dataset(args=args)
     
     for alg, label in algs:
         
@@ -128,7 +128,7 @@ def benchmarks(path, seed):
     args['dataset']['sigma'] = 1.5
     args['dataset']['radius'] = 0.3
     args['experiment']['seed'] = seed
-    data_high_noise_4_blobs, _ = get_dataset_and_order_function(args=args)
+    data_high_noise_4_blobs, _ = get_dataset(args=args)
     
     for alg, label in algs:
         
@@ -137,7 +137,9 @@ def benchmarks(path, seed):
         result = {'dataset_name': f'{DATASET_BLOBS}_4_high_nose', 'Adjusted Rand Score': score, 'method': label, 'seed': seed}
         results = results.append(result, ignore_index=True)
 
-    results.to_csv(f'{path}/benchmarks_{seed}.csv', index=False)             
+    results.to_csv(f'{path}/benchmarks_{seed}.csv', index=False)     
+    
+    sc4 = SpectralClustering(n_clusters=4, random_state=seed)
         
 if __name__ == "__main__":
 

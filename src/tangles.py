@@ -1,8 +1,6 @@
-from itertools import combinations
 from copy import deepcopy
+from itertools import combinations
 
-import numpy as np
-import bitarray as ba
 from bitarray.util import subset
 
 
@@ -18,6 +16,7 @@ class Tangle(dict):
         - specification is a dictionary there the key is the index of the cut in the list of all the cuts and
           the value is which orientation of that specification we need to take
     """
+
     def __init__(self, cuts=[], core=[], specification={}):
 
         """
@@ -73,7 +72,7 @@ class Tangle(dict):
 
         for i in i_to_remove[::-1]:
             del core[i]
-            
+
         if len(core) == 0:
             if new_cut.count() < min_size:
                 return None
@@ -93,7 +92,6 @@ class Tangle(dict):
 
 
 def core_algorithm(tangles_tree, current_cuts, idx_current_cuts, agreement):
-
     new_tree = deepcopy(tangles_tree)
 
     for idx_cut, cut in zip(idx_current_cuts, current_cuts):

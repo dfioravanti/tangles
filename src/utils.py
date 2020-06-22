@@ -1,10 +1,10 @@
-import itertools
 import hashlib
+import itertools
 import json
 
 import numpy as np
-from numpy import pi, cos, sin, sqrt, arange
 from sklearn.manifold import TSNE
+
 
 class Orientation(object):
 
@@ -17,14 +17,14 @@ class Orientation(object):
             self.direction = 'right'
 
     def __eq__(self, value):
-        
+
         if self.direction == 'both' or value.direction == 'both':
             return True
         if self.direction == value.direction:
             return True
 
         return False
-    
+
     def __str__(self):
         if self.direction == 'both':
             return self.direction
@@ -34,20 +34,49 @@ class Orientation(object):
             return 'False'
 
 
-def get_id(d):
-    return hashlib.md5(json.dumps(d, sort_keys=True).encode('utf-8')).hexdigest()
+def get_hash(d):
+    """
+    Get the hash of a dictionary
+    
+    TODO: Check if it is better to change from MD5 to SHA1
+    
+    Parameters
+    ----------
+    d: dict
+        The dictionary to hash
+
+    Returns
+    -------
+    String
+        The md5 hash of the dictionary
+    """
+
+    return hashlib.md5(json.dumps(d, sort_keys=True, default=str).encode('utf-8')).hexdigest()
 
 
 def normalize(array):
+    """
+    Normalize a 1d numpy array between [0,1]
+
+    Parameters
+    ----------
+    array: ndarray
+        the array to normalize
+
+    Returns
+    -------
+    ndarray
+        the normalized array
+    """
+
     ptp = np.ptp(array)
     if ptp != 0:
-        return (array - np.min(array))/np.ptp(array)
+        return (array - np.min(array)) / np.ptp(array)
     else:
         return np.ones_like(array)
 
 
 def matching_items(d1, d2):
-
     matching_keys = []
     common_keys = d1.keys() & d2.keys()
     for k in common_keys:
@@ -58,7 +87,6 @@ def matching_items(d1, d2):
 
 
 def merge_dictionaries_with_disagreements(d1, d2):
-
     merge = {**d1, **d2}
     common_keys = d1.keys() & d2.keys()
 
@@ -67,7 +95,6 @@ def merge_dictionaries_with_disagreements(d1, d2):
             merge.pop(k)
 
     return merge
-
 
 
 def get_positions_from_labels(ys):
@@ -93,7 +120,7 @@ def get_positions_from_labels(ys):
 def get_points_to_plot(xs, cs):
     _, nb_features = xs.shape
     if cs is not None:
-        nb_centers, _  = cs.shape
+        nb_centers, _ = cs.shape
 
     if nb_features > 2:
         if cs is not None:
@@ -112,7 +139,6 @@ def get_points_to_plot(xs, cs):
 
 
 def dict_product(dicts):
-
     """
     >>> list(dict_product(dict(number=[1,2], character='ab')))
     [{'character': 'a', 'number': 1},
