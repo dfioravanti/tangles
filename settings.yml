@@ -1,11 +1,11 @@
 
 # allowed types: single, batch
 experiment:
-  seed: 10
-  dataset_name: blobs
-  preprocessing_name: bin_lik
-  agreement: 30
-  percentile_orders: 100
+  seed: 42
+  dataset_name: knn_blobs
+  preprocessing_name: random_projection
+  agreement: 40
+  percentile_orders: 20
 
 dataset:
 
@@ -19,33 +19,33 @@ dataset:
     max_idx: 75
 
   sbm:
-    block_sizes: [50, 20, 20]
+    block_sizes: [100, 100]
     p: 0.3
     q: 0.1
 
   knn_blobs:
-    blob_sizes: [240, 60, 60]
-    blob_centers: [[-1, 0], [3, 1.5], [3, -1.5]]
-    blob_variances: [[2, 2], [1, 1], [1, 1]]
+    blob_sizes: [50, 50, 200, 100]
+    blob_centers: [[-2, -2], [2, 2], [-2, 2], [2, -2]]
+    blob_variances: [[1, 1], [1, 1], [1, 1], [1, 1]]
     k: 10
 
   epsilon_blobs:
-    blob_sizes: [150, 100, 100]
-    blob_centers: [[0, 0], [4, -1.5], [4, 1.5]]
-    blob_variances: [[1, 1], [1, 1], [1, 1]]
-    radius: 1.5
+    blob_sizes: [100, 100]
+    blob_centers: [[-2, -2], [2, 2]]
+    blob_variances: [[1, 1], [1, 1]]
+    radius: 2
 
   knn_gauss_blobs:
-    blob_sizes: [150, 100, 100]
-    blob_centers: [[0, 0], [4, -1.5], [4, 1.5]]
-    blob_variances: [[1, 1], [1, 1], [1, 1]]
-    k: 40
+    blob_sizes: [100, 100]
+    blob_centers: [[-2, -2], [2, 2]]
+    blob_variances: [[1, 1], [1, 1]]
+    k: 20
 
   mindsets:
-    mindset_sizes: [120, 60, 60]
-    nb_questions: 20
-    nb_useless: 10
-    noise: 0.15
+    mindset_sizes: [100, 50, 50]
+    nb_questions: 10
+    nb_useless: 5
+    noise: 0.1
 
   q:
     nb_samples: 1000
@@ -73,9 +73,14 @@ dataset:
 
   microbiome:
     path: datasets/microbiome.csv
-    k: 10
+    k: 5
+    use_cuts: False
+    dual: False
 
 preprocessing:
+
+  random_projection:
+    nb_cuts: 50
 
   linear:
     equations: [[1, 0, 0.5],
@@ -88,26 +93,27 @@ preprocessing:
                 [0, 1, 1]]
 
   bin_lik:
-    n_bins: 20
-    range_answers: [1, 20]
+    n_bins: 5
+    range_answers: [0, 5]
 
   karnig_lin:
-    nb_cuts: 200
-    lb_f: 0.1
+    nb_cuts: 50
+    lb_f: 0.2
 
   coarsening:
     nb_cuts: 300
     n_max: 20
 
   fid_mat:
-    nb_cuts: 20
-    lb_f: 0.1
+    nb_cuts: 50
+    lb_f: 0.2
 
 # -1 in nb_cuts means all
 plot:
   no_plots: False
   tree: True
   tangles: False
+  only_leaves: False
   cuts: False
   nb_cuts: 10
   soft: True

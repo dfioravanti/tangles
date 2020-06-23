@@ -7,11 +7,11 @@ import pandas as pd
 from sklearn.metrics import adjusted_rand_score
 
 from src.config import PREPROCESSING_COARSENING, DATASET_SBM, DATASET_BLOBS, PREPROCESSING_FID_MAT, \
-    PREPROCESSING_SUBMODULAR, PREPROCESSING_BINARIZED_LIKERT, PREPROCESSING_LINEAR_CUTS
+    PREPROCESSING_SUBMODULAR, PREPROCESSING_BINARIZED_LIKERT, PREPROCESSING_LINEAR_CUTS, PREPROCESSING_RANDOM_PROJECTION
 from src.config import PREPROCESSING_USE_FEATURES, PREPROCESSING_KMODES, PREPROCESSING_KARNIG_LIN
 from src.config import NAN
 from src.preprocessing import find_kmodes_cuts, kernighan_lin, coarsening_cuts, fid_mat, \
-                              binarize_likert_scale, linear_cuts
+    binarize_likert_scale, linear_cuts, random_projection_2means
 from src.loading import get_dataset_and_order_function
 from src.plotting import plot_graph_cuts, plot_cuts
 from src.tangles import core_algorithm
@@ -59,6 +59,13 @@ def compute_cuts(data, args, verbose):
                                             n_bins=args['preprocessing']['n_bins'])
         cuts['values'] = sets
         cuts['names'] = names
+    elif args['experiment']['preprocessing_name'] == PREPROCESSING_RANDOM_PROJECTION:
+
+        sets = random_projection_2means(xs=data['xs'],
+                                        nb_cuts=args['preprocessing']['nb_cuts'],
+                                        seed=args['experiment']['seed'])
+        sets = np.unique(sets, axis=0)
+        cuts['values'] = sets
         
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_KARNIG_LIN:
         

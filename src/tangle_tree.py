@@ -40,7 +40,7 @@ class TangleTreeModel:
     '''
     def build_tree(self):
         for i, c in enumerate(self.cuts):
-            print("adding the cut ", str(i))
+            #print("adding the cut ", str(i))
             self.add_cut(c)
 
     # adds a node to the tree
@@ -149,7 +149,7 @@ class TangleTreeModel:
                 else:
                     node.p = node.parent.p_left
                 self.tangles += [[node.p, node.coordinate, node.condensed_coordinate]]
-                self.maximals += [node.p]
+                self.maximals += [[node.p, node.condensed_coordinate]]
             else:
                 Warning("No tangles just one big cluster!")
                 self.tangles += [[None, node.coordinate, node.condensed_coordinate]]
@@ -236,16 +236,16 @@ class TangleTreeNode:
                 self.core = deepcopy(self.oriented_cut)
                 self.core_cuts = [deepcopy(self.oriented_cut)]
             else:
+                self.core = core & self.oriented_cut
                 delete = []
                 for i, c in enumerate(core_cuts):
-                    if subset(c, self.oriented_cut):
+                    if subset(c, self.core):
                         delete += [i]
                 for i in np.flip(delete):
                     del core_cuts[i]
 
                 core_cuts += [deepcopy(self.oriented_cut)]
 
-                self.core = core & self.oriented_cut
                 self.core_cuts = core_cuts
 
 

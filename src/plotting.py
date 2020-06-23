@@ -13,13 +13,13 @@ from sklearn.preprocessing import minmax_scale
 from src.config import NAN
 from src.utils import get_points_to_plot
 
-
 # Standard colors for uniform plots
 COLOR_SILVER = '#C0C0C0'
 COLOR_SILVER_RGB = (192 / 255, 192 / 255, 192 / 255) + (0.2,)
 COLOR_INDIGO_RGB = (55 / 255, 0 / 255, 175 / 255) + (0.5,)
 COLOR_CARNATION_RGB = np.array((247 / 255, 96 / 255, 114 / 255, 1)).reshape((1, -1))
 CMAP = plt.cm.get_cmap('Blues')
+
 
 def get_nb_points(data):
 
@@ -30,9 +30,11 @@ def get_nb_points(data):
     else:
         raise KeyError('What data are you using?')
 
+
 def append_to_binary(number, new_digit):
 
     return int(str(bin(number) + str(new_digit)), 2)
+
 
 def get_next_id(current_id, direction):
 
@@ -48,6 +50,7 @@ def get_next_id(current_id, direction):
         return current_id + 2 ** level + 1
     else:
         return current_id + 2 ** level + 2
+
 
 def plot_dataset(data, colors, ax=None, eq_cuts=None, cmap=None, add_colorbar=True, pos=None):
 
@@ -102,6 +105,7 @@ def plot_dataset_metric(xs, cs, colors, eq_cuts, ax, cmap, add_colorbar):
         ax = add_colorbar_to_ax(ax, cmap)
 
     return ax
+
 
 def labels_to_colors(ys, cmap):
     
@@ -206,6 +210,7 @@ def get_position(G, ys):
         pos = nx.kamada_kawai_layout(G)
         pos = nx.spring_layout(G, pos=pos, k=.5, iterations=100)
     return pos
+
 
 def plot_cuts(data, cuts, orders, nb_cuts_to_plot, path):
     
@@ -399,3 +404,48 @@ def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column):
     heat_map.set_ylabel(heat_map.get_ylabel(), rotation=0, labelpad=15) 
 
     return fig, ax
+
+
+def plot_all_tangles(data, probs, coordinate, save=None):
+
+    # if data["G"]:
+    #     pos = nx.spring_layout(data["G"])
+    #     pos = np.array(list(pos.values()))
+    # else:
+    #     pos, _ = get_points_to_plot(data["xs"])
+
+    pos = data["xs"]
+
+    fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+    plt.axis('off')
+    plt.grid(False)
+    fig.patch.set_facecolor('grey')
+    _ = ax.scatter(pos[:, 0],
+                   pos[:, 1],
+                   c=data["ys"],
+                   cmap="Set2")
+
+    if save:
+        plt.savefig(str(save) + "/plot_gt.jpg")
+    else:
+        plt.show()
+
+    for i, p in enumerate(probs):
+        fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+        plt.axis("off")
+        plt.grid(False)
+        fig.patch.set_facecolor('grey')
+
+        col = ax.scatter(pos[:, 0],
+                         pos[:, 1],
+                         c=p,
+                         cmap="Blues")
+
+        col.set_clim(0, 1)
+
+        plt.colorbar(col, ax=ax)
+
+        if save:
+            plt.savefig(str(save) + "/plot_" + str(coordinate[i]) + ".jpg")
+        else:
+            plt.show()

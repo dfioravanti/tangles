@@ -28,7 +28,7 @@ from src.datasets.mies import load_MIES
 from src.datasets.mindsets import make_mindsets
 from src.datasets.questionnaire import make_questionnaire
 from src.datasets.retinal import load_RETINAL
-from src.order_functions import implicit_order, cut_order
+from src.order_functions import implicit_order, cut_order, euclidean_order
 
 
 def get_dataset_and_order_function(args):
@@ -110,7 +110,7 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
-        order_function = partial(cut_order, A)
+        order_function = partial(euclidean_order, xs)
     elif args['experiment']['dataset_name'] == DATASET_CANCER:
         xs, ys = load_CANCER(args['dataset']['nb_bins'])
 
@@ -127,14 +127,20 @@ def get_dataset_and_order_function(args):
 
         order_function = partial(cut_order, A)
     elif args['experiment']['dataset_name'] == DATASET_MICROBIOME:
-        xs, ys, A, G = load_MICROBIOME(args['dataset']['path'], args['dataset']['k'])
+        xs, ys, A, G = load_MICROBIOME(args['dataset']['path'], args['dataset']['k'], args['dataset']['use_cuts'], args['dataset']['dual'])
 
-        data["G"] = G
-        data["A"] = A
-        data['xs'] = xs
-        data['ys'] = ys
+        if not args['dataset']['use_cuts']:
+            data["G"] = G
+            data["A"] = A
+            data['xs'] = xs
+            data['ys'] = ys
 
-        order_function = partial(implicit_order, xs, None)
+            order_function = partial(cut_order, A)
+        else:
+            data['xs'] = xs
+            data['ys'] = ys
+
+            order_function = partial(euclidean_order, xs)
     elif args['experiment']['dataset_name'] == DATASET_SBM:
         A, ys, G = load_SBM(block_sizes=args['dataset']['block_sizes'],
                             p_in=args['dataset']['p'],
@@ -156,7 +162,7 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
-        order_function = partial(cut_order, A)
+        order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_EPSILON__BLOBS:
         xs, ys, A, G = load_eps_blobs(blob_sizes=args['dataset']['blob_sizes'],
                                       blob_centers=args['dataset']['blob_centers'],
@@ -168,7 +174,7 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
-        order_function = partial(cut_order, A)
+        order_function = partial(implicit_order, xs, None)
     elif args['experiment']['dataset_name'] == DATASET_KNN_GAUSS_BLOBS:
         xs, ys, A, G = load_knn_gauss_blobs(blob_sizes=args['dataset']['blob_sizes'],
                                       blob_centers=args['dataset']['blob_centers'],

@@ -114,7 +114,7 @@ def run(args):
 
     ars_kmeans = adjusted_rand_score(data["ys"], kmeans_labels)
 
-    spectral_labels = sklearn.cluster.SpectralClustering(n_clusters=nb_clusters, affinity="nearest_neighbors", n_neighbors=10).fit(data["xs"]).labels_
+    spectral_labels = sklearn.cluster.SpectralClustering(n_clusters=nb_clusters, affinity="nearest_neighbors").fit(data["xs"]).labels_
     #spectral_labels = sklearn.cluster.SpectralClustering(n_clusters=nb_clusters).fit(data["xs"]).labels_
 
     ars_spectral = adjusted_rand_score(data["ys"], spectral_labels)

@@ -14,7 +14,7 @@ multi_parameters = {}
 
 parameters['-t'] = DATASET_SBM
 parameters['--id'] = ts
-parameters['-p'] = PREPROCESSING_KARNIG_LIN
+parameters['-p'] = PREPROCESSING_FID_MAT
 
 #multi_parameters['-p'] = [PREPROCESSING_KARNIG_LIN, PREPROCESSING_FID_MAT]
 multi_parameters['--nb_cuts'] = [200]

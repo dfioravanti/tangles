@@ -2,8 +2,11 @@ import numpy as np
 import pandas as pd
 
 from kmodes.kmodes import KModes
+from sklearn.cluster import KMeans
+from sklearn.random_projection import GaussianRandomProjection
 
 import src.coarsening as coarsening
+from sklearn import random_projection, cluster
 
 
 def linear_cuts(xs, equations, verbose=0):
@@ -34,7 +37,7 @@ def binarize_likert_scale(xs, range_answers, n_bins):
         df = pd.DataFrame(data=xs)
         df_bined = pd.DataFrame()
         for column in df.columns:
-            df_bined[column] = pd.qcut(df[column], q=n_bins, labels=False) + 1
+            df_bined[column] = pd.qcut(df[column], q=n_bins, labels=False, duplicates="drop") + 1
 
         xs = df_bined.values
 
@@ -150,7 +153,7 @@ def kernighan_lin_algorithm(xs, fraction):
     A, B = initial_partition(xs, fraction)
 
     i = 0
-    while True:
+    while i < 100:
         A_copy = A.copy()
         B_copy = B.copy()
         xs_copy = xs.copy()
@@ -194,6 +197,24 @@ def kernighan_lin_algorithm(xs, fraction):
     return A
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Random Projection & 2Means
+#
+# ----------------------------------------------------------------------------------------------------------------------
+
+def random_projection_2means(xs, nb_cuts, seed):
+    cuts = []
+
+    np.random.seed(seed)
+    for c in range(nb_cuts):
+        seed = np.random.randint(100)
+        projection = GaussianRandomProjection(n_components=1, random_state=seed).fit_transform(xs)
+        cut = KMeans(n_clusters=2).fit(projection).labels_
+        cuts.append(cut.astype(bool))
+
+    cuts = np.array(cuts)
+    return cuts
+
+# ----------------------------------------------------------------------------------------------------------------------
 # Fiduccia-Mattheyses-Algorithm
 #
 # ----------------------------------------------------------------------------------------------------------------------
@@ -206,7 +227,7 @@ def fid_mat(xs, nb_cuts, lb_f, seed, verbose):
     for i in range(nb_cuts):
         if verbose >= 3:
             print(f'\tlooking for cut {i + 1}/{nb_cuts}')
-        cut = fid_mat_algorithm(xs, lb_f, verbose)
+        cut = fid_mat_algorithm(np.array(xs, dtype=float), lb_f, verbose)
         cuts.append(cut)
 
     cuts = np.array(cuts)
@@ -223,7 +244,7 @@ def fid_mat_algorithm(xs, r, verbose):
 
     # while not converged
     i = 0
-    while True:
+    while i < 100:
         A_copy = A.copy()
         B_copy = B.copy()
         not_locked = np.full([nb_cells], True)

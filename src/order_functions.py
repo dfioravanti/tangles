@@ -89,6 +89,24 @@ def cut_order(A, cut):
 
     return order
 
+
+def euclidean_order(xs, cut):
+
+    _, n_features = xs.shape
+    if np.all(cut) or np.all(~cut):
+        return 0
+
+    in_cut = xs[cut, :]
+    out_cut = xs[~cut, :]
+
+    metric = DistanceMetric.get_metric('euclidean')
+
+    distance = metric.pairwise(in_cut, out_cut)
+    similarity = 1. / (distance / np.max(distance))
+    expected_similarity = np.average(similarity)
+
+    return np.round(expected_similarity, 2)
+
 # def implicit_order(xs, n_samples, cut):
 #     """
 #     This function computes the implicit order of a cut.
