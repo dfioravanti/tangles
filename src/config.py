@@ -15,6 +15,22 @@ VALID_EXPERIMENTS = [
     EXPERIMENT_BATCH
 ]
 
+# Cost Function
+
+COST_FUNCTION_IMPLICIT = 'implicit'
+COST_FUNCTION_EUCLIDEAN = 'euclidean'
+COST_FUNCTION_CUT = 'cut'
+COST_FUNCTION_EUCLIDEAN_SUM = 'euclidean_sum'
+COST_FUNCTION_CUT_SUM = 'cut_sum'
+
+
+VALID_COST_FUNCTIONS = [
+    COST_FUNCTION_CUT,
+    COST_FUNCTION_CUT_SUM,
+    COST_FUNCTION_EUCLIDEAN,
+    COST_FUNCTION_EUCLIDEAN_SUM,
+    COST_FUNCTION_IMPLICIT
+]
 # Datasets
 
 DATASET_BINARY_QUESTIONNAIRE = "q_binary"
@@ -70,9 +86,11 @@ PREPROCESSING_COARSENING = "coarsening"
 PREPROCESSING_SUBMODULAR = 'sub'
 PREPROCESSING_BINARIZED_LIKERT = 'bin_lik'
 PREPROCESSING_RANDOM_PROJECTION = "random_projection"
+PREPROCESSING_TWO_MEANS = "kmeans"
 PREPROCESSING_LINEAR_CUTS = 'linear'
 
 VALID_PREPROCESSING = [
+    PREPROCESSING_TWO_MEANS,
     PREPROCESSING_USE_FEATURES,
     PREPROCESSING_KARNIG_LIN,
     PREPROCESSING_RANDOM_PROJECTION,
@@ -97,7 +115,7 @@ NAN = -9999
 def load_validate_settings(args_parser, root_dir):
     main_cfg_file = 'settings.yml'
 
-    main_cfg = load_settings(f'{root_dir}/{main_cfg_file}')
+    main_cfg = load_settings('{}/{}'.format(root_dir, main_cfg_file))
 
     args = merge_config(args_parser, main_cfg)
     args = validate_settings(args)
@@ -138,9 +156,9 @@ def delete_useless_parameters(args):
 def get_prefix(args):
 
     if args['experiment']['dataset_name'] == DATASET_SBM:
-        prefix = f'SMB_{len(args["dataset"]["block_sizes"])}'
+        prefix = 'SMB_{}'.format(len(args["dataset"]["block_sizes"]))
     elif args['experiment']['dataset_name'] == DATASET_BLOBS:
-        prefix = f'knn_blobs_{len(args["dataset"]["blob_sizes"])}'
+        prefix = 'knn_blobs_{}'.format(len(args["dataset"]["blob_sizes"]))
     else:
         prefix = args['experiment']['dataset_name']
 
@@ -232,7 +250,7 @@ def load_settings(file):
 def validate_settings(args):
 
     if args['experiment']['dataset_name'] not in VALID_DATASETS:
-        raise ValueError(f'The dataset name must be in: {VALID_DATASETS}')
+        raise ValueError('The dataset name must be in: {}'.format(VALID_DATASETS))
 
     if args['experiment']['dataset_name'] in DISCRETE_DATASETS:
         args['experiment']['dataset_type'] = 'discrete'
@@ -240,17 +258,19 @@ def validate_settings(args):
         args['experiment']['dataset_type'] = 'graph'
 
     if args['experiment']['preprocessing_name'] not in VALID_PREPROCESSING:
-        raise ValueError(f'The preprocessing name must be in: {VALID_PREPROCESSING}')
+        raise ValueError('The preprocessing name must be in: {}'.format(VALID_PREPROCESSING))
 
+    if args['experiment']['cost_function'] not in VALID_COST_FUNCTIONS:
+        raise ValueError('The cost function name must be in: {}'.format(VALID_COST_FUNCTIONS))
     return args
 
 
 def set_up_dirs(args, root_dir):
 
     args['root_dir'] = Path(root_dir)
-    args['output_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id'] / args['prefix']}")
-    args['plot_dir'] = Path(f"{args['output_dir'] / 'plots'}")
-    args['answers_dir'] = Path(f"{args['output_dir'] / 'answers'}")
+    args['output_dir'] = Path("{}/output/{}/{}".format(root_dir, args['experiment']['unique_id'], args['prefix']))
+    args['plot_dir'] = Path("{}/plots".format(args['output_dir']))
+    args['answers_dir'] = Path("{}/answers".format(args['output_dir']))
 
     args['output_dir'].mkdir(parents=True, exist_ok=True)
 

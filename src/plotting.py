@@ -138,7 +138,7 @@ def plot_soft_predictions(data, contracted_tree, eq_cuts=None, id_node=0, path=N
         colors = labels_to_colors(data['ys'], cmap=cmap_groundtruth)
         ax, pos = plot_dataset(data, colors, eq_cuts=eq_cuts, ax=ax, add_colorbar=False)
 
-        fig.savefig(output_path / f"groundtruth.svg")
+        fig.savefig(output_path / "groundtruth.svg")
         plt.close(fig)
 
     plot_soft_prediction_node(data, contracted_tree.root, eq_cuts=eq_cuts, id_node=0, cmap=cmap_heatmap, path=path, pos=pos)
@@ -159,7 +159,7 @@ def plot_soft_prediction_node(data, node, eq_cuts, id_node, cmap, path, pos):
 
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
     plot_dataset(data, colors, eq_cuts=eq_characterizing_cuts, ax=ax, cmap=cmap, pos=pos)
-    fig.savefig(path / f"node_nb_{id_node:02d}.svg")
+    fig.savefig(path / "node_nb_{}.svg".format(np.round(id_node, 2)))
     plt.close(fig)
 
     if node.left_child is not None:
@@ -189,7 +189,7 @@ def plot_hard_predictions(data, ys_predicted, path=None):
     colors_predicted = labels_to_colors(ys_predicted, cmap=cmap_predictions)
     ax_predicted = plot_dataset(data, colors_predicted, ax=ax_predicted, add_colorbar=False)
 
-    fig.savefig(output_path / f"hard_clustering.svg")
+    fig.savefig(output_path / "hard_clustering.svg")
     plt.close(fig)
 
 
@@ -231,7 +231,7 @@ def plot_cuts(data, cuts, orders, nb_cuts_to_plot, path):
             
         fig, pos = plot_cut(data, cut=values_cuts[i], order=orders[i], eq=eq, pos=pos)
         if path is not None:
-            fig.savefig(path / f"cut number {i}.svg")
+            fig.savefig(path / "cut number {}.svg".format(i))
             plt.close(fig)
 
 
@@ -273,7 +273,7 @@ def plot_cut(data, cut, order, eq, pos):
         fig, ax_cut = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
 
     ax_cut.set_title('Cut')
-    fig.suptitle(f'Cut of order: {order}')
+    fig.suptitle('Cut of order: {}'.format(order))
 
     color_cut = labels_to_colors(cut, cmap=cmap_cut)
     ax_cut = plot_dataset(data, color_cut, ax=ax_cut, add_colorbar=False, pos=pos)
@@ -300,7 +300,7 @@ def plot_graph_cuts(G, ys, cuts, orders, path):
         ax.axis('off')
         ax.grid(b=None)
 
-        ax.set_title(f"cut of order {orders[i]}")
+        ax.set_title("cut of order {}".format(orders[i]))
 
         colors = np.zeros((nb_points, 4), dtype=float)
         colors[~cut] = COLOR_SILVER_RGB
@@ -310,7 +310,7 @@ def plot_graph_cuts(G, ys, cuts, orders, path):
                          edge_color=COLOR_SILVER)
 
         if path is not None:
-            plt.savefig(path_cuts / f"cut number {i}.svg")
+            plt.savefig(path_cuts / "cut number {}.svg".format(i))
 
         plt.close(fig)
 
@@ -408,25 +408,41 @@ def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column):
 
 def plot_all_tangles(data, probs, coordinate, save=None):
 
-    # if data["G"]:
-    #     pos = nx.spring_layout(data["G"])
-    #     pos = np.array(list(pos.values()))
-    # else:
-    #     pos, _ = get_points_to_plot(data["xs"])
-
     pos = data["xs"]
+    #pos, _ = get_points_to_plot(data["xs"])
+
+    tangle_labels = np.argmax(probs, axis=0)
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 5))
     plt.axis('off')
     plt.grid(False)
     fig.patch.set_facecolor('grey')
     _ = ax.scatter(pos[:, 0],
-                   pos[:, 1],
-                   c=data["ys"],
-                   cmap="Set2")
+                    pos[:, 1],
+                    c=tangle_labels,
+                    cmap="Set2",
+                    s=2)
 
     if save:
-        plt.savefig(str(save) + "/plot_gt.jpg")
+        plt.savefig(str(save) + "/plot_clustering.png")
+    else:
+        plt.show()
+
+
+
+    if data["ys"].any():
+        fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+        plt.axis('off')
+        plt.grid(False)
+        fig.patch.set_facecolor('grey')
+        _ = ax.scatter(pos[:, 0],
+                       pos[:, 1],
+                       c=data["ys"],
+                       cmap="Set2",
+                       s=2)
+
+    if save:
+        plt.savefig(str(save) + "/plot_gt.png")
     else:
         plt.show()
 
@@ -439,13 +455,14 @@ def plot_all_tangles(data, probs, coordinate, save=None):
         col = ax.scatter(pos[:, 0],
                          pos[:, 1],
                          c=p,
-                         cmap="Blues")
+                         cmap="Blues",
+                         s=2)
 
         col.set_clim(0, 1)
 
         plt.colorbar(col, ax=ax)
 
         if save:
-            plt.savefig(str(save) + "/plot_" + str(coordinate[i]) + ".jpg")
+            plt.savefig(str(save) + "/plot_" + str(coordinate[i]) + ".png")
         else:
             plt.show()

@@ -98,10 +98,10 @@ def get_points_to_plot(xs, cs=None):
     if nb_features > 2:
         if cs is not None:
             points_to_embed = np.vstack([xs, cs])
-            embeds = TSNE(n_components=2, metric='manhattan', random_state=42).fit_transform(points_to_embed)
+            embeds = TSNE(n_components=2, metric='euclidean', random_state=42).fit_transform(points_to_embed)
             xs_embedded, cs_embedded = embeds[:-nb_centers], embeds[-nb_centers:]
         else:
-            xs_embedded = TSNE(n_components=2, metric='manhattan', random_state=42).fit_transform(xs)
+            xs_embedded = TSNE(n_components=2, metric='euclidean', random_state=42).fit_transform(xs)
     else:
         xs_embedded = xs
 

@@ -8,7 +8,7 @@ def one(_):
     return 1
 
 class TangleTreeModel:
-    def __init__(self, agreement, cuts, costs=None, weight_fun=None):
+    def __init__(self, agreement, cuts, costs=None, weight_fun=None, print_cuts=False):
         self.agreement = agreement
         self.cuts = cuts
 
@@ -24,23 +24,24 @@ class TangleTreeModel:
         self.tangles = []
         self.maximals = []
 
-        self.build()
+        self.build(print_cuts)
 
-    def build(self):
+    def build(self, print_cuts):
         print(" --- Building the tree of cuts \n")
-        self.build_tree()
+        self.build_tree(print_cuts)
 
         print(" --- Building the condensed tree \n")
         self.build_condensed_tree()
 
-        print(" --- Found ", str(len(self.tangles)), " interesting tangles.")
+        print(" --- Found ", str(len(self.maximals)), " interesting tangles.")
 
     '''
     function to build the Tangle Tree 
     '''
-    def build_tree(self):
+    def build_tree(self, print_cuts):
         for i, c in enumerate(self.cuts):
-            #print("adding the cut ", str(i))
+            if print_cuts:
+                print("adding the cut ", str(i))
             self.add_cut(c)
 
     # adds a node to the tree
@@ -230,16 +231,16 @@ class TangleTreeNode:
         else:
 
             if subset(self.oriented_cut, core):
-                self.core = core
-                self.core_cuts = core_cuts
-            elif subset(core, self.oriented_cut):
                 self.core = deepcopy(self.oriented_cut)
                 self.core_cuts = [deepcopy(self.oriented_cut)]
+            elif subset(core, self.oriented_cut):
+                self.core = core
+                self.core_cuts = core_cuts
             else:
-                self.core = core & self.oriented_cut
+                self.core = deepcopy(core & self.oriented_cut)
                 delete = []
                 for i, c in enumerate(core_cuts):
-                    if subset(c, self.core):
+                    if subset(self.oriented_cut, c):
                         delete += [i]
                 for i in np.flip(delete):
                     del core_cuts[i]
@@ -337,7 +338,7 @@ class CondensedTangleTreeNode:
 
 # checks if the oriented cut a is a subset of the oriented cut b
 def subset(a, b):
-    return (a & b).count() == b.count()
+    return (a & b).count() == a.count()
 
 # just try to reduce the typing and make it more readable
 def is_splitting(node):

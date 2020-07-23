@@ -59,7 +59,8 @@ def implicit_order(xs, n_samples, cut):
     distance = metric.pairwise(in_cut, out_cut)
     #similarity = np.exp(-distance * (1 / n_features))
     similarity = 1. / (distance / np.max(distance))
-    expected_similarity = np.average(similarity)
+    #expected_similarity = np.average(similarity)
+    expected_similarity = np.sum(similarity)
 
     return np.round(expected_similarity, 2)
 
@@ -85,9 +86,35 @@ def cut_order(A, cut):
     partition = np.where(cut == True)[0]
     comp = np.where(cut == False)[0]
 
+    order = np.average(A[np.ix_(partition, comp)])
+
+    return np.round(order, 4)
+
+
+def cut_sum_order(A, cut):
+
+    """
+    Compute the value of a graph cut, i.e. the number of vertex that are cutted by the bipartition
+
+    Parameters
+    ----------
+    A: array of shape [nb_vertices, nb_vertices]
+        Adjacency matrix for our graph
+    cut: array of shape [n_points]
+        The cut that we are considering
+
+    Returns
+    -------
+    order: int
+        order of the cut
+    """
+
+    partition = np.where(cut == True)[0]
+    comp = np.where(cut == False)[0]
+
     order = np.sum(A[np.ix_(partition, comp)])
 
-    return order
+    return np.round(order, 4)
 
 
 def euclidean_order(xs, cut):
@@ -105,7 +132,25 @@ def euclidean_order(xs, cut):
     similarity = 1. / (distance / np.max(distance))
     expected_similarity = np.average(similarity)
 
-    return np.round(expected_similarity, 2)
+    return np.round(expected_similarity, 4)
+
+
+def euclidean_sum_order(xs, cut):
+
+    _, n_features = xs.shape
+    if np.all(cut) or np.all(~cut):
+        return 0
+
+    in_cut = xs[cut, :]
+    out_cut = xs[~cut, :]
+
+    metric = DistanceMetric.get_metric('euclidean')
+
+    distance = metric.pairwise(in_cut, out_cut)
+    similarity = 1. / (distance / np.max(distance))
+    expected_similarity = np.sum(similarity)
+
+    return np.round(expected_similarity, 4)
 
 # def implicit_order(xs, n_samples, cut):
 #     """

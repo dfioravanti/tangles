@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from kmodes.kmodes import KModes
 from sklearn.cluster import KMeans
 from sklearn.random_projection import GaussianRandomProjection
 
-import src.coarsening as coarsening
+#import src.coarsening as coarsening
 from sklearn import random_projection, cluster
 
 
@@ -30,6 +31,21 @@ def linear_cuts(xs, equations, verbose=0):
             
     return sets, equations
 
+def two_means(xs, k, seed):
+    cuts = []
+
+    np.random.seed(seed)
+    for c in xs.T:
+        seed = np.random.randint(100)
+        cut = KMeans(n_clusters=k, random_state=seed).fit(c.reshape(-1, 1)).labels_
+        cuts.append(cut.astype(bool))
+
+    cuts = np.array(cuts)
+
+    binarize_likert_scale(cuts, [0, k], k)
+    return cuts
+
+
 
 def binarize_likert_scale(xs, range_answers, n_bins):
 
@@ -46,7 +62,7 @@ def binarize_likert_scale(xs, range_answers, n_bins):
 
     nb_points, nb_features = xs.shape
 
-    colums_name = [f'q{i:02}' for i in range(1, nb_features + 1)]
+    colums_name = ['q{}'.format(i) for i in range(1, nb_features + 1)]
     df = pd.DataFrame(xs, columns=colums_name)
     cut_values = np.arange(min_answer + 1, max_answer + 1)
     cut_names = []
@@ -58,8 +74,8 @@ def binarize_likert_scale(xs, range_answers, n_bins):
             new_col[df[column] < cut_value] = 0 
             new_col[df[column] >= cut_value] = 1
 
-            short_name = f'{column}_{cut_value}-{max_answer}'
-            cut_names.append(f'{column} larger or equal than {cut_value}')
+            short_name = '{}_{}-{}'.format(column, cut_value, max_answer)
+            cut_names.append('{} larger or equal than {}'.format(column, cut_value))
 
             df_binarized[short_name] = new_col
 
@@ -138,7 +154,7 @@ def kernighan_lin(A, nb_cuts, lb_f, seed, verbose):
     for i in range(nb_cuts):
         f = np.random.uniform(lb_f, 0.5)
         if verbose >= 3:
-            print(f'\tlooking for cut {i+1}/{nb_cuts} with f={f:.02}')
+            print('\tlooking for cut {}/{} with f={}'.format(i+1, nb_cuts, np.round(f, 2)))
         cut = kernighan_lin_algorithm(A, f)
         cuts.append(cut)
 
@@ -208,7 +224,7 @@ def random_projection_2means(xs, nb_cuts, seed):
     for c in range(nb_cuts):
         seed = np.random.randint(100)
         projection = GaussianRandomProjection(n_components=1, random_state=seed).fit_transform(xs)
-        cut = KMeans(n_clusters=2).fit(projection).labels_
+        cut = KMeans(n_clusters=2, random_state=seed).fit(projection).labels_
         cuts.append(cut.astype(bool))
 
     cuts = np.array(cuts)
@@ -226,7 +242,7 @@ def fid_mat(xs, nb_cuts, lb_f, seed, verbose):
 
     for i in range(nb_cuts):
         if verbose >= 3:
-            print(f'\tlooking for cut {i + 1}/{nb_cuts}')
+            print('\tlooking for cut {}/{}'.format(i + 1, nb_cuts))
         cut = fid_mat_algorithm(np.array(xs, dtype=float), lb_f, verbose)
         cuts.append(cut)
 
@@ -237,6 +253,7 @@ def fid_mat(xs, nb_cuts, lb_f, seed, verbose):
 
 def fid_mat_algorithm(xs, r, verbose):
     r = np.random.uniform(r, 0.5)
+
     nb_cells, _ = xs.shape
     A, B = initial_partition(xs, np.random.uniform(r, 0.5))
 
@@ -244,7 +261,7 @@ def fid_mat_algorithm(xs, r, verbose):
 
     # while not converged
     i = 0
-    while i < 100:
+    while i < 10:
         A_copy = A.copy()
         B_copy = B.copy()
         not_locked = np.full([nb_cells], True)
@@ -285,7 +302,7 @@ def fid_mat_algorithm(xs, r, verbose):
         i += 1
 
     if verbose >= 3:
-        print(f"\tfinal ratio: {sum(A) / nb_cells:.02}")
+        print("\tfinal ratio: {}".format(sum(A) / nb_cells))
 
     return A
 
@@ -417,7 +434,7 @@ def find_kmodes_cuts(xs, max_nb_clusters):
     for k in range(2, max_nb_clusters):
         cls = KModes(n_clusters=k, init='Cao', n_init=1)
         clusters = cls.fit_predict(xs)
-        print(f'Done with k={k}', flush=True)
+        print('Done with k={}'.format(k), flush=True)
 
         for cluster in range(0, k):
             cut = np.zeros(nb_points, dtype=bool)

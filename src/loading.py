@@ -6,7 +6,8 @@ from sklearn.datasets import make_moons
 import networkx as nx
 
 from src.config import DATASET_SBM, DATASET_QUESTIONNAIRE, DATASET_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
-    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS
+    DATASET_MINDSETS, DATASET_RETINAL, DATASET_MIES, DATASET_MOONS, COST_FUNCTION_IMPLICIT, COST_FUNCTION_EUCLIDEAN, \
+    COST_FUNCTION_CUT, COST_FUNCTION_EUCLIDEAN_SUM, COST_FUNCTION_CUT_SUM
 
 from src.config import DATASET_BINARY_QUESTIONNAIRE, DATASET_SBM, DATASET_QUESTIONNAIRE, \
     DATASET_KNN_BLOBS, DATASET_CANCER, DATASET_CANCER10, \
@@ -28,7 +29,20 @@ from src.datasets.mies import load_MIES
 from src.datasets.mindsets import make_mindsets
 from src.datasets.questionnaire import make_questionnaire
 from src.datasets.retinal import load_RETINAL
-from src.order_functions import implicit_order, cut_order, euclidean_order
+from src.order_functions import implicit_order, cut_order, euclidean_order, cut_sum_order, euclidean_sum_order
+import numpy as np
+
+
+def resolve_cost_function(cost_fun, data, nb_samples=None):
+    if cost_fun == COST_FUNCTION_EUCLIDEAN_SUM:
+        return partial(euclidean_sum_order, data['xs'])
+    elif cost_fun == COST_FUNCTION_EUCLIDEAN:
+        return partial(euclidean_order, data['xs'])
+    elif cost_fun == COST_FUNCTION_CUT:
+        return partial(cut_order, data['A'])
+    elif cost_fun == COST_FUNCTION_CUT_SUM:
+        return partial(cut_sum_order, data['A'])
+
 
 
 def get_dataset_and_order_function(args):
@@ -61,14 +75,13 @@ def get_dataset_and_order_function(args):
         The partially evaluated order function
     """
 
+
     data = {}
     data['xs'] = None
     data['ys'] = None
     data['cs'] = None
     data['A'] = None
     data['G'] = None
-
-    data['xs'] = data['ys'] = data['cs'] = data["G"] = data["A"] = None
 
     if args['experiment']['dataset_name'] == DATASET_MINDSETS:
         xs, ys, cs = make_mindsets(mindset_sizes=args['dataset']['mindset_sizes'],
@@ -79,7 +92,7 @@ def get_dataset_and_order_function(args):
         data['xs'] = xs
         data['ys'] = ys
         data['cs'] = cs
-        order_function = partial(implicit_order, xs, None)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     elif args['experiment']['dataset_name'] == DATASET_QUESTIONNAIRE:
         xs, ys, cs = make_questionnaire(nb_samples=args['dataset']['nb_samples'],
                                         nb_features=args['dataset']['nb_features'],
@@ -91,7 +104,7 @@ def get_dataset_and_order_function(args):
         data['xs'] = xs
         data['ys'] = ys
         data['cs'] = cs
-        order_function = partial(implicit_order, xs, None)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     elif args['experiment']['dataset_name'] == DATASET_RETINAL:
         xs, ys = load_RETINAL(root_path=args['root_dir'],
                               nb_bins=args['dataset']['nb_bins'],
@@ -99,7 +112,7 @@ def get_dataset_and_order_function(args):
 
         data['xs'] = xs
         data['ys'] = ys
-        order_function = partial(implicit_order, xs, 200)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data, 200)
     elif args['experiment']['dataset_name'] == DATASET_MOONS:
         xs, ys = make_moons(n_samples=args['dataset']['n_samples'],
                             noise=args['dataset']['noise'],
@@ -110,13 +123,13 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
-        order_function = partial(euclidean_order, xs)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     elif args['experiment']['dataset_name'] == DATASET_CANCER:
         xs, ys = load_CANCER(args['dataset']['nb_bins'])
 
         data['xs'] = xs
         data['ys'] = ys
-        order_function = partial(implicit_order, xs, None)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     elif args['experiment']['dataset_name'] == DATASET_CANCER10:
         xs, ys, A, G = load_CANCER10(args['dataset']['path'])
 
@@ -125,32 +138,27 @@ def get_dataset_and_order_function(args):
         data['xs'] = xs
         data['ys'] = ys
 
-        order_function = partial(cut_order, A)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     elif args['experiment']['dataset_name'] == DATASET_MICROBIOME:
         xs, ys, A, G = load_MICROBIOME(args['dataset']['path'], args['dataset']['k'], args['dataset']['use_cuts'], args['dataset']['dual'])
 
-        if not args['dataset']['use_cuts']:
-            data["G"] = G
-            data["A"] = A
-            data['xs'] = xs
-            data['ys'] = ys
+        data["G"] = G
+        data["A"] = A
+        data['xs'] = xs
+        data['ys'] = ys
 
-            order_function = partial(cut_order, A)
-        else:
-            data['xs'] = xs
-            data['ys'] = ys
-
-            order_function = partial(euclidean_order, xs)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     elif args['experiment']['dataset_name'] == DATASET_SBM:
         A, ys, G = load_SBM(block_sizes=args['dataset']['block_sizes'],
                             p_in=args['dataset']['p'],
                             p_out=args['dataset']['q'],
                             seed=args['experiment']['seed'])
 
+        data['xs'] = A
         data['A'] = A
         data['ys'] = ys
         data['G'] = G
-        order_function = partial(cut_order, A)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     elif args['experiment']['dataset_name'] == DATASET_KNN_BLOBS:
         xs, ys, A, G = load_blobs(blob_sizes=args['dataset']['blob_sizes'],
                                       blob_centers=args['dataset']['blob_centers'],
@@ -162,7 +170,7 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
-        order_function = partial(implicit_order, xs, None)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     elif args['experiment']['dataset_name'] == DATASET_EPSILON__BLOBS:
         xs, ys, A, G = load_eps_blobs(blob_sizes=args['dataset']['blob_sizes'],
                                       blob_centers=args['dataset']['blob_centers'],
@@ -174,7 +182,7 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
-        order_function = partial(implicit_order, xs, None)
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     elif args['experiment']['dataset_name'] == DATASET_KNN_GAUSS_BLOBS:
         xs, ys, A, G = load_knn_gauss_blobs(blob_sizes=args['dataset']['blob_sizes'],
                                       blob_centers=args['dataset']['blob_centers'],
@@ -186,6 +194,5 @@ def get_dataset_and_order_function(args):
         data['ys'] = ys
         data['A'] = A
         data['G'] = G
-        order_function = partial(implicit_order, xs, None)
-
+        order_function = resolve_cost_function(args['experiment']["cost_function"], data)
     return data, order_function
