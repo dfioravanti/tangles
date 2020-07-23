@@ -1,3 +1,4 @@
+import os
 from functools import partial
 from pathlib import Path
 import cProfile
@@ -7,7 +8,8 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mlp
-from sklearn.metrics import adjusted_rand_score
+from sklearn import metrics
+from sklearn.metrics import adjusted_rand_score, v_measure_score
 
 import json
 import pandas as pd
@@ -16,7 +18,7 @@ from src.order_functions import implicit_order
 from src.parser import make_parser
 from src.config import load_validate_settings, set_up_dirs
 from src.execution import get_dataset_cuts_order
-from src.plotting import get_position
+from src.plotting import get_position, plot_all_tangles
 from src.tangle_tree import TangleTreeModel
 from src.utils import get_points_to_plot, get_positions_from_labels
 
@@ -30,30 +32,46 @@ def main_tree(args):
 
     foundamental_parameters = {**args['experiment'], **args['dataset'], **args['preprocessing']}
 
-    unique_id = hash(json.dumps(foundamental_parameters, sort_keys=True))
-    df_output = pd.DataFrame()
+    path = hash(json.dumps(foundamental_parameters, sort_keys=True))
+    args["plot"]["path"] = "output/tree/" + str(path)
 
     if args['verbose'] >= 1:
         print(f'Working with parameters = {foundamental_parameters}', flush=True)
 
-    data, orders, all_cuts, name_cuts = get_dataset_cuts_order(args)
+    data, orders, all_cuts = get_dataset_cuts_order(args)
 
-    model = TangleTreeModel(agreement=args["experiment"]["agreement"], cuts=all_cuts, costs=orders, weight_fun=sigmoid)
+    # run the tangle algorithm
+    model = TangleTreeModel(agreement=args["experiment"]["agreement"], cuts=all_cuts["values"], costs=orders,
+                            weight_fun=sigmoid, print_cuts=True)
 
     tangles = np.array(model.tangles)
+    probs_tangles = np.stack(np.array(tangles[:, 0]))
+    coordinate_tangles = tangles[:, 2]
 
-    probs = np.stack(tangles[:, 0])[1:]
-    cuts_original_tree = tangles[:, 1]
-    coordinate = tangles[:, 2]
+    leaves = np.array(model.maximals)
+    if len(leaves) > 0:
+        probs_leaves = np.stack(np.array(leaves[:, 0]))
+        coordinate = leaves[:, 1]
+        tangle_labels = np.argmax(probs_leaves, axis=0)
 
-    hard_clustering = np.argmax(probs, axis=0)
-    print(hard_clustering)
-    ars = adjusted_rand_score(data['ys'], hard_clustering)
-    print(ars)
 
-    result = pd.Series({**foundamental_parameters,  'ARS': ars}).to_frame().T
-    path = args['output_dir'] / f'evaluation_{unique_id}.csv'
-    result.to_csv(path)
+        vms_tangles = v_measure_score(data["ys"], tangle_labels)
+        homo_tangle = metrics.homogeneity_score(data["ys"], tangle_labels)
+    else:
+        homo_tangle = 0
+        vms_tangles = 0
+
+    print(vms_tangles, homo_tangle)
+
+    if args["plot"]["tangles"]:
+        if args["plot"]["path"]:
+            print("new folder")
+            os.mkdir(args["plot"]["path"])
+        if args['plot']['only_leaves']:
+            plot_all_tangles(data, probs_leaves, coordinate, save=args["plot"]["path"])
+        else:
+            plot_all_tangles(data, probs_tangles, coordinate_tangles, save=args["plot"]["path"])
+
 
 if __name__ == '__main__':
 
