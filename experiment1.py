@@ -22,31 +22,31 @@ def main_tree(args):
                 args['dataset']['p'] = 0.3
                 args['dataset']['q'] = 0.1
                 args['experiment']['preprocessing_name'] = 'fid_mat'
-                args['preprocessing']['lb_f'] = 0.2
-                args['experiment']['cost_function'] = 'cut'
+                args['preprocessing']['lb_f'] = 0.1
+                args['experiment']['cost_function'] = 'cut_sum'
                 if name == 'two':
-                    args['dataset']['block_sizes'] = [50, 50]
+                    args['dataset']['block_sizes'] = [500, 500]
                 elif name == 'unbalanced':
-                    args['dataset']['block_sizes'] = [70, 30]
+                    args['dataset']['block_sizes'] = [700, 300]
                 elif name == 'three':
-                    args['dataset']['block_sizes'] = [33, 33, 33]
+                    args['dataset']['block_sizes'] = [330, 330, 330]
             elif dataset == 'knn_gauss_blobs':
                 args['experiment']['preprocessing_name'] = 'random_projection'
                 args['experiment']['cost_function'] = 'euclidean'
                 if name == 'two':
-                    args['dataset']['blob_sizes'] = [50, 50]
-                    args['dataset']['blob_centers'] = [[-2, -2], [2, 2]]
+                    args['dataset']['blob_sizes'] = [500, 500]
+                    args['dataset']['blob_centers'] = [[-1.5, -1.5], [1.5, 1.5]]
                     args['dataset']['blob_variances'] = [[1, 1], [1, 1]]
                     args['dataset']['k'] = 10
                 elif name == 'unbalanced':
-                    args['dataset']['blob_sizes'] = [70, 30]
-                    args['dataset']['blob_centers'] = [[-2, -2], [2, 2]]
+                    args['dataset']['blob_sizes'] = [700, 300]
+                    args['dataset']['blob_centers'] = [[-1.5, -1.5], [1.5, 1.5]]
                     args['dataset']['blob_variances'] = [[1, 1], [1, 1]]
                     args['dataset']['k'] = 10
                 elif name == 'three':
-                    args['dataset']['blob_sizes'] = [33, 33, 33]
-                    args['dataset']['blob_centers'] = [[-2, -2], [2, 2], [2, -2]]
-                    args['dataset']['blob_variances'] = [[1, 1], [1, 1], [1, 1]]
+                    args['dataset']['blob_sizes'] = [330, 330, 330]
+                    args['dataset']['blob_centers'] = [[-1, -1], [1, 1], [1, -1]]
+                    args['dataset']['blob_variances'] = [[0.5, 0.5], [0.5, 0.5], [0.5, 0.5]]
                     args['dataset']['k'] = 10
 
             args['preprocessing']['nb_cuts'] = 100
