@@ -408,26 +408,8 @@ def make_benchmark_heatmap(exp_df, ref_df, x_column, y_column, values_column):
 
 def plot_all_tangles(data, probs, coordinate, save=None):
 
-    pos = data["xs"]
-    #pos, _ = get_points_to_plot(data["xs"])
-
-    tangle_labels = np.argmax(probs, axis=0)
-
-    fig, ax = plt.subplots(1, 1, figsize=(5, 5))
-    plt.axis('off')
-    plt.grid(False)
-    fig.patch.set_facecolor('grey')
-    _ = ax.scatter(pos[:, 0],
-                    pos[:, 1],
-                    c=tangle_labels,
-                    cmap="Set2",
-                    s=2)
-
-    if save:
-        plt.savefig(str(save) + "/plot_clustering.png")
-    else:
-        plt.show()
-
+    #pos = data["xs"]
+    pos, _ = get_points_to_plot(data["xs"])
 
 
     if data["ys"].any():
@@ -439,10 +421,10 @@ def plot_all_tangles(data, probs, coordinate, save=None):
                        pos[:, 1],
                        c=data["ys"],
                        cmap="Set2",
-                       s=2)
+                       s=10)
 
     if save:
-        plt.savefig(str(save) + "/plot_gt.png")
+        plt.savefig(str(save) + "/plot_gt.pdf")
     else:
         plt.show()
 
@@ -454,7 +436,7 @@ def plot_all_tangles(data, probs, coordinate, save=None):
 
         col = ax.scatter(pos[:, 0],
                          pos[:, 1],
-                         c=p,
+                         c=np.round(p, 10),
                          cmap="Blues",
                          s=2)
 
@@ -463,6 +445,6 @@ def plot_all_tangles(data, probs, coordinate, save=None):
         plt.colorbar(col, ax=ax)
 
         if save:
-            plt.savefig(str(save) + "/plot_" + str(coordinate[i]) + ".png")
+            plt.savefig(str(save) + "/plot_" + str(coordinate[i]) + ".pdf")
         else:
             plt.show()

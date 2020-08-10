@@ -1,3 +1,4 @@
+import sys
 from copy import deepcopy
 import numpy as np
 import bitarray as ba
@@ -80,10 +81,80 @@ class TangleTreeModel:
     def build_condensed_tree(self):
         print("\t --- Calculating all the splitting tangles")
         self.get_splitting_tangles(self.tree.root)
+        if not self.condensed_tree.root:
+            print("\t --- There are not tangles, just one big cluster!")
         print("\t --- Calculating the set of usefull cuts for every splitting tangle")
         self.define_P_bottom_up()
         print("\t --- Calculating the probabilities for every splitting tangle and every leaf \n")
-        self.calculate_p_top_down()
+        self.calculate_ps()
+        self.propagate_p()
+        #self.calculate_p_top_down()
+
+    def propagate_p(self, node=-1, side=None):
+        if node == -1:
+            node = self.condensed_tree.root
+            node.p = np.ones(self.nb_points)
+        else:
+            if side:
+                node.p = np.multiply(node.parent.p, node.parent.p_right)
+            else:
+                node.p = np.multiply(node.parent.p, node.parent.p_left)
+
+        node.p[node.p < 1e-8] = 0
+
+        self.tangles += [[node.p, node.coordinate, node.condensed_coordinate]]
+
+        np.set_printoptions(threshold=sys.maxsize)
+
+        #print(node.condensed_coordinate, node.p)
+
+        if node.right:
+            self.propagate_p(node.right, True)
+
+        if node.left:
+            self.propagate_p(node.left, False)
+
+        if not node.right and not node.left:
+            self.maximals += [[node.p, node.coordinate, node.condensed_coordinate]]
+
+    def calculate_ps(self, node=-1):
+        if node == -1:
+            node = self.condensed_tree.root
+        self.set_ps(node)
+        if node.left and node.right:
+            self.calculate_ps(node.right)
+            self.calculate_ps(node.left)
+
+    def set_ps(self, node):
+        node.p_right = np.zeros(self.nb_points)
+        node.p_left = np.zeros(self.nb_points)
+
+        if node.left and node.right:
+            relevant = (node.right.P + node.left.P == 1)
+            idx = np.arange(len(self.cuts))[len(node.coordinate):][relevant[len(node.coordinate):]]
+
+            sides = node.right.P[idx]
+
+            normalize = 0
+            for i, s in zip(idx, sides):
+
+                cost = self.weight_function(self.costs[i])
+
+                if s:
+                    node.p_right += self.cuts[i] * cost
+                else:
+                    node.p_right += ~self.cuts[i] * cost
+
+                normalize += cost
+
+            if normalize > 0:
+                node.p_right = node.p_right / normalize
+
+            np.set_printoptions(threshold=sys.maxsize)
+
+            node.p_right[node.p_right < 1e-8] = 0
+
+            node.p_left = 1 - node.p_right
 
     # calculates all splitting tangles
     def get_splitting_tangles(self, node):
@@ -93,67 +164,6 @@ class TangleTreeModel:
                 self.condensed_tree.add(node)
             self.get_splitting_tangles(node.right)
             self.get_splitting_tangles(node.left)
-
-    def calculate_p_top_down(self, node=-1, side=None):
-        if node:
-            if node == -1:
-                self.calculate_p_top_down(self.condensed_tree.root, None)
-                return
-            self.set_p(node, side)
-            self.calculate_p_top_down(node.right, True)
-            self.calculate_p_top_down(node.left, False)
-
-    def set_p(self, node, side=None):
-        if node.left and node.right:
-            node.p_right = np.zeros(self.nb_points)
-            node.p_left = np.zeros(self.nb_points)
-
-            relevant = (node.right.P + node.left.P == 1)
-
-            idx = np.arange(len(self.cuts))[len(node.coordinate):][relevant[len(node.coordinate):]]
-
-            sides = node.right.P[idx]
-
-            normalize = 0
-
-            for i, s in zip(idx, sides):
-                cost = self.weight_function(self.costs[i])
-
-                if s:
-                    node.p_right += self.cuts[i] * cost
-                else:
-                    node.p_right += np.flip(self.cuts[i]) * cost
-
-                normalize += cost
-
-            if normalize > 0:
-                node.p_right = node.p_right / normalize
-
-            if node.parent:
-                if side:
-                    node.p = node.parent.p_right
-                else:
-                    node.p = node.parent.p_left
-            else:
-                node.p = np.ones(len(self.cuts[0]))
-
-            node.p_right = np.multiply(node.p, node.p_right)
-            node.p_left = node.p - node.p_right
-
-            self.tangles += [[node.p, node.coordinate, node.condensed_coordinate]]
-
-        else:
-
-            if node.condensed_coordinate:
-                if side:
-                    node.p = node.parent.p_right
-                else:
-                    node.p = node.parent.p_left
-                self.tangles += [[node.p, node.coordinate, node.condensed_coordinate]]
-                self.maximals += [[node.p, node.condensed_coordinate]]
-            else:
-                Warning("No tangles just one big cluster!")
-                self.tangles += [[None, node.coordinate, node.condensed_coordinate]]
 
     def define_P_bottom_up(self):
         self.set_P(self.condensed_tree.root)
@@ -168,7 +178,7 @@ class TangleTreeModel:
                 node.P = np.array([a if a - b == 0 else -1 for a, b in zip(left_P, right_P)], dtype=int)
             elif not node.left and not node.right:
                 orientation = node.coordinate
-                node.P = np.full(len(self.cuts), -1)
+                node.P = np.full(self.nb_cuts, -1)
                 node.P[:len(orientation)] = np.array(orientation, dtype=int)
             else:
                 Warning("This should not happen!")
@@ -235,7 +245,7 @@ class TangleTreeNode:
                 self.core_cuts = [deepcopy(self.oriented_cut)]
             elif subset(core, self.oriented_cut):
                 self.core = core
-                self.core_cuts = core_cuts
+                self.core_cuts = deepcopy(core_cuts)
             else:
                 self.core = deepcopy(core & self.oriented_cut)
                 delete = []

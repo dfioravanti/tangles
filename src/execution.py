@@ -62,9 +62,10 @@ def compute_cuts(data, args, verbose):
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_RANDOM_PROJECTION:
 
         sets = random_projection_2means(xs=data['xs'],
+                                        dimension=args['preprocessing']['dimension'],
                                         nb_cuts=args['preprocessing']['nb_cuts'],
                                         seed=args['experiment']['seed'])
-        sets = np.unique(sets, axis=0)
+        #sets = np.unique(sets, axis=0)
         cuts['values'] = sets
 
     elif args['experiment']['preprocessing_name'] == PREPROCESSING_TWO_MEANS:

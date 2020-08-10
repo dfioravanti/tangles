@@ -9,6 +9,8 @@ from sklearn.random_projection import GaussianRandomProjection
 #import src.coarsening as coarsening
 from sklearn import random_projection, cluster
 
+import coarsening
+
 
 def linear_cuts(xs, equations, verbose=0):
     
@@ -38,7 +40,8 @@ def two_means(xs, k, seed):
     for c in xs.T:
         seed = np.random.randint(100)
         cut = KMeans(n_clusters=k, random_state=seed).fit(c.reshape(-1, 1)).labels_
-        cuts.append(cut.astype(bool))
+        for i in range(k-1):
+            cuts.append(cut==i)
 
     cuts = np.array(cuts)
 
@@ -217,13 +220,55 @@ def kernighan_lin_algorithm(xs, fraction):
 #
 # ----------------------------------------------------------------------------------------------------------------------
 
-def random_projection_2means(xs, nb_cuts, seed):
+# def orth_proj(p, g):
+#     c = (np.dot(p, g)) / (np.sqrt(g[0] ** 2 + g[1] ** 2) ** 2)
+#     proj_v = c * g
+#     return (proj_v[0], proj_v[1])
+#
+#
+# def calc_orth(xs, s):
+#     proj_vs = np.array((np.zeros(len(xs)), np.zeros(len(xs)))).T
+#     for i in range(len(xs)):
+#         proj_vs[i] = orth_proj(xs[i], s)
+#     return proj_vs
+#
+#
+# def cut_from_slope(xs, s):
+#     print("calculation cuts")
+#     if s[0] == 0:
+#         cut = xs[:, 0] > s[2]
+#         return cut
+#
+#     slope = s[1] / s[0]
+#
+#     cut = xs[:, 1] > xs[:, 0] * slope + s[2]
+#
+#     return cut
+#
+#
+# def random_projection_2means(xs, nb_cuts, seed):
+#     cuts = []
+#     #slope = np.array([(47, 27), (34, 33), (18, 80), (0, 103), (94, 31), (90, 56)])
+#     slopes = np.array([(47, -27, -6), (34, 33, -8.7), (18, 80, -3.8), (0, 103, -1.3), (94, 31, -2.5), (90, -56, 3)])
+#
+#     np.random.seed(seed)
+#     for s in slopes:
+#         seed = np.random.randint(100)
+#         cut = cut_from_slope(xs, s)
+#         #projection = calc_orth(xs, c)
+#         #cut = KMeans(n_clusters=2, random_state=seed).fit(projection).labels_
+#         cuts.append(cut.astype(bool))
+#
+#     cuts = np.array(cuts)
+#     return cuts
+
+def random_projection_2means(xs, dimension, nb_cuts, seed):
     cuts = []
 
     np.random.seed(seed)
     for c in range(nb_cuts):
         seed = np.random.randint(100)
-        projection = GaussianRandomProjection(n_components=1, random_state=seed).fit_transform(xs)
+        projection = GaussianRandomProjection(n_components=dimension, random_state=seed).fit_transform(xs)
         cut = KMeans(n_clusters=2, random_state=seed).fit(projection).labels_
         cuts.append(cut.astype(bool))
 

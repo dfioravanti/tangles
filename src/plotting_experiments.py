@@ -17,9 +17,9 @@ from src.tangle_tree import TangleTreeModel
 
 runs = 20
 
-SMALL_SIZE = 12
-MEDIUM_SIZE = 14
-BIGGER_SIZE = 16
+SMALL_SIZE = 24
+MEDIUM_SIZE = 28
+BIGGER_SIZE = 32
 
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
@@ -30,12 +30,12 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)
 
 # parameter sets that should be same for all
-agreement = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
+agreement = [10, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550]
 psis = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
 algorithms = ['fid_mat', 'random_projection']
 cost_functions = ['euclidean', 'cut', 'euclidean_sum', 'cut_sum']
 nb_cuts = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
-quality = [[0.05, 0.1, 0.2, 0.3], [0.3], [0.2], [0.1], [0.05]]
+quality = [[0.1, 0.2, 0.4], [0.4], [0.2], [0.1]]
 lb_f = np.arange(0.1, 0.5, 0.05)
 
 mycolors = ['blue', 'red', 'lime', 'orange', 'cyan', 'green', 'magenta', 'chocolate', 'deepskyblue', 'purple']
@@ -50,6 +50,23 @@ def sigmoid(cost):
     return 1 / (1 + np.exp(10 * (cost - 0.4)))
 
 
+def plot_distributions(args, name):
+    data, order_function = get_dataset_and_order_function(args)
+
+    pos = data['xs']
+    labels = data['ys']
+
+    fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+    plt.axis('off')
+    plt.grid(False)
+    _ = ax.scatter(pos[:, 0],
+                   pos[:, 1],
+                   c=labels,
+                   cmap="Set2",
+                   s=5)
+    plt.savefig("tmp/plot_gt_{}.pdf".format(name))
+
+
 def plot_ideal_cuts_distribution(args):
     data, order_function = get_dataset_and_order_function(args)
     cuts = []
@@ -59,35 +76,23 @@ def plot_ideal_cuts_distribution(args):
             cut[0:j] = True
             cut[50:k] = True
             cut_cost = order_function(cut)
-            cut_homo = max(metrics.homogeneity_score(data['ys'], cut), metrics.homogeneity_score(cut, data['ys']))
-            cuts.append([cut_cost, cut_homo])
+            cut_complete = metrics.completeness_score(data['ys'], cut)
+            cuts.append([cut_cost, cut_complete])
 
     cuts = np.array(cuts)
 
     data_cost = cuts[:, 0]
-    data_homo = cuts[:, 1]
+    data_complete = cuts[:, 1]
 
-    idx = np.logical_or(data_cost > 0, data_homo > 0)
-
-    data_cost = data_cost[idx]
-    data_homo = data_homo[idx]
-
-    data_cost = data_cost - min(data_cost)
-    data_cost = data_cost / max(data_cost)
-
-    sorted_idx = np.argsort(data_cost)
+    idx = np.logical_or(data_cost > 0, data_complete > 0)
 
     # barplot to show distribution of cuts
-    fig, [ax1, ax2] = plt.subplots(2, 1, figsize=(10, 10))
-    ax1.scatter(data_cost[sorted_idx], data_homo[sorted_idx], alpha=0.2, color=mycolors[0])
-    ax1.set_ylim(-0.01, 1.01)
-    ax1.set_xlabel('scaled cost of the cut')
-    ax1.set_ylabel('homogeneity score of the cut')
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
 
     # hist of the cost distribution
-    ax2.hist(data_cost, alpha=0.5)
-    ax2.set_xlabel('cost of cuts')
-    ax2.set_ylabel('number of cuts')
+    ax.hist(data_complete, alpha=0.5, bins=20)
+    ax.set_xlabel('completeness of cuts')
+    ax.set_ylabel('number of cuts')
 
     plt.tight_layout()
     plt.savefig("output/experiments/preprocessing/plot/ideal_quality_of_initial_cuts-" + args['experiment']['dataset_name'] + '_' + 'two' + '.pdf')
@@ -101,35 +106,22 @@ def plot_ideal_cuts_distribution(args):
             cut[0:j] = True
             cut[70:k] = True
             cut_cost = order_function(cut)
-            cut_homo = max(metrics.homogeneity_score(data['ys'], cut), metrics.homogeneity_score(cut, data['ys']))
-            cuts.append([cut_cost, cut_homo])
+            cut_complete = metrics.completeness_score(data['ys'], cut)
+            cuts.append([cut_cost, cut_complete])
 
     cuts = np.array(cuts)
 
     data_cost = cuts[:, 0]
-    data_homo = cuts[:, 1]
+    data_complete = cuts[:, 1]
 
-    idx = np.logical_or(data_cost > 0, data_homo > 0)
+    idx = np.logical_or(data_cost > 0, data_complete > 0)
 
-    data_cost = data_cost[idx]
-    data_homo = data_homo[idx]
-
-    data_cost = data_cost - min(data_cost)
-    data_cost = data_cost / max(data_cost)
-
-    sorted_idx = np.argsort(data_cost)
-
-    # barplot to show distribution of cuts
-    fig, [ax1, ax2] = plt.subplots(2, 1, figsize=(10, 10))
-    ax1.scatter(data_cost[sorted_idx], data_homo[sorted_idx], alpha=0.2, color=mycolors[0])
-    ax1.set_ylim(-0.01, 1.01)
-    ax1.set_xlabel('scaled cost of the cut')
-    ax1.set_ylabel('homogeneity score of the cut')
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
 
     # hist of the cost distribution
-    ax2.hist(data_cost, alpha=0.5)
-    ax2.set_xlabel('cost of cuts')
-    ax2.set_ylabel('number of cuts')
+    ax.hist(data_complete, alpha=0.5, bins=20)
+    ax.set_xlabel('completeness of cuts')
+    ax.set_ylabel('number of cuts')
 
     plt.tight_layout()
     plt.savefig("output/experiments/preprocessing/plot/ideal_quality_of_initial_cuts-" + args['experiment'][
@@ -146,35 +138,22 @@ def plot_ideal_cuts_distribution(args):
                 cut[33:k] = True
                 cut[66:l] = True
                 cut_cost = order_function(cut)
-                cut_homo = max(metrics.homogeneity_score(data['ys'], cut), metrics.homogeneity_score(cut, data['ys']))
-                cuts.append([cut_cost, cut_homo])
+                cut_complete = metrics.completeness_score(data['ys'], cut)
+                cuts.append([cut_cost, cut_complete])
 
     cuts = np.array(cuts)
 
     data_cost = cuts[:, 0]
-    data_homo = cuts[:, 1]
+    data_complete = cuts[:, 1]
 
-    idx = np.logical_or(data_cost > 0, data_homo > 0)
+    idx = np.logical_or(data_cost > 0, data_complete > 0)
 
-    data_cost = data_cost[idx]
-    data_homo = data_homo[idx]
-
-    data_cost = data_cost - min(data_cost)
-    data_cost = data_cost / max(data_cost)
-
-    sorted_idx = np.argsort(data_cost)
-
-    # barplot to show distribution of cuts
-    fig, [ax1, ax2] = plt.subplots(2, 1, figsize=(10, 10))
-    ax1.scatter(data_cost[sorted_idx], data_homo[sorted_idx], alpha=0.2, color=mycolors[0])
-    ax1.set_ylim(-0.01, 1.01)
-    ax1.set_xlabel('scaled cost of the cut')
-    ax1.set_ylabel('homogeneity score of the cut')
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
 
     # hist of the cost distribution
-    ax2.hist(data_cost, alpha=0.5)
-    ax2.set_xlabel('cost of cuts')
-    ax2.set_ylabel('number of cuts')
+    ax.hist(data_complete, alpha=0.5, bins=20)
+    ax.set_xlabel('completeness of cuts')
+    ax.set_ylabel('number of cuts')
 
     plt.tight_layout()
     plt.savefig("output/experiments/preprocessing/plot/ideal_quality_of_initial_cuts-" + args['experiment'][
@@ -197,7 +176,7 @@ def quality_of_initial_cuts(args, name):
         args['preprocessing']['lb_f'] = lb_f[index_bound]
         cuts = compute_cuts(data, args, verbose=args['verbose'])['values']
         for index_cut, predicted in enumerate(cuts):
-            out[index_bound, index_cut] = max(metrics.homogeneity_score(data['ys'], predicted), metrics.homogeneity_score(predicted, data['ys']))
+            out[index_bound, index_cut] = metrics.completeness_score(data['ys'], predicted)
 
     np.save("output/experiments/preprocessing/quality_of_initial_cuts-" + args['experiment']['dataset_name'] + '_' + name + '.npy', out)
 
@@ -225,7 +204,7 @@ def plot_quality_of_initial_cuts():
             flat_ax[bound_idx].boxplot(d, positions=[i], boxprops=dict(color=mycolors[i]), vert=False)
 
         flat_ax[bound_idx].set_title('lower bound of {}'.format(np.round(bound, 2)))
-        flat_ax[bound_idx].set_xlabel('homogeneity')
+        flat_ax[bound_idx].set_xlabel('completeness')
         ytickNames = plt.setp(flat_ax[bound_idx], yticklabels=data_names)
         plt.setp(ytickNames)
 
@@ -251,7 +230,7 @@ def plot_quality_of_initial_cuts():
         ax.scatter(d, j, color=mycolors[i], alpha=0.1)
         ax.boxplot(d, positions=[i], boxprops=dict(color=mycolors[i]), vert=False)
 
-    ax.set_xlabel('homogeneity')
+    ax.set_xlabel('completeness')
     ax.set_xlim(-0.01, 1.01)
     ytickNames = plt.setp(ax, yticklabels=data_names)
     plt.setp(ytickNames)
@@ -262,6 +241,27 @@ def plot_quality_of_initial_cuts():
     plt.close(fig)
 
 
+def influence_of_a(args, name):
+    out = np.zeros([len(agreement), runs])
+
+    pool = multiprocessing.Pool()
+    for r in range(runs):
+        args['experiment']['seed'] = (r + 1) * 10
+        data, order_function = get_dataset_and_order_function(args)
+        cuts = compute_cuts(data, args, verbose=args['verbose'])
+        all_cuts, all_orders = order_cuts(cuts, order_function)
+        all_cuts, all_orders = pick_cuts_up_to_order(deepcopy(all_cuts), deepcopy(all_orders),
+                                                     percentile=args['experiment']['percentile_orders'])
+
+        vms, _ = zip(*pool.map(partial(run_for_a, all_cuts, all_orders, data), agreement))
+
+        out[:, r] = vms
+
+    pool.close()
+    np.save("output/experiments/presentation/a-" + args['experiment'][
+        'dataset_name'] + '_' + name + '.npy', out)
+
+
 def comparison_of_initial_cuts(args, name):
     out = np.zeros([len(algorithms), args['preprocessing']['nb_cuts'], runs])
 
@@ -270,7 +270,7 @@ def comparison_of_initial_cuts(args, name):
         args['experiment']['preprocessing_name'] = alg
         cuts = compute_cuts(data, args, verbose=args['verbose'])['values']
         for index_cut, predicted in enumerate(cuts):
-            out[index_alg, index_cut] = max(metrics.homogeneity_score(data['ys'], predicted), metrics.homogeneity_score(predicted, data['ys']))
+            out[index_alg, index_cut] = metrics.completeness_score(data['ys'], predicted)
 
     np.save("output/experiments/preprocessing/comparison_of_initial_cuts-" + args['experiment']['dataset_name'] + '_' + name + '.npy', out)
 
@@ -298,7 +298,7 @@ def plot_comparison_of_initial_cuts(name):
         ax1.scatter(d, j, color=mycolors[i], alpha=0.1)
         ax1.boxplot(d, positions=[i],  boxprops=dict(color=mycolors[i]), vert=False)
 
-    ax1.set_xlabel('homogeneity')
+    ax1.set_xlabel('completeness')
     ax1.set_xlim(-0.01, 1.01)
 
     ytickNames = plt.setp(ax1, yticklabels=data_names)
@@ -313,8 +313,7 @@ def choice_of_cost_function(args, name):
     out = np.zeros([len(cost_functions), 2, args['preprocessing']['nb_cuts']])
 
     data, _ = get_dataset_and_order_function(args)
-    cuts = get_exp_cuts(data, args['preprocessing']['nb_cuts'], verbose=args['verbose'])
-    cuts = {'values': np.array(cuts), 'names': None, 'equations': None}
+    cuts = compute_cuts(data, args, verbose=args['verbose'])
 
     for index_cost_fun, cost_fun in enumerate(cost_functions):
         print("Choosing cost function: {}".format(cost_fun))
@@ -322,11 +321,11 @@ def choice_of_cost_function(args, name):
         order_function = resolve_cost_function(cost_fun, data)
         all_cuts, all_orders = order_cuts(cuts, order_function)
 
-        homogeneity = []
+        completeness = []
         for c in all_cuts['values']:
-            homogeneity.append(max(metrics.homogeneity_score(data['ys'], c), metrics.homogeneity_score(c, data['ys'])))
+            completeness.append(metrics.completeness_score(data['ys'], c))
 
-        out[index_cost_fun, 0, :] = homogeneity
+        out[index_cost_fun, 0, :] = completeness
         out[index_cost_fun, 1, :] = all_orders
 
     np.save("output/experiments/tangles/cost_function-" + args['experiment']['dataset_name'] + '_' + name + '.npy', out)
@@ -335,35 +334,36 @@ def choice_of_cost_function(args, name):
 def plot_choice_of_cost_function(dataset):
 
     if dataset == 'sbm':
-        cost_funs = [1, 3]
+        cost_funs = [3]
     else:
-        cost_funs = [0, 2]
+        cost_funs = [0]
+
     data_sbm_two = np.load("output/experiments/tangles/cost_function-" + dataset + '_' + 'two' + '.npy')
     data_sbm_unbalanced = np.load("output/experiments/tangles/cost_function-" + dataset + '_' + 'unbalanced' + '.npy')
     data_sbm_three = np.load("output/experiments/tangles/cost_function-" + dataset + '_' + 'three' + '.npy')
 
-    fig, ax = plt.subplots(1, 2, figsize=(20, 10), sharey='all')
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10), sharey='all')
 
     for idx_axis, idx_cost_fun in enumerate(cost_funs):
         cost_data_three = data_sbm_three[idx_cost_fun, 1]
         cost_data_three = cost_data_three - min(cost_data_three)
         cost_data_three = cost_data_three / max(cost_data_three)
-        ax[idx_axis].scatter(cost_data_three, data_sbm_three[idx_cost_fun, 0], color=mycolors[1], marker=mymarkers[1], alpha=0.4, label='three')
+        ax.scatter(cost_data_three, data_sbm_three[idx_cost_fun, 0], color=mycolors[1], marker=mymarkers[1], alpha=0.4, label='three')
         cost_data_two = data_sbm_two[idx_cost_fun, 1]
         cost_data_two = cost_data_two - min(cost_data_two)
         cost_data_two = cost_data_two / max(cost_data_two)
-        ax[idx_axis].scatter(cost_data_two, data_sbm_two[idx_cost_fun, 0], color=mycolors[0], marker=mymarkers[0], alpha=0.4, label='two')
+        ax.scatter(cost_data_two, data_sbm_two[idx_cost_fun, 0], color=mycolors[0], marker=mymarkers[0], alpha=0.4, label='two')
         cost_data_unbalanced = data_sbm_unbalanced[idx_cost_fun, 1]
         cost_data_unbalanced = cost_data_unbalanced - min(cost_data_unbalanced)
         cost_data_unbalanced = cost_data_unbalanced / max(cost_data_unbalanced)
-        ax[idx_axis].scatter(cost_data_unbalanced, data_sbm_two[idx_cost_fun, 0], color=mycolors[2], marker=mymarkers[2],
+        ax.scatter(cost_data_unbalanced, data_sbm_two[idx_cost_fun, 0], color=mycolors[2], marker=mymarkers[2],
                              alpha=0.4, label='unbalanced')
-        ax[idx_axis].set_xlabel('normalized cost')
-        ax[idx_axis].set_title(cost_functions[idx_cost_fun])
+        ax.set_xlabel('normalized cost')
+        ax.set_title(cost_functions[idx_cost_fun])
 
-    ax[0].set_ylim(-0.01, 1.01)
-    ax[1].legend()
-    ax[0].set_ylabel('homogeneity')
+    ax.set_ylim(-0.01, 1.01)
+    ax.legend()
+    ax.set_ylabel('completeness')
 
     plt.tight_layout()
     plt.savefig('output/experiments/tangles/plot/cost_fun-' + dataset + '.pdf')
@@ -377,9 +377,10 @@ def choice_of_a(args, name):
     for r in range(runs):
         args['experiment']['seed'] = (r+1) * 10
         data, order_function = get_dataset_and_order_function(args)
-        cuts = get_exp_cuts(data, args['preprocessing']['nb_cuts'], verbose=args['verbose'])
-        cuts = {'values': np.array(cuts), 'names': None, 'equations': None}
+        cuts = compute_cuts(data, args, verbose=args['verbose'])
         all_cuts, all_orders = order_cuts(cuts, order_function)
+        all_cuts, all_orders = pick_cuts_up_to_order(deepcopy(all_cuts), deepcopy(all_orders),
+                                                     percentile=args['experiment']['percentile_orders'])
 
         vms, _ = zip(*pool.map(partial(run_for_a, all_cuts, all_orders, data), agreement))
 
@@ -400,12 +401,12 @@ def run_for_a(all_cuts, all_orders, data, a):
         tangle_labels = np.argmax(probs_leaves, axis=0)
 
         vms_tangles = v_measure_score(data["ys"], tangle_labels)
-        homo_tangle = metrics.homogeneity_score(data["ys"], tangle_labels)
+        complete_tangle = metrics.completeness_score(data["ys"], tangle_labels)
     else:
-        homo_tangle = 0
+        complete_tangle = 0
         vms_tangles = 0
 
-    return vms_tangles, homo_tangle
+    return vms_tangles, complete_tangle
 
 
 def plot_choice_of_a():
@@ -572,12 +573,12 @@ def influence_of_cut_quality(args, name):
         args['experiment']['seed'] = seed
         data, order_function = get_dataset_and_order_function(args)
 
-        vms_tangles, homo_tangles, homogeneity_mean, homogeneity_std = zip(*pool.map(partial(run_for_quali, data, order_function, args), quality))
+        vms_tangles, complete_tangles, completeness_mean, completeness_std = zip(*pool.map(partial(run_for_quali, data, order_function, args), quality))
 
         out[:, 0, r] = vms_tangles
-        out[:, 1, r] = homo_tangles
-        out[:, 2, r] = homogeneity_mean
-        out[:, 3, r] = homogeneity_std
+        out[:, 1, r] = complete_tangles
+        out[:, 2, r] = completeness_mean
+        out[:, 3, r] = completeness_std
 
     pool.close()
     np.save("output/experiments/tangles/cut_quality-" + args['experiment']['dataset_name'] + '-' + name + '.npy', out)
@@ -588,17 +589,14 @@ def run_for_quali(data, order_function, args, quali):
     classes = np.unique(data['ys'])
     nb_classes = len(classes)
     cut_values = []
-    homogeneity = []
+    completeness = []
     for c in range(args['preprocessing']['nb_cuts']):
         cut_tmp = get_cuts_of_quality(data, quality=np.random.choice(quali), seed=(c+1) * 10)
         cut_values.append(cut_tmp)
-        homogeneity.append(max(metrics.homogeneity_score(data['ys'], cut_tmp),
-                              metrics.homogeneity_score(cut_tmp, data['ys'])))
+        completeness.append(metrics.completeness_score(data['ys'], cut_tmp))
 
     cuts = {'values': np.array(cut_values), 'names': None, 'equations': None}
-    cuts, orders = order_cuts(cuts, order_function)
-    all_cuts, all_orders = pick_cuts_up_to_order(deepcopy(cuts), deepcopy(orders),
-                                                 percentile=args['experiment']['percentile_orders'])
+    all_cuts, all_orders = order_cuts(cuts, order_function)
     model = TangleTreeModel(agreement=args["experiment"]["agreement"], cuts=all_cuts["values"], costs=all_orders,
                             weight_fun=sigmoid)
 
@@ -609,21 +607,20 @@ def run_for_quali(data, order_function, args, quali):
         tangle_labels = np.argmax(probs_leaves, axis=0)
 
         vms_tangles = v_measure_score(data["ys"], tangle_labels)
-        homo_tangle = metrics.homogeneity_score(data['ys'], tangle_labels)
+        complete_tangle = metrics.completeness_score(data['ys'], tangle_labels)
     else:
-        homo_tangle = 0
+        complete_tangle = 0
         vms_tangles = 0
 
-    scatter_homo = np.array([max(metrics.homogeneity_score(data['ys'], c),
-                           metrics.homogeneity_score(c, data['ys'])) for c in all_cuts['values']])
+    scatter_complete = np.array([metrics.completeness_score(data['ys'], c) for c in all_cuts['values']])
 
     plt.figure()
-    plt.scatter(all_orders, scatter_homo)
-    plt.title('HOMOGENEITY - mean cuts: {}, tangle: {}'.format(np.array(homogeneity).mean(), vms_tangles))
+    plt.scatter(all_orders, scatter_complete)
+    plt.title('completeness - mean cuts: {}, tangle: {}'.format(np.array(completeness).mean(), vms_tangles))
     plt.savefig('quali_{}.pdf'.format(quali))
     plt.close()
 
-    return vms_tangles, homo_tangle, np.array(homogeneity).mean(), np.array(homogeneity).std()
+    return vms_tangles, complete_tangle, np.array(completeness).mean(), np.array(completeness).std()
 
 
 def plot_influence_of_cut_quality(dataset, name):
@@ -633,17 +630,17 @@ def plot_influence_of_cut_quality(dataset, name):
 
     ax.errorbar(data[0, 2, :].mean(), data[0, 0, :].mean(), xerr=data[0, 2, :].std(), yerr=data[0, 0, :].std(),
                 label='flipped {} of the nodes'.format(quality[0]), color=mycolors[0], marker=mymarkers[0])
-    #ax.errorbar(data[1, 2, :].mean(), data[1, 0, :].mean(), xerr=data[1, 2, :].std(), yerr=data[1, 0, :].std(),
-    #            label='flipped {} of the nodes'.format(quality[1]), color=mycolors[1], marker=mymarkers[1])
+    ax.errorbar(data[1, 2, :].mean(), data[1, 0, :].mean(), xerr=data[1, 2, :].std(), yerr=data[1, 0, :].std(),
+                label='flipped {} of the nodes'.format(quality[1]), color=mycolors[1], marker=mymarkers[1])
     ax.errorbar(data[2, 2, :].mean(), data[2, 0, :].mean(), xerr=data[2, 2, :].std(), yerr=data[2, 0, :].std(),
                 label='flipped {} of the nodes'.format(quality[2]), color=mycolors[2], marker=mymarkers[2])
-    #ax.errorbar(data[3, 2, :].mean(), data[3, 0, :].mean(), xerr=data[3, 2, :].std(), yerr=data[3, 0, :].std(),
-    #            label='flipped {} of the nodes'.format(quality[3]), color=mycolors[3], marker=mymarkers[3])
-    ax.errorbar(data[4, 2, :].mean(), data[3, 0, :].mean(), xerr=data[4, 2, :].std(), yerr=data[4, 0, :].std(),
-                label='flipped {} of the nodes'.format(quality[4]), color=mycolors[4], marker=mymarkers[4])
+    ax.errorbar(data[3, 2, :].mean(), data[3, 0, :].mean(), xerr=data[3, 2, :].std(), yerr=data[3, 0, :].std(),
+                label='flipped {} of the nodes'.format(quality[3]), color=mycolors[3], marker=mymarkers[3])
+    #ax.errorbar(data[4, 2, :].mean(), data[3, 0, :].mean(), xerr=data[4, 2, :].std(), yerr=data[4, 0, :].std(),
+    #            label='flipped {} of the nodes'.format(quality[4]), color=mycolors[4], marker=mymarkers[4])
 
-    ax.set_xlabel('mean homogeneity of cuts')
-    ax.set_ylabel('homogeneity of clustering')
+    ax.set_xlabel('mean completeness of cuts')
+    ax.set_ylabel('completeness of clustering')
     ax.set_ylim(-0.01, 1.01)
     ax.set_xlim(-0.01, 1.01)
     ax.legend()
@@ -660,8 +657,9 @@ def choice_of_psi(args, name):
     for r in range(runs):
         args['experiment']['seed'] = (r+1) * 10
         data, order_function = get_dataset_and_order_function(args)
-        cuts = get_exp_cuts(data, args['preprocessing']['nb_cuts'], verbose=args['verbose'])
-        cuts = {'values': np.array(cuts), 'names': None, 'equations': None}
+        cuts = compute_cuts(data, args, verbose=args['verbose'])
+        #cuts = get_exp_cuts(data, args['preprocessing']['nb_cuts'], verbose=args['verbose'], seed=r)
+        #cuts = {'values': np.array(cuts), 'names': None, 'equations': None}
         all_cuts, all_orders = order_cuts(cuts, order_function)
 
         out[:, r], _ = zip(*pool.map(partial(run_for_psi, all_cuts, all_orders, args, data), psis))
@@ -671,10 +669,10 @@ def choice_of_psi(args, name):
 
 
 def run_for_psi(cuts, orders, args, data, psi):
-    all_cuts, all_orders = pick_cuts_up_to_order(cuts, orders, percentile=psi)
+    all_cuts, all_orders = pick_cuts_up_to_order(deepcopy(cuts), orders, percentile=psi)
     if len(all_cuts['values']) == 0:
         vms_tangles = 0
-        homo_tangle = 0
+        complete_tangle = 0
     else:
         model = TangleTreeModel(agreement=args["experiment"]["agreement"], cuts=all_cuts["values"], costs=all_orders,
                                 weight_fun=sigmoid)
@@ -685,12 +683,12 @@ def run_for_psi(cuts, orders, args, data, psi):
             tangle_labels = np.argmax(probs_leaves, axis=0)
 
             vms_tangles = v_measure_score(data["ys"], tangle_labels)
-            homo_tangle = metrics.homogeneity_score(data["ys"], tangle_labels)
+            complete_tangle = metrics.completeness_score(data["ys"], tangle_labels)
         else:
-            homo_tangle = 0
+            complete_tangle = 0
             vms_tangles = 0
 
-    return vms_tangles, homo_tangle
+    return vms_tangles, complete_tangle
 
 
 def plot_choice_of_psi():
@@ -772,10 +770,10 @@ def plot_interplay_cut_quality_and_a(dataset, name):
 
     fig, ax = plt.subplots(figsize=(10, 10))
 
-    for q_index, q in enumerate(quality[::2]):
+    for q_index, q in enumerate(quality):
 
-        mean = data[:, q_index*2, 0, :].mean(axis=1)
-        std = data[:, q_index*2, 0, :].std(axis=1)
+        mean = data[:, q_index, 0, :].mean(axis=1)
+        std = data[:, q_index, 0, :].std(axis=1)
         ax.plot(agreement, mean, color=mycolors[q_index], label='flipped {} the points'.format(q), marker=mymarkers[q_index])
         ax.fill_between(agreement, mean+std, mean-std, facecolor=mycolors[q_index], alpha=0.3)
 
@@ -830,14 +828,16 @@ def plot_interplay_cut_quality_and_psi(dataset, name):
 
 
 def interplay_a_and_psi(args, name):
+    agreement = [50, 100, 250, 500]
     out = np.zeros([len(agreement), len(psis), runs])
 
     pool = multiprocessing.Pool()
     for r in range(runs):
         args['experiment']['seed'] = (r + 1) * 10
         data, order_function = get_dataset_and_order_function(args)
-        cuts = get_exp_cuts(data, args['preprocessing']['nb_cuts'], verbose=args['verbose'])
-        cuts = {'values': np.array(cuts), 'names': None, 'equations': None}
+        #cuts = get_uniform_cuts(data, args['preprocessing']['nb_cuts'], verbose=args['verbose'], seed=args['experiment']['seed'])
+        cuts = compute_cuts(data, args, verbose=args['verbose'])
+        #cuts = {'values': np.array(cuts), 'names': None, 'equations': None}
         cuts, orders = order_cuts(cuts, order_function)
         for index_psi, psi in enumerate(psis):
             all_cuts, all_orders = pick_cuts_up_to_order(deepcopy(cuts), deepcopy(orders), percentile=psi)
@@ -850,14 +850,15 @@ def interplay_a_and_psi(args, name):
 
 
 def plot_interplay_a_and_psi(dataset, name):
+    agreement = [50, 100, 250, 500]
     data = np.load("output/experiments/interplay/a_and_psi-" + dataset + '_' + name + '.npy')
 
     fig, ax = plt.subplots(figsize=(10, 10))
-    for a_index, a in enumerate(agreement[::3]):
+    for a_index, a in enumerate(agreement):
 
-        mean = data[a_index*3, :, :].mean(axis=1)
-        std = data[a_index*3, :, :].std(axis=1)
-        ax.plot(psis, mean, color=mycolors[a_index], label='agreement: {}'.format(agreement[a_index*2]), marker=mymarkers[a_index])
+        mean = data[a_index, :, :].mean(axis=1)
+        std = data[a_index, :, :].std(axis=1)
+        ax.plot(psis, mean, color=mycolors[a_index], label='agreement: {}'.format(agreement[a_index]), marker=mymarkers[a_index])
         ax.fill_between(psis, mean+std, mean-std, facecolor=mycolors[a_index], alpha=0.3)
 
     ax.set_ylim(-0.01, 1.01)
@@ -883,14 +884,18 @@ def evaluate_all(args, r):
 
     args['experiment']['seed'] = (r + 1) * 10
     data, order_function = get_dataset_and_order_function(args)
-    cuts = get_exp_cuts(data, args['preprocessing']['nb_cuts'], verbose=args['verbose'])
-    cuts = {'values': np.array(cuts), 'names': None, 'equations': None}
+    cuts = compute_cuts(data, args, verbose=args['verbose'])
+    #cuts = get_exp_cuts(data, args['preprocessing']['nb_cuts'], verbose=args['verbose'], seed=args['experiment']['seed'])
+    #cuts = {'values': np.array(cuts), 'names': None, 'equations': None}
     all_cuts, all_orders = order_cuts(cuts, order_function)
+    all_cuts, all_orders = pick_cuts_up_to_order(deepcopy(all_cuts), deepcopy(all_orders),
+                                                 percentile=args['experiment']['percentile_orders'])
+
     model = TangleTreeModel(agreement=args['experiment']['agreement'], cuts=all_cuts["values"], costs=all_orders,
                             weight_fun=sigmoid)
 
     vms_tree = 0
-    homo_tree = 0
+    complete_tree = 0
     for p in np.arange(5, 101, 5):
         cuts, orders = pick_cuts_up_to_order(deepcopy(all_cuts), deepcopy(all_orders), p)
         if len(cuts['values']) == 0:
@@ -905,9 +910,9 @@ def evaluate_all(args, r):
             tangle_labels = np.argmax(probs_leaves, axis=0)
 
             vms_tree = max(vms_tree, v_measure_score(data["ys"], tangle_labels))
-            homo_tree = max(homo_tree, metrics.homogeneity_score(data["ys"], tangle_labels))
+            complete_tree = max(complete_tree, metrics.completeness_score(data["ys"], tangle_labels))
 
-    return vms_tree, homo_tree
+    return vms_tree, complete_tree
 
 
 def plot_psi_tree():
@@ -981,7 +986,7 @@ def plot_psi_tree():
     plt.close(fig)
 
 
-def get_uniform_cuts(data, nb_cuts, verbose):
+def get_uniform_cuts(data, nb_cuts, verbose, seed):
     cut_values = []
     if verbose > 2:
         print('calculating {} cuts'.format(nb_cuts))
@@ -990,12 +995,12 @@ def get_uniform_cuts(data, nb_cuts, verbose):
             print('cut {}/{}'.format(c+1, nb_cuts))
         lamb = 5
         q = -np.log(1 - np.exp(-lamb) * np.random.uniform(0, 0.5)) / lamb
-        cut_values.append(get_cuts_of_quality(data, q))
+        cut_values.append(get_cuts_of_quality(data, q, seed))
 
     return cut_values
 
 
-def get_exp_cuts(data, nb_cuts, verbose):
+def get_exp_cuts(data, nb_cuts, verbose, seed):
     cut_values = []
     if verbose > 2:
         print('calculating {} cuts'.format(nb_cuts))
@@ -1004,8 +1009,8 @@ def get_exp_cuts(data, nb_cuts, verbose):
             print('cut {}/{}'.format(c+1, nb_cuts))
 
         my_exp = lambda x:  (np.log(x + 0.1) + 2.25) / 4.75
-        q = my_exp(np.random.uniform(0, 1))
-        cut_values.append(get_cuts_of_quality(data, q))
+        q = max(0, my_exp(np.random.uniform(0, 1)))
+        cut_values.append(get_cuts_of_quality(data, q, c*seed))
 
     return cut_values
 
@@ -1024,7 +1029,10 @@ def get_cuts_of_quality(data, quality, seed):
     arg_one = np.argmin([sum(cut_tmp), sum(~cut_tmp)])
     if int(quality * size_one) == 0:
         return cut_tmp
-    k_size = np.random.randint(0, min(size_one, int(quality*nb_nodes)))
+    try:
+        k_size = np.random.randint(0, min(size_one, int(quality*nb_nodes)))
+    except:
+        print("Something went wrong, {} is smaller 0? \nsize_one: {} \nquality: {}".format(min(size_one, int(quality*nb_nodes)), size_one, quality))
     j_size = int(nb_nodes * quality) - k_size
     if arg_one:
         k_idx = np.random.choice(np.arange(nb_nodes)[~cut_tmp], k_size, replace=False)

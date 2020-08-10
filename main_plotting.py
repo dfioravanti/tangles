@@ -24,9 +24,9 @@ from src.plotting import get_position, plot_all_tangles
 from src.tangle_tree import TangleTreeModel
 from src.utils import get_points_to_plot, get_positions_from_labels
 
-SMALL_SIZE = 12
-MEDIUM_SIZE = 14
-BIGGER_SIZE = 16
+SMALL_SIZE = 20
+MEDIUM_SIZE = 25
+BIGGER_SIZE = 30
 
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
@@ -95,9 +95,7 @@ def main_tree(args):
                     "Streptococcus unclassified",
                     "Streptococcus unclassified C<0.8"]
 
-    nb_clusters = len(np.unique(data["ys"]))
-
-    fig, ax = plt.subplots(1, 1, figsize=(30, 7.5))
+    fig, ax = plt.subplots(1, 1, figsize=(30, 15))
     for i, d in enumerate(data['xs'].T):
         ax.scatter(np.random.normal(i, 0.04, size=len(d)), d, alpha=0.1)
         ax.boxplot(d, positions=[i], showfliers=False, )
@@ -107,7 +105,7 @@ def main_tree(args):
     plt.setp(xtickNames)
     plt.xticks(rotation=90)
     plt.tight_layout()
-    plt.savefig('output/microbiome_raw.png')
+    plt.savefig('output/microbiome_raw.pdf')
 
     return True
 

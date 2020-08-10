@@ -1,14 +1,16 @@
-# build an epsilon graph and fid_mat
+# use cuts and 2means on every feature to binarize (distinguish between high and low, nothing else)
 # allowed types: single, batch
+
 experiment:
   seed: 42
-  dataset_name: knn_gauss_blobs
-  preprocessing_name: random_projection
-  cost_function: euclidean_sum
-  agreement: 200
-  percentile_orders: 50
+  dataset_name: cancer10
+  preprocessing_name: bin_lik
+  cost_function: implicit
+  agreement: 100
+  percentile_orders: 80
 
 dataset:
+
   moons:
     n_samples: 300
     noise: 0.1
@@ -36,10 +38,10 @@ dataset:
     radius: 2
 
   knn_gauss_blobs:
-    blob_sizes: [500, 300, 300]
-    blob_centers: [[-4, 0], [4, 3], [4, -3]]
-    blob_variances: [[1, 2], [0.8, 1], [1.5, 0.8]]
-    k: 50
+    blob_sizes: [100, 100]
+    blob_centers: [[-2, -2], [2, 2]]
+    blob_variances: [[1, 1], [1, 1]]
+    k: 20
 
   mindsets:
     mindset_sizes: [100, 50, 50]
@@ -73,16 +75,17 @@ dataset:
 
   microbiome:
     path: datasets/microbiome.csv
-    k: 10
-    use_cuts: False
+    k: False
+    use_cuts: True
     dual: False
 
 preprocessing:
+
   kmeans:
     k: 2
 
   random_projection:
-    nb_cuts: 10
+    nb_cuts: 100
 
   linear:
     equations: [[1, 0, 0.5],
@@ -95,8 +98,8 @@ preprocessing:
                 [0, 1, 1]]
 
   bin_lik:
-    n_bins: 3
-    range_answers: [0, 3]
+    n_bins: 10
+    range_answers: [0, 10]
 
   karnig_lin:
     nb_cuts: 50
@@ -107,8 +110,8 @@ preprocessing:
     n_max: 20
 
   fid_mat:
-    nb_cuts: 20
-    lb_f: 0.3
+    nb_cuts: 50
+    lb_f: 0.1
 
 # -1 in nb_cuts means all
 plot:
@@ -126,4 +129,4 @@ plot:
 # 1: Only batch info
 # 2: All but cuts finding infos
 # 3: All
-verbose: 3
+verbose: 2

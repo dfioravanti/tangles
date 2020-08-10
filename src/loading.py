@@ -42,6 +42,8 @@ def resolve_cost_function(cost_fun, data, nb_samples=None):
         return partial(cut_order, data['A'])
     elif cost_fun == COST_FUNCTION_CUT_SUM:
         return partial(cut_sum_order, data['A'])
+    elif cost_fun == COST_FUNCTION_IMPLICIT:
+        return partial(implicit_order, data['xs'], nb_samples)
 
 
 
