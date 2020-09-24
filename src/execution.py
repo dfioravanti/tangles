@@ -6,14 +6,17 @@ import pandas as pd
 from sklearn.datasets import make_moons, make_blobs
 from sklearn.metrics import adjusted_rand_score
 
-from src.types import Dataset, CutFinding, Data, Cuts, Preprocessing, CostFunction
-from src.cut_finding import find_kmodes_cuts, kernighan_lin, fid_mat, binning, linear_cuts
+from src.my_types import Dataset, CutFinding, Data, Bipartitions, Preprocessing, CostFunction
+from src.cut_finding import kernighan_lin, fid_mat, binning, linear_cuts, random_projection_2means
 from src.loading import make_mindsets, make_likert_questionnaire, load_RETINAL, load_CANCER, load_SBM, load_LFR
 from src.plotting import plot_cuts
+from src.preprocessing import calculate_knn_graph, calculate_radius_graph, calculate_weighted_knn_graph
 from src.tangles import core_algorithm
-from src.tree_tangles import TangleTree, compute_soft_predictions_children, compute_hard_predictions_node
+from src.tree_tangles import TangleTree, compute_soft_predictions_children
 from src.utils import change_lower, change_upper, normalize
-from src.cost_functions import edges_cut_cost, implicit_cost
+from src.cost_functions import edges_cut_cost, mean_euclidean_distance, euclidean_distance, \
+    manhattan_distance, mean_manhattan_distance, mean_edges_cut_cost
+import time
 
 
 def get_dataset(args):
@@ -73,7 +76,7 @@ def get_dataset(args):
         return Data(xs=xs, ys=ys)
 
     if args['experiment']['dataset'] == Dataset.breast_cancer_wisconsin:
-        xs, ys = load_CANCER(args['dataset']['nb_bins'])
+        xs, ys = load_CANCER()
 
         return Data(xs=xs, ys=ys)
 
@@ -86,10 +89,10 @@ def get_dataset(args):
         return Data(ys=ys, A=A, G=G)
 
     if args['experiment']['dataset'] == Dataset.gaussian_mixture:
-        xs, ys = make_blobs(n_samples=args['dataset']['blob_sizes'],
-                            centers=args['dataset']['blob_centers'],
-                            n_features=args['dataset']['blob_centers'],
-                            cluster_std=args['dataset']['blob_variances'],
+        xs, ys = make_blobs(n_samples=args['dataset']['sizes'],
+                            centers=args['dataset']['centers'],
+                            n_features=len(args['dataset']['centers']),
+                            cluster_std=args['dataset']['variances'],
                             random_state=args['experiment']['seed'])
 
         return Data(xs=xs, ys=ys)
@@ -115,7 +118,7 @@ def get_dataset(args):
     raise ValueError('Wrong name for a dataset')
 
 
-def get_cuts(data, args, verbose):
+def find_bipartitions(data, args, verbose):
     """
     Given a set of points or an adjacency matrix this function returns the set of cuts that we will use
     to compute tangles. If it makes sense it computes the names and equations of the cuts for better interpretability
@@ -132,21 +135,20 @@ def get_cuts(data, args, verbose):
 
     Returns
     -------
-    cuts: Cuts
+    cuts: Bipartitions
         the cuts that we will use
     """
 
     if args['experiment']['cut_finding'] == CutFinding.features:
 
         values = (data.xs == True).T
-        return Cuts(values=values)
+        return Bipartitions(values=values)
 
     if args['experiment']['cut_finding'] == CutFinding.binning:
 
         values, names = binning(xs=data.xs,
-                                range_answers=args['cut_finding']['range_answers'],
                                 n_bins=args['cut_finding']['n_bins'])
-        return Cuts(values=values, names=names)
+        return Bipartitions(values=values, names=names)
 
     if args['experiment']['cut_finding'] == CutFinding.Kernighan_Lin:
 
@@ -154,16 +156,17 @@ def get_cuts(data, args, verbose):
                                nb_cuts=args['cut_finding']['nb_cuts'],
                                lb_f=args['cut_finding']['lb_f'],
                                seed=args['experiment']['seed'],
-                               verbose=verbose)
+                               verbose=verbose,
+                               early_stopping=args['cut_finding']['early_stopping'])
         values = np.unique(values, axis=0)
-        return Cuts(values=values)
+        return Bipartitions(values=values)
 
-    if args['experiment']['cut_finding'] == CutFinding.kmodes:
-
-        values = find_kmodes_cuts(xs=data.xs,
-                                  max_nb_clusters=args['cut_finding']['max_nb_clusters'])
-        values = np.unique(values, axis=0)
-        return Cuts(values=values)
+    # if args['experiment']['cut_finding'] == CutFinding.kmodes:
+    #
+    #     values = find_kmodes_cuts(xs=data.xs,
+    #                               max_nb_clusters=args['cut_finding']['max_nb_clusters'])
+    #     values = np.unique(values, axis=0)
+    #     return Cuts(values=values)
 
     if args['experiment']['cut_finding'] == CutFinding.Fiduccia_Mattheyses:
 
@@ -171,9 +174,10 @@ def get_cuts(data, args, verbose):
                          nb_cuts=args['cut_finding']['nb_cuts'],
                          lb_f=args['cut_finding']['lb_f'],
                          seed=args['experiment']['seed'],
-                         verbose=verbose)
+                         verbose=verbose,
+                         early_stopping=args['cut_finding']['early_stopping'])
         values = np.unique(values, axis=0)
-        return Cuts(values=values)
+        return Bipartitions(values=values)
 
     if args['experiment']['cut_finding'] == CutFinding.linear:
 
@@ -181,7 +185,16 @@ def get_cuts(data, args, verbose):
                                         equations=args['cut_finding']['equations'],
                                         verbose=verbose)
 
-        return Cuts(values=values, equations=equations)
+        return Bipartitions(values=values, equations=equations)
+
+    if args['experiment']['cut_finding'] == CutFinding.random_projection:
+
+        values = random_projection_2means(xs=data.xs,
+                                          dimension=args['cut_finding']['dimension'],
+                                          nb_cuts=args['cut_finding']['nb_cuts'],
+                                          seed=args['experiment']['seed'])
+
+        return Bipartitions(values=values)
 
     raise ValueError('Wrong name for a cut finding function')
 
@@ -191,89 +204,113 @@ def apply_preprocess(data, args):
     if args['experiment']['preprocessing'] == Preprocessing.none:
         return data
 
-    if args['experiment']['preprocessing'] == Preprocessing.feature_map:
-        raise NotImplementedError('TODO')
-
     if args['experiment']['preprocessing'] == Preprocessing.knn_graph:
-        raise NotImplementedError('TODO')
+        return calculate_knn_graph(data, args['preprocessing']['k'])
 
     if args['experiment']['preprocessing'] == Preprocessing.radius_neighbors_graph:
-        raise NotImplementedError('TODO')
+        return calculate_radius_graph(data, args['preprocessing']['radius'])
+
+    if args['experiment']['preprocessing'] == Preprocessing.weighted_knn_graph:
+        return calculate_weighted_knn_graph(data, args['preprocessing']['k'])
 
     raise ValueError('Wrong name for a preprocessing function')
 
 
 def get_cost_function(data, args):
 
-    if args['experiment']['cost_function'] == CostFunction.implicit:
+    if args['experiment']['cost_function'] == CostFunction.euclidean:
         if data.xs is None:
-            raise ValueError('You need xs to compute the implicit cost function')
+            raise ValueError('You need xs to compute the euclidean cost function')
 
-        return partial(implicit_cost, data.xs, args['cost_function']['nb_points'])
+        return partial(euclidean_distance, data.xs, None)
 
-    if args['experiment']['cost_function'] == CostFunction.nb_edges_cut:
+    if args['experiment']['cost_function'] == CostFunction.mean_euclidean:
+        if data.xs is None:
+            raise ValueError('You need xs to compute the euclidean cost function')
+
+        return partial(mean_euclidean_distance, data.xs, None)
+
+    if args['experiment']['cost_function'] == CostFunction.manhattan:
+        if data.xs is None:
+            raise ValueError('You need xs to compute the manhattan cost function')
+
+        return partial(manhattan_distance, data.xs, None)
+
+    if args['experiment']['cost_function'] == CostFunction.mean_manhattan:
+        if data.xs is None:
+            raise ValueError('You need xs to compute the manhattan cost function')
+
+        return partial(mean_manhattan_distance, data.xs, None)
+
+    if args['experiment']['cost_function'] == CostFunction.cut:
         if data.A is None:
-            raise ValueError('You need A to compute the edge cost')
+            raise ValueError('You need a graph to compute the edge cost')
 
         return partial(edges_cut_cost, data.A)
+
+    if args['experiment']['cost_function'] == CostFunction.mean_cut:
+        if data.A is None:
+            raise ValueError('You need a graph to compute the edge cost')
+
+        return partial(mean_edges_cut_cost, data.A)
 
     raise ValueError('Wrong name for a cost function')
 
 
-def compute_cost_and_order_cuts(cuts, cost_function):
+def compute_cost_and_order_cuts(bipartitions, cost_function):
     """
     Compute the cost of a series of cuts and costs them according to their cost
 
     Parameters
     ----------
-    cuts: Cuts
+    cuts: Bipartitions
         the cuts that we will consider
     cost_function: function
         The order function
 
     Returns
     -------
-    cuts: Cuts
+    cuts: Bipartitions
         the cuts ordered by costs
     """
 
-    cost_cuts = np.zeros(len(cuts.values), dtype=float)
-    for i_cut, cut in enumerate(cuts.values):
-        cost_cuts[i_cut] = cost_function(cut)
-    idx = np.argsort(cost_cuts)
+    cost_bipartitions = np.zeros(len(bipartitions.values), dtype=float)
+    for i_cut, cut in enumerate(bipartitions.values):
+        cost_bipartitions[i_cut] = cost_function(cut)
+    idx = np.argsort(cost_bipartitions)
 
-    cuts.values = cuts.values[idx]
-    cuts.costs = cost_cuts[idx]
-    if cuts.names is not None:
-        cuts.names = cuts.names[idx]
-    if cuts.equations is not None:
-        cuts.equations = cuts.equations[idx]
+    bipartitions.values = bipartitions.values[idx]
+    bipartitions.costs = cost_bipartitions[idx]
+    if bipartitions.names is not None:
+        bipartitions.names = bipartitions.names[idx]
+    if bipartitions.equations is not None:
+        bipartitions.equations = bipartitions.equations[idx]
 
-    return cuts
+    return bipartitions
 
 
-def pick_cuts_up_to_order(cuts, percentile):
+def pick_cuts_up_to_order(bipartitions, percentile):
     """
     Drop the cuts whose order is in a percentile above percentile.
 
     Parameters
     ----------
-    cuts: Cuts
+    cuts: Bipartitions
     percentile
 
     Returns
     -------
     """
 
-    mask_orders_to_pick = cuts.costs <= np.percentile(cuts.costs, q=percentile)
-    cuts.costs = cuts.costs[mask_orders_to_pick]
-    cuts.values = cuts.values[mask_orders_to_pick, :]
-    if cuts.names is not None:
-        cuts.names = cuts.names[mask_orders_to_pick]
-    if cuts.equations is not None:
-        cuts.equations = cuts.equations[mask_orders_to_pick]
+    mask_orders_to_pick = bipartitions.costs <= np.percentile(bipartitions.costs, q=percentile)
+    bipartitions.costs = bipartitions.costs[mask_orders_to_pick]
+    bipartitions.values = bipartitions.values[mask_orders_to_pick, :]
+    if bipartitions.names is not None:
+        bipartitions.names = bipartitions.names[mask_orders_to_pick]
+    if bipartitions.equations is not None:
+        bipartitions.equations = bipartitions.equations[mask_orders_to_pick]
 
-    return cuts
+    return bipartitions
 
 
 def get_data_and_cuts(args):
@@ -288,7 +325,7 @@ def get_data_and_cuts(args):
     Returns
     -------
     data: Data
-    cuts: Cuts
+    cuts: Bipartitions
     """
 
     if args['verbose'] >= 2:
@@ -296,14 +333,21 @@ def get_data_and_cuts(args):
     data = get_dataset(args)
 
     if args['verbose'] >= 2:
-        print("Find cuts", flush=True)
-    cuts = get_cuts(data, args, verbose=args['verbose'])
+        print("Preprocessing data\n", flush=True)
+    data = apply_preprocess(data, args)
+
     if args['verbose'] >= 2:
-        print(f'\tI found {len(cuts.values)} cuts\n')
+        print("Find cuts", flush=True)
+    start = time.time
+    bipartitions = find_bipartitions(data, args, verbose=args['verbose'])
+    end = time.time
+
+    if args['verbose'] >= 2:
+        print(f'\tI found {len(bipartitions.values)} cuts\n')
 
     print("Compute cost", flush=True)
     cost_function = get_cost_function(data, args)
-    cuts = compute_cost_and_order_cuts(cuts, cost_function)
+    cuts = compute_cost_and_order_cuts(bipartitions, cost_function)
 
     cuts = pick_cuts_up_to_order(cuts,
                                  percentile=args['experiment']['percentile_orders'])
@@ -320,15 +364,15 @@ def get_data_and_cuts(args):
                   nb_cuts_to_plot=args['plot']['nb_cuts'],
                   path=args['plot_dir'])
 
-    return data, cuts
+    return data, bipartitions, start - end
 
 
-def tangle_computation(cuts, agreement, verbose):
+def tangle_computation(bipartitions, agreement, verbose):
     """
 
     Parameters
     ----------
-    cuts: Cuts
+    bipartitions: bipartitions
     agreement: int
         The agreement parameter
     verbose:
@@ -343,32 +387,31 @@ def tangle_computation(cuts, agreement, verbose):
         print(f"Using agreement = {agreement} \n")
         print("Start tangle computation", flush=True)
 
-    tangles_tree = TangleTree()
+    tangles_tree = TangleTree(agreement=agreement)
     old_order = None
 
-    unique_orders = np.unique(cuts.costs)
+    unique_orders = np.unique(bipartitions.costs)
 
     for order in unique_orders:
 
         if old_order is None:
-            idx_cuts_order_i = np.where(cuts.costs <= order)[0]
+            idx_cuts_order_i = np.where(bipartitions.costs <= order)[0]
         else:
-            idx_cuts_order_i = np.where(np.all([cuts.costs > old_order,
-                                                cuts.costs <= order], axis=0))[0]
+            idx_cuts_order_i = np.where(np.all([bipartitions.costs > old_order,
+                                                bipartitions.costs <= order], axis=0))[0]
 
         if len(idx_cuts_order_i) > 0:
 
             if verbose >= 2:
                 print(f"\tCompute tangles of order {order} with {len(idx_cuts_order_i)} new cuts", flush=True)
 
-            cuts_order_i = cuts.values[idx_cuts_order_i]
+            cuts_order_i = bipartitions.values[idx_cuts_order_i]
             new_tree = core_algorithm(tangles_tree=tangles_tree,
                                       current_cuts=cuts_order_i,
-                                      idx_current_cuts=idx_cuts_order_i,
-                                      agreement=agreement)
+                                      idx_current_cuts=idx_cuts_order_i)
 
             if new_tree is None:
-                max_order = cuts.costs[-1]
+                max_order = bipartitions.costs[-1]
                 if verbose >= 2:
                     print('\t\tI could not add all the new cuts')
                     print(f'\n\tI stopped the computation at order {old_order} instead of {max_order}', flush=True)
@@ -377,7 +420,7 @@ def tangle_computation(cuts, agreement, verbose):
                 tangles_tree = new_tree
 
                 if verbose >= 2:
-                    print(f"\t\tI found {len(new_tree.active)} tangles of order {order}", flush=True)
+                    print(f"\t\tI found {len(new_tree.active)} tangles of order less or equal {order}", flush=True)
 
         old_order = order
 
@@ -417,7 +460,7 @@ def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
 
 
 def tangles_to_range_answers(tangles, cut_names, interval_values, path):
-    # the questions are of the form 'name greater of equal than value'
+    # the questions are of the form 'name greater or equal than value'
     # this regex gets the name and the value
     template = re.compile(r"(\w+) .+ (\d+)")
 
@@ -471,13 +514,18 @@ def centers_in_range_answers(cs, range_answers):
     print(range_answers)
 
 
-def compute_soft_predictions(contracted_tree, cuts, verbose):
-    costs = np.exp(-normalize(cuts.costs))
+def compute_soft_predictions(contracted_tree, cuts, verbose=0):
+    def sigmoid(cost):
+        return 1 / (1 + np.exp(10 * (cost - 0.4)))
+
+    costs = sigmoid(normalize(cuts.costs))
 
     compute_soft_predictions_children(node=contracted_tree.root,
                                       cuts=cuts,
                                       costs=costs,
                                       verbose=verbose)
+
+    contracted_tree.processed_soft_prediction = True
 
 
 def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path):
@@ -492,17 +540,15 @@ def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path)
 
 
 def compute_hard_preditions(condensed_tree, cuts):
-    _, nb_points = cuts.values.shape
-    idx_points = np.arange(nb_points)
-    ys_predicted = np.zeros(nb_points, dtype=int)
+    if not condensed_tree.processed_soft_prediction:
+        print("No probabilities given yet. Calculating soft predictions first!")
+        compute_soft_predictions(condensed_tree, cuts)
 
-    if not condensed_tree.is_empty:
+    probabilities = []
+    for node in condensed_tree.maximals:
+        probabilities.append(node.p)
 
-        clusters = compute_hard_predictions_node(node=condensed_tree.root,
-                                                 idx_points=idx_points,
-                                                 max_tangles=condensed_tree.maximals)
-
-        for y, idx_points in clusters.items():
-            ys_predicted[idx_points] = y
+    ys_predicted = np.argmax(probabilities, axis=0)
 
     return ys_predicted
+

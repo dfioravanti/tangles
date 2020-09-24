@@ -83,7 +83,8 @@ def plot_dataset_metric(xs, cs, colors, eq_cuts, ax, cmap, add_colorbar):
 
     xs_embedded, cs_embedded = get_points_to_plot(xs, cs)
 
-    sc = ax.scatter(xs_embedded[:, 0], xs_embedded[:, 1], color=colors, vmin=0, vmax=1, edgecolor='black')
+    sc = ax.scatter(xs_embedded[:, 0], xs_embedded[:, 1], color=colors, #vmin=0, vmax=1,
+                                            edgecolor='black')
 
     if eq_cuts is not None:
         for eq in eq_cuts:
@@ -144,7 +145,7 @@ def plot_soft_prediction_node(data, node, eq_cuts, id_node, cmap, path, pos):
     else:
         eq_characterizing_cuts = []
 
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 10))
     plot_dataset(data, colors, eq_cuts=eq_characterizing_cuts, ax=ax, cmap=cmap, pos=pos)
     fig.savefig(path / f"node_nb_{id_node:02d}.svg")
     plt.close(fig)

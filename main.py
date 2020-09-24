@@ -5,7 +5,10 @@ from src.execution import compute_and_save_evaluation, get_data_and_cuts, tangle
     compute_soft_predictions, compute_hard_preditions
 from src.parser import make_parser
 from src.plotting import plot_soft_predictions, plot_hard_predictions
-from src.tree_tangles import contract_tree
+from datetime import datetime
+import time
+
+from src.tree_tangles import ContractedTangleTree
 from src.utils import get_hash
 
 
@@ -30,39 +33,40 @@ def main(args):
     """
 
     hyperparameters = {**args['experiment'], **args['dataset'], **args['preprocessing']}
-    id_run = get_hash(hyperparameters)
+    id_run = datetime.now().strftime('%Y%m-%d%H-%M%S')
 
     if args['verbose'] >= 1:
         print(f'ID for the run = {id_run}')
         print(f'Working with hyperparameters = {hyperparameters}')
         print(f'Plot settings = {args["plot"]}', flush=True)
 
-    data, cuts = get_data_and_cuts(args)
+    data, bipartitions, preprocessing_time = get_data_and_cuts(args)
 
-    tangles_tree = tangle_computation(cuts=cuts,
+    tangles_tree = tangle_computation(bipartitions=bipartitions,
                                       agreement=args['experiment']['agreement'],
                                       verbose=args['verbose'])
+
+    contracted_tree = ContractedTangleTree(tangles_tree)
 
     if args['plot']['tree']:
         tangles_tree.plot_tree(path=args['output_dir'] / 'tree.svg')
 
-    contracted_tree = contract_tree(tangles_tree)
     if args['plot']['tree']:
         contracted_tree.plot_tree(path=args['output_dir'] / 'contracted.svg')
 
     compute_soft_predictions(contracted_tree=contracted_tree,
-                             cuts=cuts,
+                             cuts=bipartitions,
                              verbose=args['verbose'])
 
     if args['plot']['soft']:
         path = args['output_dir'] / 'clustering'
         plot_soft_predictions(data=data,
                               contracted_tree=contracted_tree,
-                              eq_cuts=cuts.equations,
+                              eq_cuts=bipartitions.equations,
                               path=path)
 
     ys_predicted = compute_hard_preditions(contracted_tree,
-                                           cuts=cuts)
+                                           cuts=bipartitions)
 
     if args['plot']['hard']:
         path = args['output_dir'] / 'clustering'
@@ -79,17 +83,14 @@ def main(args):
 if __name__ == '__main__':
 
     # Make parser and parse command line
-    #parser = make_parser()
-    #args_parser = parser.parse_args()
-    #args_parser = load_validate_parser(args_parser)
 
     root_dir = Path(__file__).resolve().parent
     cfg_file_path = root_dir / 'settings.yml'
     args_cfg_file = load_validate_config_file(cfg_file_path)
 
-    args = args_cfg_file
-
-    args = deactivate_plots(args)
+    args = deactivate_plots(args_cfg_file)
     args = set_up_dirs(args, root_dir=root_dir)
+
+    print(args)
 
     main(args)

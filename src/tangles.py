@@ -17,6 +17,9 @@ class Tangle(dict):
           the value is which orientation of that specification we need to take
     """
 
+    def __str__(self):
+        return str(self.specification)
+
     def __init__(self, cuts=[], core=[], specification={}):
 
         """
@@ -91,12 +94,11 @@ class Tangle(dict):
         return Tangle(cuts, core, specification)
 
 
-def core_algorithm(tangles_tree, current_cuts, idx_current_cuts, agreement):
+def core_algorithm(tangles_tree, current_cuts, idx_current_cuts):
     new_tree = deepcopy(tangles_tree)
 
     for idx_cut, cut in zip(idx_current_cuts, current_cuts):
-
-        could_add = new_tree.add_cut(cut=cut, cut_id=idx_cut, agreement=agreement)
+        could_add = new_tree.add_cut(cut=cut, cut_id=idx_cut)
         if could_add == False:
             return None
 

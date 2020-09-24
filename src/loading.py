@@ -41,20 +41,6 @@ def load_CANCER10(path):
     return xs, ys
 
 
-def load_knn_gauss_blobs(blob_sizes, blob_centers, blob_variances, k, seed):
-
-    xs, ys = make_blobs(n_samples=blob_sizes, centers=blob_centers, cluster_std=blob_variances, n_features=2, random_state=seed)
-    A = kneighbors_graph(xs, k, mode="distance").toarray()
-
-    sigma = np.median(A[A > 0])
-
-    A[A > 0] = np.exp(- A[A > 0] / (2*sigma**2))
-
-    G = nx.from_numpy_matrix(A)
-
-    return xs, ys, A, G
-
-
 def load_LFR(nb_nodes, tau1, tau2, mu, min_community, average_degree, seed):
 
     A = np.zeros((nb_nodes, nb_nodes), dtype=bool)
@@ -71,6 +57,13 @@ def load_LFR(nb_nodes, tau1, tau2, mu, min_community, average_degree, seed):
         ys[list(points)] = cls
 
     return A, ys, G
+
+
+def load_GMM(blob_sizes, blob_centers, blob_variances, seed):
+
+    xs, ys = make_blobs(n_samples=blob_sizes, centers=blob_centers, cluster_std=blob_variances, n_features=2, random_state=seed)
+
+    return xs, ys
 
 
 def load_SBM(block_sizes, p_in, p_out, seed):

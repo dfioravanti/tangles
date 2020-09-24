@@ -28,11 +28,14 @@ class Preprocessing(ExtendedEnum):
     feature_map = 'ftr_map'
     knn_graph = 'knn'
     radius_neighbors_graph = 'rng'
+    weighted_knn_graph = 'wknn'
 
 
 @unique
 class CutFinding(ExtendedEnum):
     features = 'fea'
+    random_projection = 'rand_proj'
+    kmeans = 'kmeans'
     kmodes = 'k_modes'
     q_binning = 'qbin'
     binning = 'bin'
@@ -43,8 +46,12 @@ class CutFinding(ExtendedEnum):
 
 @unique
 class CostFunction(ExtendedEnum):
-    implicit = 'imp'
-    nb_edges_cut = 'edge'
+    euclidean = 'eucl_sum'
+    mean_euclidean = 'eucl_mean'
+    manhattan = 'manhattan_sum'
+    mean_manhattan = 'manhattan_mean'
+    mean_cut_value = 'cut_sum'
+    cut_value = 'cut_mean'
 
 
 class Data(object):
@@ -61,7 +68,7 @@ class Data(object):
             self.original_xs = xs.copy()
 
 
-class Cuts(object):
+class Bipartitions(object):
 
     def __init__(self, values, names=None, equations=None, costs=None):
 

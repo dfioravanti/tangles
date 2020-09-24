@@ -1,14 +1,14 @@
 
 # allowed types: single, batch
 experiment:
-  unique_id: 0
+  unique_id: 10
   seed: 80
-  dataset: mind
+  dataset: gau_mix
   preprocessing: none
-  cut_finding: fea
-  cost_function: imp
-  agreement: 30
-  percentile_orders: 80
+  cut_finding: rand_proj
+  cost_function: eucl_mean
+  agreement: 20
+  percentile_orders: 20
 
 cost_function:
   imp:
@@ -23,14 +23,17 @@ preprocessing:
     k: 14
 
   rng:
-    radious: 0.3
+    radius: 0.3
+
+  wknn:
+    k: 30
 
 dataset:
 
   gau_mix:
-    sizes: [120, 60, 60]
-    centers: [[-1, -1], [1, 1], [1, -1]]
-    variances: [[1, 1], [1, 1], [1, 1]]
+    sizes: [1200, 600, 600]
+    centers: [[-2, -2, -2, -2], [2, 2, 2, -2], [2, -2, 2, 2]]
+    variances: [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]
 
   mind:
     mindset_sizes: [100, 100]
@@ -66,8 +69,8 @@ dataset:
     average_degree: 5
     min_community: 20
 
-  cancer:
-    nb_bins: 10
+  BCW:
+    _: _
 
   big5:
     path: datasets/big5.csv
@@ -93,32 +96,41 @@ cut_finding:
                 [0, 1, -1],
                 [0, 1, 0.5],
                 [0, 1, 1]]
-  bin_lik:
-    n_bins: 20
-    range_answers: [1, 20]
+
+  rand_proj:
+    nb_cuts: 50
+    dimension: 1
+
+  kmeans:
+    n_means: 2
+
+  bin:
+    n_bins: 5
 
   coarsening:
     nb_cuts: 300
     n_max: 20
 
-  karnig_lin:
-    nb_cuts: 100
-    lb_f: 0.1
+  KL:
+    nb_cuts: 40
+    lb_f: 0.0
+    early_stopping: 10
 
-  fid_mat:
+  FM:
     nb_cuts: 30
     lb_f: 0.2
+    early_stopping: False
 
 
 # -1 in nb_cuts means all
 plot:
-  no_plots: True
-  tree: False
+  no_plots: False
+  tree: True
   tangles: False
   cuts: False
   nb_cuts: 10
-  soft: True
-  hard: True
+  soft: False
+  hard: False
 
 # 0, 1, 2, 3 allowed
 # 0: Nothing

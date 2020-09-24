@@ -9,6 +9,7 @@ from sklearn.manifold import TSNE
 class Orientation(object):
 
     def __init__(self, direction):
+        self.orientation_bool = direction
         if direction == 'both':
             self.direction = direction
         elif direction == True:
@@ -18,8 +19,6 @@ class Orientation(object):
 
     def __eq__(self, value):
 
-        if self.direction == 'both' or value.direction == 'both':
-            return True
         if self.direction == value.direction:
             return True
 
@@ -125,10 +124,10 @@ def get_points_to_plot(xs, cs):
     if nb_features > 2:
         if cs is not None:
             points_to_embed = np.vstack([xs, cs])
-            embeds = TSNE(n_components=2, metric='manhattan', random_state=42).fit_transform(points_to_embed)
+            embeds = TSNE(n_components=2, random_state=42).fit_transform(points_to_embed)
             xs_embedded, cs_embedded = embeds[:-nb_centers], embeds[-nb_centers:]
         else:
-            xs_embedded = TSNE(n_components=2, metric='manhattan', random_state=42).fit_transform(xs)
+            xs_embedded = TSNE(n_components=2, random_state=42).fit_transform(xs)
     else:
         xs_embedded = xs
 
@@ -140,7 +139,7 @@ def get_points_to_plot(xs, cs):
 
 def dict_product(dicts):
     """
-    >>> list(dict_product(dict(number=[1,2], character='ab')))
+     list(dict_product(dict(number=[1,2], character='ab')))
     [{'character': 'a', 'number': 1},
      {'character': 'a', 'number': 2},
      {'character': 'b', 'number': 1},
