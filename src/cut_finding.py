@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from kmodes.kmodes import KModes
+from sklearn.cluster import KMeans
+from sklearn.random_projection import GaussianRandomProjection
 
 import src.coarsening as coarsening
 
@@ -25,7 +27,7 @@ def linear_cuts(xs, equations, verbose=0):
     return sets, equations
 
 
-def binning(xs, range_answers, n_bins):
+def binning(xs, n_bins):
     if n_bins > 0:
         df = pd.DataFrame(data=xs)
         df_bined = pd.DataFrame()
@@ -34,8 +36,11 @@ def binning(xs, range_answers, n_bins):
 
         xs = df_bined.values
 
-    min_answer = range_answers[0]
-    max_answer = range_answers[1]
+    else:
+        ValueError("Number of bins must be larger than 0!")
+
+    min_answer = min(xs)
+    max_answer = max(xs)
 
     nb_points, nb_features = xs.shape
 
@@ -124,7 +129,7 @@ def maximize(xs, A, B, D):
     return g_max, a_res, b_res
 
 
-def kernighan_lin(A, nb_cuts, lb_f, seed, verbose):
+def kernighan_lin(A, nb_cuts, lb_f, seed, verbose, early_stopping):
     cuts = []
     np.random.seed(seed)
 
@@ -132,7 +137,7 @@ def kernighan_lin(A, nb_cuts, lb_f, seed, verbose):
         f = np.random.uniform(lb_f, 0.5)
         if verbose >= 3:
             print(f'\tlooking for cut {i + 1}/{nb_cuts} with f={f:.02}')
-        cut = kernighan_lin_algorithm(A, f)
+        cut = kernighan_lin_algorithm(A, f, early_stopping)
         cuts.append(cut)
 
     cuts = np.array(cuts)
@@ -140,7 +145,7 @@ def kernighan_lin(A, nb_cuts, lb_f, seed, verbose):
     return cuts
 
 
-def kernighan_lin_algorithm(xs, fraction):
+def kernighan_lin_algorithm(xs, fraction, early_stopping):
     nb_vertices, _ = xs.shape
 
     A, B = initial_partition(xs, fraction)
@@ -187,6 +192,9 @@ def kernighan_lin_algorithm(xs, fraction):
 
         i += 1
 
+        if early_stopping and i > early_stopping:
+            break
+
     return A
 
 
@@ -195,7 +203,7 @@ def kernighan_lin_algorithm(xs, fraction):
 #
 # ----------------------------------------------------------------------------------------------------------------------
 
-def fid_mat(xs, nb_cuts, lb_f, seed, verbose):
+def fid_mat(xs, nb_cuts, lb_f, seed, verbose, early_stopping):
     cuts = []
 
     np.random.seed(seed)
@@ -203,7 +211,7 @@ def fid_mat(xs, nb_cuts, lb_f, seed, verbose):
     for i in range(nb_cuts):
         if verbose >= 3:
             print(f'\tlooking for cut {i + 1}/{nb_cuts}')
-        cut = fid_mat_algorithm(xs, lb_f, verbose)
+        cut = fid_mat_algorithm(xs, lb_f, verbose, early_stopping)
         cuts.append(cut)
 
     cuts = np.array(cuts)
@@ -211,7 +219,7 @@ def fid_mat(xs, nb_cuts, lb_f, seed, verbose):
     return cuts
 
 
-def fid_mat_algorithm(xs, r, verbose):
+def fid_mat_algorithm(xs, r, verbose, early_stopping):
     r = np.random.uniform(r, 0.5)
     nb_cells, _ = xs.shape
     A, B = initial_partition(xs, np.random.uniform(r, 0.5))
@@ -259,6 +267,9 @@ def fid_mat_algorithm(xs, r, verbose):
             break
 
         i += 1
+
+        if early_stopping and i > early_stopping:
+            break
 
     if verbose >= 3:
         print(f"\tfinal ratio: {sum(A) / nb_cells:.02}")
@@ -379,24 +390,41 @@ def coarsening_cuts(A, nb_cuts, n_max):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+# random projection and 2 means
+# ----------------------------------------------------------------------------------------------------------------------
+
+def random_projection_2means(xs, dimension, nb_cuts, seed):
+    cuts = []
+
+    np.random.seed(seed)
+    for c in range(nb_cuts):
+        seed = np.random.randint(100)
+        projection = GaussianRandomProjection(n_components=dimension, random_state=seed).fit_transform(xs)
+        cut = KMeans(n_clusters=2, random_state=seed).fit(projection).labels_
+        cuts.append(cut.astype(bool))
+
+    cuts = np.array(cuts)
+    return cuts
+
+# ----------------------------------------------------------------------------------------------------------------------
 # Discrete approach
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def find_kmodes_cuts(xs, max_nb_clusters):
-    nb_points = len(xs)
-    cuts = []
-
-    for k in range(2, max_nb_clusters):
-        cls = KModes(n_clusters=k, init='Cao', n_init=1)
-        clusters = cls.fit_predict(xs)
-        print(f'Done with k={k}', flush=True)
-
-        for cluster in range(0, k):
-            cut = np.zeros(nb_points, dtype=bool)
-            cut[clusters == cluster] = True
-            if np.any(cut) and not np.all(cut):
-                cuts.append(cut)
-
-    cuts = np.stack(cuts, axis=0)
-    return cuts
+# def find_kmodes_cuts(xs, max_nb_clusters):
+#     nb_points = len(xs)
+#     cuts = []
+#
+#     for k in range(2, max_nb_clusters):
+#         cls = KModes(n_clusters=k, init='Cao', n_init=1)
+#         clusters = cls.fit_predict(xs)
+#         print(f'Done with k={k}', flush=True)
+#
+#         for cluster in range(0, k):
+#             cut = np.zeros(nb_points, dtype=bool)
+#             cut[clusters == cluster] = True
+#             if np.any(cut) and not np.all(cut):
+#                 cuts.append(cut)
+#
+#     cuts = np.stack(cuts, axis=0)
+#     return cuts

@@ -4,12 +4,18 @@ import numpy as np
 import yaml
 
 from src.my_types import Dataset, Preprocessing, CutFinding, CostFunction
+from src.parser import get_arguments
 
 NAN = np.nan
 
 
-def load_validate_parser(args):
-    pass
+def load_validate_parser(cmd_args):
+    args = get_arguments(cmd_args)
+
+    if args is not None:
+        args = validate_settings(args, mode='command_line')
+
+    return args
 
 
 def delete_useless_parameters(args):
@@ -30,7 +36,7 @@ def delete_useless_parameters(args):
 def validate_settings(args, mode='cfg_file'):
 
     args = validate_names(args)
-    args['experiment']['unique_id'] = str(args['experiment']['unique_id'])
+    #args['experiment']['unique_id'] = str(args['experiment']['unique_id'])
 
     if mode == 'cfg_file':
         args = delete_useless_parameters(args)
@@ -87,7 +93,7 @@ def validate_names(args):
 
 def set_up_dirs(args, root_dir):
     args['root_dir'] = Path(root_dir)
-    args['output_dir'] = Path(f"{root_dir / 'output' / args['experiment']['unique_id']}")
+    args['output_dir'] = Path(f"{root_dir / 'output' / str(args['experiment']['unique_id'])}")
     args['plot_dir'] = Path(f"{args['output_dir'] / 'plots'}")
     args['answers_dir'] = Path(f"{args['output_dir'] / 'answers'}")
 

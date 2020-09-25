@@ -1,3 +1,4 @@
+import csv
 import re
 from functools import partial
 
@@ -338,16 +339,18 @@ def get_data_and_cuts(args):
 
     if args['verbose'] >= 2:
         print("Find cuts", flush=True)
-    start = time.time
+    start = time.time()
     bipartitions = find_bipartitions(data, args, verbose=args['verbose'])
-    end = time.time
+    bipartitions_time = time.time() - start
 
     if args['verbose'] >= 2:
         print(f'\tI found {len(bipartitions.values)} cuts\n')
 
     print("Compute cost", flush=True)
     cost_function = get_cost_function(data, args)
+    start = time.time()
     cuts = compute_cost_and_order_cuts(bipartitions, cost_function)
+    cost_and_sort_time = time.time() - start
 
     cuts = pick_cuts_up_to_order(cuts,
                                  percentile=args['experiment']['percentile_orders'])
@@ -364,7 +367,7 @@ def get_data_and_cuts(args):
                   nb_cuts_to_plot=args['plot']['nb_cuts'],
                   path=args['plot_dir'])
 
-    return data, bipartitions, start - end
+    return data, bipartitions, bipartitions_time, cost_and_sort_time
 
 
 def tangle_computation(bipartitions, agreement, verbose):
@@ -537,6 +540,19 @@ def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path)
     results['Adjusted Rand Score'] = ARS
 
     results.to_csv(path / f'evaluation_{id_run}.csv')
+
+
+def save_time_evaluation(id_run, pre_time, cost_time, tst_time, post_time, path, verbose):
+    field_names = ["bipartitions", "calculate cost and order", "build tangle search tree", "soft clustering"]
+    results = [{"bipartitions": pre_time, "calculate cost and order": cost_time, "build tangle search tree": tst_time, "soft clustering": post_time}]
+
+    if verbose > 1:
+        print("runtimes: ", results[0])
+
+    with open(path / f'time_evaluation_{id_run}.csv', 'w') as file:
+        writer = csv.DictWriter(file, fieldnames=field_names)
+        writer.writeheader()
+        writer.writerows(results)
 
 
 def compute_hard_preditions(condensed_tree, cuts):

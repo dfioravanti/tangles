@@ -2,7 +2,7 @@ from pathlib import Path
 
 from src.config import load_validate_parser, set_up_dirs, load_validate_config_file, deactivate_plots
 from src.execution import compute_and_save_evaluation, get_data_and_cuts, tangle_computation, \
-    compute_soft_predictions, compute_hard_preditions
+    compute_soft_predictions, compute_hard_preditions, save_time_evaluation
 from src.parser import make_parser
 from src.plotting import plot_soft_predictions, plot_hard_predictions
 from datetime import datetime
@@ -32,7 +32,7 @@ def main(args):
     -------
     """
 
-    hyperparameters = {**args['experiment'], **args['dataset'], **args['preprocessing']}
+    hyperparameters = {**args['experiment'], **args['dataset'], **args['preprocessing'], **args['cut_finding']}
     id_run = datetime.now().strftime('%Y%m-%d%H-%M%S')
 
     if args['verbose'] >= 1:
@@ -40,23 +40,36 @@ def main(args):
         print(f'Working with hyperparameters = {hyperparameters}')
         print(f'Plot settings = {args["plot"]}', flush=True)
 
-    data, bipartitions, preprocessing_time = get_data_and_cuts(args)
+    data, bipartitions, preprocessing_time, cost_and_sort_time = get_data_and_cuts(args)
 
+    start = time.time()
     tangles_tree = tangle_computation(bipartitions=bipartitions,
                                       agreement=args['experiment']['agreement'],
                                       verbose=args['verbose'])
 
+    tangle_search_tree_time = time.time() - start
+
+    start = time.time()
     contracted_tree = ContractedTangleTree(tangles_tree)
+
+    compute_soft_predictions(contracted_tree=contracted_tree,
+                             cuts=bipartitions,
+                             verbose=args['verbose'])
+    soft_clustering_time = time.time() - start
+
+    save_time_evaluation(id_run=id_run,
+                         pre_time=preprocessing_time,
+                         cost_time=cost_and_sort_time,
+                         tst_time=tangle_search_tree_time,
+                         post_time=soft_clustering_time,
+                         path=args['output_dir'],
+                         verbose=args['verbose'])
 
     if args['plot']['tree']:
         tangles_tree.plot_tree(path=args['output_dir'] / 'tree.svg')
 
     if args['plot']['tree']:
         contracted_tree.plot_tree(path=args['output_dir'] / 'contracted.svg')
-
-    compute_soft_predictions(contracted_tree=contracted_tree,
-                             cuts=bipartitions,
-                             verbose=args['verbose'])
 
     if args['plot']['soft']:
         path = args['output_dir'] / 'clustering'
@@ -83,14 +96,16 @@ def main(args):
 if __name__ == '__main__':
 
     # Make parser and parse command line
+    parser = make_parser()
+    args_parser = parser.parse_args()
+    args = load_validate_parser(args_parser)
 
     root_dir = Path(__file__).resolve().parent
-    cfg_file_path = root_dir / 'settings.yml'
-    args_cfg_file = load_validate_config_file(cfg_file_path)
+    if args is None:
+        cfg_file_path = root_dir / 'settings.yml'
+        args = load_validate_config_file(cfg_file_path)
 
-    args = deactivate_plots(args_cfg_file)
+    args = deactivate_plots(args)
     args = set_up_dirs(args, root_dir=root_dir)
-
-    print(args)
 
     main(args)

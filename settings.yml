@@ -2,23 +2,18 @@
 # allowed types: single, batch
 experiment:
   unique_id: 10
-  seed: 80
+  seed: 42
   dataset: gau_mix
   preprocessing: none
   cut_finding: rand_proj
   cost_function: eucl_mean
-  agreement: 20
-  percentile_orders: 20
+  agreement: 30
+  percentile_orders: 70
 
 cost_function:
-  imp:
-    nb_points: -1
+  nb_points: -1
 
 preprocessing:
-
-  ftr_map:
-    name: 'circle'
-
   knn:
     k: 14
 
@@ -31,15 +26,15 @@ preprocessing:
 dataset:
 
   gau_mix:
-    sizes: [1200, 600, 600]
+    sizes: [120, 60, 60]
     centers: [[-2, -2, -2, -2], [2, 2, 2, -2], [2, -2, 2, 2]]
     variances: [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]
 
   mind:
-    mindset_sizes: [100, 100]
-    nb_questions: 40
+    mindset_sizes: [100, 50, 50]
+    nb_questions: 10
     nb_useless: 50
-    noise: 0.30
+    noise: 0.1
 
   moons:
     n_samples: 300
@@ -74,16 +69,6 @@ dataset:
 
   big5:
     path: datasets/big5.csv
-
-  wawe:
-    path: 
-
-  cancer10:
-    path: datasets/breast_cancer.csv
-
-  mushrooms:
-    path_csv: datasets/mushrooms.csv
-    path_yaml: datasets/mushrooms.yaml
 
 cut_finding:
 
