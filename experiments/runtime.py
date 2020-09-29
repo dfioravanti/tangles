@@ -16,17 +16,18 @@ parameters['--id'] = 1
 
 parameters['-t'] = 'gau_mix'
 parameters['-b'] = 'rand_proj'
-parameters['-c'] = 'eucl_mean'
-multi_parameters['-o'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-multi_parameters['-a'] = [10, 20, 30, 40, 50, 60]
+parameters['-c'] = 'euclidean_mean'
+parameters['-o'] = 100
 parameters['--nb_cuts'] = 20
-parameters['--gauss_sizes'] = [100, 50, 50]
+multi_parameters['--gauss_sizes'] = [[10, 5, 5], [100, 50, 50], [1000, 500, 500], [10000, 5000, 5000], [100000, 50000, 50000]]
 parameters['--gauss_mean'] = '"[[2,2],[2,-2],[-2,2]]"'
 parameters['--gauss_var'] = '"[[1,1],[1,1],[1,1]]"'
 
 
 with open('parameters.txt', 'w') as f:
     for current_parameters in dict_product(multi_parameters):
+
+        parameters['-a'] = int(sum(current_parameters['--gauss_sizes']) / 6)
 
         p = {**parameters, **current_parameters}
 

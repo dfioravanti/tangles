@@ -1,14 +1,15 @@
+runs: 1
 
 # allowed types: single, batch
 experiment:
-  unique_id: 10
-  seed: 42
-  dataset: gau_mix
+  unique_id: 2
+  seed: 80
+  dataset: BCW
   preprocessing: none
-  cut_finding: rand_proj
-  cost_function: eucl_mean
-  agreement: 30
-  percentile_orders: 70
+  cut_finding: bin
+  cost_function: euclidean_mean
+  agreement: 25
+  percentile_orders: 80
 
 cost_function:
   nb_points: -1
@@ -90,7 +91,7 @@ cut_finding:
     n_means: 2
 
   bin:
-    n_bins: 5
+    n_bins: 20
 
   coarsening:
     nb_cuts: 300
@@ -114,7 +115,7 @@ plot:
   tangles: False
   cuts: False
   nb_cuts: 10
-  soft: False
+  soft: True
   hard: False
 
 # 0, 1, 2, 3 allowed

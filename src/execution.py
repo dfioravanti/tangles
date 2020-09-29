@@ -316,7 +316,7 @@ def pick_cuts_up_to_order(bipartitions, percentile):
     return bipartitions
 
 
-def get_data_and_cuts(args, seed):
+def get_data_and_cuts(args):
     """
     Function to load the datasets, compute the cuts and the costs.
 
@@ -330,8 +330,6 @@ def get_data_and_cuts(args, seed):
     data: Data
     cuts: Bipartitions
     """
-
-    args['experiment']['seed'] = seed
 
     if args['verbose'] >= 2:
         print("Load data\n", flush=True)
