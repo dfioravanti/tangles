@@ -1,3 +1,6 @@
+import multiprocessing
+from functools import partial
+
 import numpy as np
 import pandas as pd
 from kmodes.kmodes import KModes
@@ -31,33 +34,31 @@ def binning(xs, n_bins):
     if n_bins > 0:
         df = pd.DataFrame(data=xs)
         df_bined = pd.DataFrame()
-        for column in df.columns:
-            df_bined[column] = pd.qcut(df[column], q=n_bins, labels=False) + 1
+        bounds = np.zeros([xs.shape[1], n_bins+1])
+        for i, column in enumerate(df.columns):
+            df_bined[column], bounds[i, :] = pd.qcut(df[column], q=n_bins, labels=False, retbins=True)
 
         xs = df_bined.values
 
     else:
         ValueError("Number of bins must be larger than 0!")
 
-    min_answer = min(xs)
-    max_answer = max(xs)
-
     nb_points, nb_features = xs.shape
 
     colums_name = [f'q{i:02}' for i in range(1, nb_features + 1)]
     df = pd.DataFrame(xs, columns=colums_name)
-    cut_values = np.arange(min_answer + 1, max_answer + 1)
+    cut_values = np.arange(n_bins-1) + 1
     cut_names = []
 
     df_binarized = pd.DataFrame()
-    for column in df.columns:
-        for cut_value in cut_values:
+    for column, bs in zip(df.columns, bounds):
+        for cut_value, b in zip(cut_values, bs[1:n_bins]):
             new_col = np.zeros(nb_points, dtype=bool)
             new_col[df[column] < cut_value] = 0
             new_col[df[column] >= cut_value] = 1
 
-            short_name = f'{column}_{cut_value}-{max_answer}'
-            cut_names.append(f'{column} larger or equal than {cut_value}')
+            short_name = f'{column}_{b}-{bs[n_bins]}'
+            cut_names.append(f'{column} larger or equal than {b}')
 
             df_binarized[short_name] = new_col
 
@@ -80,7 +81,7 @@ def binning(xs, n_bins):
 def initial_partition(xs, fraction=0.5):
     nb_vertices, _ = xs.shape
 
-    partition = round(fraction * nb_vertices)
+    partition = int(round(fraction * nb_vertices))
 
     A = np.zeros(nb_vertices, dtype=bool)
     A[np.random.choice(np.arange(nb_vertices), partition, False)] = True
@@ -133,19 +134,24 @@ def kernighan_lin(A, nb_cuts, lb_f, seed, verbose, early_stopping):
     cuts = []
     np.random.seed(seed)
 
-    for i in range(nb_cuts):
-        f = np.random.uniform(lb_f, 0.5)
-        if verbose >= 3:
-            print(f'\tlooking for cut {i + 1}/{nb_cuts} with f={f:.02}')
-        cut = kernighan_lin_algorithm(A, f, early_stopping)
-        cuts.append(cut)
+    pool = multiprocessing.Pool()
+    f = np.random.uniform(lb_f, 0.5, nb_cuts)
+    cuts = pool.map(partial(kernighan_lin_algorithm, A, early_stopping), f)
+    pool.close()
+
+    # for i in range(nb_cuts):
+    #     f = np.random.uniform(lb_f, 0.5)
+    #     if verbose >= 3:
+    #         print(f'\tlooking for cut {i + 1}/{nb_cuts} with f={f:.02}')
+    #     cut = kernighan_lin_algorithm(A, early_stopping, f)
+    #     cuts.append(cut)
 
     cuts = np.array(cuts)
 
     return cuts
 
 
-def kernighan_lin_algorithm(xs, fraction, early_stopping):
+def kernighan_lin_algorithm(xs, early_stopping, fraction):
     nb_vertices, _ = xs.shape
 
     A, B = initial_partition(xs, fraction)

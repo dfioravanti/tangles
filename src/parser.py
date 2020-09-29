@@ -1,4 +1,5 @@
 import argparse
+import ast
 
 from src.my_types import Dataset, Preprocessing, CutFinding, CostFunction
 
@@ -16,6 +17,7 @@ def make_parser():
 
     parser = argparse.ArgumentParser(description='Program to compute tangles')
 
+    parser.add_argument('-r', dest='runs', action='store', type=int, default=1)
     parser.add_argument('-v', dest='verbose', action='store', type=int, default=3)
 
     parser.add_argument('-t', dest='dataset', action='store')
@@ -31,8 +33,8 @@ def make_parser():
 
     # Gaussian
     parser.add_argument('--gauss_sizes', dest='gauss_sizes', nargs='+', type=int)
-    parser.add_argument('--gauss_mean', dest='gauss_centers', nargs='+', type=int)
-    parser.add_argument('--gauss_var', dest='gauss_variances', nargs='+', type=float)
+    parser.add_argument('--gauss_mean', dest='gauss_centers', type=str)
+    parser.add_argument('--gauss_var', dest='gauss_variances', type=str)
 
     # Mindsets
     parser.add_argument('--mind_sizes', dest='mind_sizes', nargs='+', type=int)
@@ -78,7 +80,7 @@ def make_parser():
     parser.add_argument('--early_stopping', dest='early_stopping', action='store_true', default=False)
 
     # ID
-    parser.add_argument('--id', dest='unique_id', action='store', default=0)
+    parser.add_argument('--id', dest='unique_id', action='store', type=int, default=0)
 
     # Plotting
     parser.add_argument('--plots', dest='no_plots', action='store_false', default=True)
@@ -98,7 +100,7 @@ def get_arguments(cmd_args):
     if cmd_args['dataset'] == None:
         return None
 
-    args = {'experiment': {}, 'dataset': {}, 'preprocessing': {}, 'cut_finding': {}, 'plot': {}, 'verbose': cmd_args['verbose']}
+    args = {'experiment': {}, 'dataset': {}, 'preprocessing': {}, 'cut_finding': {}, 'plot': {}, 'verbose': cmd_args['verbose'], 'runs': cmd_args['runs']}
 
     try:
         args['experiment']['dataset'] = Dataset(cmd_args['dataset'])
@@ -131,14 +133,16 @@ def get_arguments(cmd_args):
     elif cmd_args['preprocessing'] == 'rng':
         args['preprocessing']['radius'] = cmd_args['radius']
 
+
     # cost function
+    args['experiment']['cost_function'] = cmd_args['cost_function']
     args['cost_function'] = {'nb_points': cmd_args['sample_cost']}
 
     # dataset
     if cmd_args['dataset'] == 'gau_mix':
         args['dataset']['sizes'] = cmd_args['gauss_sizes']
-        args['dataset']['centers'] = cmd_args['gauss_centers']
-        args['dataset']['variances'] = cmd_args['gauss_variances']
+        args['dataset']['centers'] = ast.literal_eval(cmd_args['gauss_centers'])
+        args['dataset']['variances'] = ast.literal_eval(cmd_args['gauss_variances'])
 
     elif cmd_args['dataset'] == 'mind':
         args['dataset']['mindset_sizes'] = cmd_args['mind_sizes']

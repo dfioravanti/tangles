@@ -46,8 +46,8 @@ class CutFinding(ExtendedEnum):
 
 @unique
 class CostFunction(ExtendedEnum):
-    euclidean = 'eucl_sum'
-    mean_euclidean = 'eucl_mean'
+    euclidean = 'euclidean_sum'
+    mean_euclidean = 'euclidean_mean'
     manhattan = 'manhattan_sum'
     mean_manhattan = 'manhattan_mean'
     mean_cut_value = 'cut_sum'

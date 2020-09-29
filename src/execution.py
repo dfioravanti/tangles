@@ -1,4 +1,5 @@
 import csv
+import multiprocessing
 import re
 from functools import partial
 
@@ -243,13 +244,13 @@ def get_cost_function(data, args):
 
         return partial(mean_manhattan_distance, data.xs, None)
 
-    if args['experiment']['cost_function'] == CostFunction.cut:
+    if args['experiment']['cost_function'] == CostFunction.cut_value:
         if data.A is None:
             raise ValueError('You need a graph to compute the edge cost')
 
         return partial(edges_cut_cost, data.A)
 
-    if args['experiment']['cost_function'] == CostFunction.mean_cut:
+    if args['experiment']['cost_function'] == CostFunction.mean_cut_value:
         if data.A is None:
             raise ValueError('You need a graph to compute the edge cost')
 
@@ -278,6 +279,7 @@ def compute_cost_and_order_cuts(bipartitions, cost_function):
     cost_bipartitions = np.zeros(len(bipartitions.values), dtype=float)
     for i_cut, cut in enumerate(bipartitions.values):
         cost_bipartitions[i_cut] = cost_function(cut)
+
     idx = np.argsort(cost_bipartitions)
 
     bipartitions.values = bipartitions.values[idx]
@@ -314,7 +316,7 @@ def pick_cuts_up_to_order(bipartitions, percentile):
     return bipartitions
 
 
-def get_data_and_cuts(args):
+def get_data_and_cuts(args, seed):
     """
     Function to load the datasets, compute the cuts and the costs.
 
@@ -328,6 +330,8 @@ def get_data_and_cuts(args):
     data: Data
     cuts: Bipartitions
     """
+
+    args['experiment']['seed'] = seed
 
     if args['verbose'] >= 2:
         print("Load data\n", flush=True)
@@ -518,10 +522,12 @@ def centers_in_range_answers(cs, range_answers):
 
 
 def compute_soft_predictions(contracted_tree, cuts, verbose=0):
-    def sigmoid(cost):
-        return 1 / (1 + np.exp(10 * (cost - 0.4)))
+    #def sigmoid(cost):
+    #    return 1 / (1 + np.exp(10 * (cost - 0.4)))
 
-    costs = sigmoid(normalize(cuts.costs))
+    #costs = sigmoid(normalize(cuts.costs))
+
+    costs = np.exp(-normalize(cuts.costs))
 
     compute_soft_predictions_children(node=contracted_tree.root,
                                       cuts=cuts,
@@ -531,7 +537,7 @@ def compute_soft_predictions(contracted_tree, cuts, verbose=0):
     contracted_tree.processed_soft_prediction = True
 
 
-def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path):
+def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path, r=1):
     ARS = adjusted_rand_score(ys, ys_predicted)
 
     print(f'Adjusted Rand Score: {ARS}', flush=True)
@@ -539,19 +545,25 @@ def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path)
     results = pd.Series({**hyperparameters}).to_frame().T
     results['Adjusted Rand Score'] = ARS
 
-    results.to_csv(path / f'evaluation_{id_run}.csv')
+    results.index = range(r, r+1)
+
+    if r == 1:
+        results.to_csv(path / f'evaluation_{id_run}.csv')
+    else:
+        results.to_csv(path / f'evaluation_{id_run}.csv', mode='a', header=False)
 
 
-def save_time_evaluation(id_run, pre_time, cost_time, tst_time, post_time, path, verbose):
+def save_time_evaluation(id_run, pre_time, cost_time, tst_time, post_time, path, verbose, r=1):
     field_names = ["bipartitions", "calculate cost and order", "build tangle search tree", "soft clustering"]
     results = [{"bipartitions": pre_time, "calculate cost and order": cost_time, "build tangle search tree": tst_time, "soft clustering": post_time}]
 
     if verbose > 1:
         print("runtimes: ", results[0])
 
-    with open(path / f'time_evaluation_{id_run}.csv', 'w') as file:
+    with open(path / f'runtime_{id_run}.csv', 'a') as file:
         writer = csv.DictWriter(file, fieldnames=field_names)
-        writer.writeheader()
+        if r == 1:
+            writer.writeheader()
         writer.writerows(results)
 
 
