@@ -21,6 +21,9 @@ class Dataset(ExtendedEnum):
     retinal = 'retinal'
     wave = 'wave'
 
+    def __str__(self):
+        return self.value
+
 
 @unique
 class Preprocessing(ExtendedEnum):
@@ -29,6 +32,9 @@ class Preprocessing(ExtendedEnum):
     knn_graph = 'knn'
     radius_neighbors_graph = 'rng'
     weighted_knn_graph = 'wknn'
+
+    def __str__(self):
+        return self.value
 
 
 @unique
@@ -43,6 +49,9 @@ class CutFinding(ExtendedEnum):
     Fiduccia_Mattheyses = 'FM'
     linear = 'lin'
 
+    def __str__(self):
+        return self.value
+
 
 @unique
 class CostFunction(ExtendedEnum):
@@ -52,6 +61,9 @@ class CostFunction(ExtendedEnum):
     mean_manhattan = 'manhattan_mean'
     mean_cut_value = 'cut_sum'
     cut_value = 'cut_mean'
+
+    def __str__(self):
+        return self.value
 
 
 class Data(object):

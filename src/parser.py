@@ -18,7 +18,7 @@ def make_parser():
     parser = argparse.ArgumentParser(description='Program to compute tangles')
 
     parser.add_argument('-r', dest='runs', action='store', type=int, default=1)
-    parser.add_argument('-v', dest='verbose', action='store', type=int, default=3)
+    parser.add_argument('-v', dest='verbose', action='store', type=int, default=0)
 
     parser.add_argument('-t', dest='dataset', action='store')
     parser.add_argument('-p', dest='preprocessing', action='store', default='none')
@@ -29,7 +29,7 @@ def make_parser():
     parser.add_argument('-c', dest='cost_function', action='store')
 
     # Cost Function
-    parser.add_argument('--sample_cost', dest='sample_cost', action='store', default=-1, type=int)
+    parser.add_argument('--sample_cost', dest='sample_cost', action='store', default=1000, type=int)
 
     # Gaussian
     parser.add_argument('--gauss_sizes', dest='gauss_sizes', nargs='+', type=int)
@@ -103,24 +103,24 @@ def get_arguments(cmd_args):
     args = {'experiment': {}, 'dataset': {}, 'preprocessing': {}, 'cut_finding': {}, 'plot': {}, 'verbose': cmd_args['verbose'], 'runs': cmd_args['runs']}
 
     try:
-        args['experiment']['dataset'] = Dataset(cmd_args['dataset'])
+        args['experiment']['dataset'] = cmd_args['dataset']
     except ValueError:
-        raise ValueError(f'The dataset name must be in: {Dataset.list()}')
+        raise ValueError('The dataset name must be in: {}'.format(Dataset.list()))
 
     try:
-        args['experiment']['preprocessing'] = Preprocessing(cmd_args['preprocessing'])
+        args['experiment']['preprocessing'] = cmd_args['preprocessing']
     except ValueError:
-        raise ValueError(f'All the preprocessing name must be in: {Preprocessing.list()}')
+        raise ValueError('All the preprocessing name must be in: {}'.format(Preprocessing.list()))
 
     try:
-        args['experiment']['cut_finding'] = (CutFinding(cmd_args['cut_finding']))
+        args['experiment']['cut_finding'] = cmd_args['cut_finding']
     except ValueError:
-        raise ValueError(f'The cut-finding strategy name must be in: {CutFinding.list()}')
+        raise ValueError('The cut-finding strategy name must be in: {}'.format(CutFinding.list()))
 
     try:
-        args['experiment']['cost_function'] = (CostFunction(cmd_args['cost_function']))
+        args['experiment']['cost_function'] = cmd_args['cost_function']
     except ValueError:
-        raise ValueError(f'The cost function name must be in: {CostFunction.list()}')
+        raise ValueError('The cost function name must be in: {}'.format(CostFunction.list()))
 
     args['experiment']['unique_id'] = cmd_args['unique_id']
     args['experiment']['seed'] = cmd_args['seed']
@@ -136,13 +136,17 @@ def get_arguments(cmd_args):
 
     # cost function
     args['experiment']['cost_function'] = cmd_args['cost_function']
-    args['cost_function'] = {'nb_points': cmd_args['sample_cost']}
+    args['experiment']['nb_sample_points'] = cmd_args['sample_cost']
 
     # dataset
     if cmd_args['dataset'] == 'gau_mix':
         args['dataset']['sizes'] = cmd_args['gauss_sizes']
         args['dataset']['centers'] = ast.literal_eval(cmd_args['gauss_centers'])
+        if type(args['dataset']['centers']) == str:
+            args['dataset']['centers'] = ast.literal_eval(args['dataset']['centers'])
         args['dataset']['variances'] = ast.literal_eval(cmd_args['gauss_variances'])
+        if type(args['dataset']['variances']) == str:
+            args['dataset']['variances'] = ast.literal_eval(args['dataset']['variances'])
 
     elif cmd_args['dataset'] == 'mind':
         args['dataset']['mindset_sizes'] = cmd_args['mind_sizes']

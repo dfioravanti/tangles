@@ -11,6 +11,7 @@ import numpy as np
 from src.tangles import Tangle
 from src.utils import matching_items, Orientation
 
+MAX_CLUSTERS = 50
 
 class TangleNode(object):
 
@@ -36,7 +37,7 @@ class TangleNode(object):
             string = 'Root'
         else:
             padding = ' '
-            string = f'{padding * height}{self.last_cut_added_id} -> {self.last_cut_added_orientation}'
+            string = '{}{} -> {}'.format(padding * height, self.last_cut_added_id, self.last_cut_added_orientation)
 
         if self.left_child is not None:
             string += '\n'
@@ -59,9 +60,9 @@ class ContractedTangleNode(TangleNode):
         self.right_child = None
         self.left_child = None
 
-        self.characterizing_cuts = dict()
-        self.characterizing_cuts_left = dict()
-        self.characterizing_cuts_right = dict()
+        self.characterizing_cuts = None
+        self.characterizing_cuts_left = None
+        self.characterizing_cuts_right = None
 
         self.is_left_child_processed = False
         self.is_right_child_processed = False
@@ -75,11 +76,11 @@ class ContractedTangleNode(TangleNode):
             string += 'Root\n'
 
         padding = '  '
-        string_cuts = [f'{k} -> {v}' for k, v in self.characterizing_cuts_left.items()]
-        string += f'{padding * height} left: {string_cuts}\n'
+        string_cuts = ['{} -> {}'.format(k, v) for k, v in self.characterizing_cuts_left.items()]
+        string += '{} left: {}\n'.format(padding * height, string_cuts)
 
-        string_cuts = [f'{k} -> {v}' for k, v in self.characterizing_cuts_right.items()]
-        string += f'{padding * height} right: {string_cuts}'
+        string_cuts = ['{} -> {}'.format(k, v) for k, v in self.characterizing_cuts_right.items()]
+        string += '{} left: {}\n'.format(padding * height, string_cuts)
 
         if self.left_child.left_child is not None:
             string += '\n'
@@ -135,7 +136,11 @@ class TangleTree(object):
 
     # function to add a single cut to the tree
     # function checks if tree is empty
+    # --- stops if number of active leaves gets too large ! ---
     def add_cut(self, cut, cut_id):
+        if len(self.active) > MAX_CLUSTERS:
+            return False
+
         current_active = self.active
         self.active = []
 
@@ -217,7 +222,7 @@ class TangleTree(object):
         else:
             my_id = parent_id + direction
             str_o = 'T' if node.last_cut_added_orientation else 'F'
-            my_label = f'{node.last_cut_added_id} -> {str_o}'
+            my_label = '{} -> {}'.format(node.last_cut_added_id, str_o)
 
             tree.add_node(my_id)
             tree.add_edge(my_id, parent_id)
@@ -251,7 +256,7 @@ class ContractedTangleTree(TangleTree):
         if node.left_child is None and node.right_child is None:
             # is leaf so create new node
             contracted_node = ContractedTangleNode(parent=parent, node=node)
-            contracted_node.characterizing_cuts[node.last_cut_added_id] = Orientation(node.last_cut_added_orientation)
+            contracted_node.characterizing_cuts = dict()
             self.maximals.append(contracted_node)
             return contracted_node
         elif node.left_child is not None and node.right_child is not None:
@@ -260,11 +265,9 @@ class ContractedTangleTree(TangleTree):
 
             contracted_left_child = self._contract_subtree(parent=contracted_node, node=node.left_child)
             contracted_node.left_child = contracted_left_child
-            contracted_node.is_left_child_processed = True
 
             contracted_right_child = self._contract_subtree(parent=contracted_node, node=node.right_child)
             contracted_node.right_child = contracted_right_child
-            contracted_node.is_right_child_processed = True
 
             process_split(contracted_node)
 
@@ -279,8 +282,7 @@ class ContractedTangleTree(TangleTree):
 
 
 def process_split(node):
-    node_id = node.last_cut_added_id if node.last_cut_added_id else 0
-    next_node_id = min(node.left_child.last_cut_added_id, node.right_child.last_cut_added_id)
+    node_id = node.last_cut_added_id if node.last_cut_added_id else -1
 
     characterizing_cuts_left = node.left_child.characterizing_cuts
     characterizing_cuts_right = node.right_child.characterizing_cuts
@@ -289,8 +291,10 @@ def process_split(node):
     orientation_right = node.right_child.tangle.specification
 
     # add new relevant cuts
-    for id_cut in range(node_id + 1, next_node_id + 1):
+    for id_cut in range(node_id + 1, node.left_child.last_cut_added_id + 1):
         characterizing_cuts_left[id_cut] = Orientation(orientation_left[id_cut])
+
+    for id_cut in range(node_id + 1, node.right_child.last_cut_added_id + 1):
         characterizing_cuts_right[id_cut] = Orientation(orientation_right[id_cut])
 
     id_not_in_both = (characterizing_cuts_left.keys() | characterizing_cuts_right.keys()) \

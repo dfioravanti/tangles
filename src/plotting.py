@@ -126,7 +126,7 @@ def plot_soft_predictions(data, contracted_tree, eq_cuts=None, id_node=0, path=N
         colors = labels_to_colors(data.ys, cmap=cmap_groundtruth)
         ax, pos = plot_dataset(data, colors, eq_cuts=eq_cuts, ax=ax, add_colorbar=False)
 
-        fig.savefig(output_path / f"groundtruth.svg")
+        fig.savefig(output_path / "groundtruth.png")
         plt.close(fig)
 
     plot_soft_prediction_node(data, contracted_tree.root, eq_cuts=eq_cuts, id_node=0, cmap=cmap_heatmap, path=path,
@@ -147,7 +147,7 @@ def plot_soft_prediction_node(data, node, eq_cuts, id_node, cmap, path, pos):
 
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 10))
     plot_dataset(data, colors, eq_cuts=eq_characterizing_cuts, ax=ax, cmap=cmap, pos=pos)
-    fig.savefig(path / f"node_nb_{id_node:02d}.svg")
+    fig.savefig(path / "node_nb_{}.png".format(id_node))
     plt.close(fig)
 
     if node.left_child is not None:
@@ -176,7 +176,7 @@ def plot_hard_predictions(data, ys_predicted, path=None):
     colors_predicted = labels_to_colors(ys_predicted, cmap=cmap_predictions)
     ax_predicted = plot_dataset(data, colors_predicted, ax=ax_predicted, add_colorbar=False)
 
-    fig.savefig(output_path / f"hard_clustering.svg")
+    fig.savefig(output_path / "hard_clustering.png")
     plt.close(fig)
 
 
@@ -218,7 +218,7 @@ def plot_cuts(data, cuts, nb_cuts_to_plot, path):
 
         fig, pos = plot_cut(data, cut=value_cuts[i], order=order_cuts[i], eq=eq, pos=pos)
         if path is not None:
-            fig.savefig(path / f"cut number {i}.svg")
+            fig.savefig(path / "cut number {}.png".format(i))
             plt.close(fig)
 
 
@@ -258,7 +258,7 @@ def plot_cut(data, cut, order, eq, pos):
         fig, ax_cut = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
 
     ax_cut.set_title('Cut')
-    fig.suptitle(f'Cut of order: {order}')
+    fig.suptitle('Cut of order: {}'.format(order))
 
     color_cut = labels_to_colors(cut, cmap=cmap_cut)
     ax_cut = plot_dataset(data, color_cut, ax=ax_cut, add_colorbar=False, pos=pos)
@@ -284,7 +284,7 @@ def plot_graph_cuts(G, ys, cuts, orders, path):
         ax.axis('off')
         ax.grid(b=None)
 
-        ax.set_title(f"cut of order {orders[i]}")
+        ax.set_title("cut of order {}".format(orders[i]))
 
         colors = np.zeros((nb_points, 4), dtype=float)
         colors[~cut] = COLOR_SILVER_RGB
@@ -294,7 +294,7 @@ def plot_graph_cuts(G, ys, cuts, orders, path):
                          edge_color=COLOR_SILVER)
 
         if path is not None:
-            plt.savefig(path_cuts / f"cut number {i}.svg")
+            plt.savefig(path_cuts / "cut number {}.png".format(i))
 
         plt.close(fig)
 

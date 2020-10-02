@@ -4,9 +4,11 @@ import re
 from functools import partial
 
 import numpy as np
+import os
 import pandas as pd
+from sklearn.cluster import SpectralClustering, KMeans
 from sklearn.datasets import make_moons, make_blobs
-from sklearn.metrics import adjusted_rand_score
+from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
 from src.my_types import Dataset, CutFinding, Data, Bipartitions, Preprocessing, CostFunction
 from src.cut_finding import kernighan_lin, fid_mat, binning, linear_cuts, random_projection_2means
@@ -20,6 +22,7 @@ from src.cost_functions import edges_cut_cost, mean_euclidean_distance, euclidea
     manhattan_distance, mean_manhattan_distance, mean_edges_cut_cost
 import time
 
+MAX_TIME = 60 * 30
 
 def get_dataset(args):
     """
@@ -224,25 +227,25 @@ def get_cost_function(data, args):
         if data.xs is None:
             raise ValueError('You need xs to compute the euclidean cost function')
 
-        return partial(euclidean_distance, data.xs, None)
+        return partial(euclidean_distance, data.xs, args['experiment']['nb_sample_points'])
 
     if args['experiment']['cost_function'] == CostFunction.mean_euclidean:
         if data.xs is None:
             raise ValueError('You need xs to compute the euclidean cost function')
 
-        return partial(mean_euclidean_distance, data.xs, None)
+        return partial(mean_euclidean_distance, data.xs, args['experiment']['nb_sample_points'])
 
     if args['experiment']['cost_function'] == CostFunction.manhattan:
         if data.xs is None:
             raise ValueError('You need xs to compute the manhattan cost function')
 
-        return partial(manhattan_distance, data.xs, None)
+        return partial(manhattan_distance, data.xs, args['experiment']['nb_sample_points'])
 
     if args['experiment']['cost_function'] == CostFunction.mean_manhattan:
         if data.xs is None:
             raise ValueError('You need xs to compute the manhattan cost function')
 
-        return partial(mean_manhattan_distance, data.xs, None)
+        return partial(mean_manhattan_distance, data.xs, args['experiment']['nb_sample_points'])
 
     if args['experiment']['cost_function'] == CostFunction.cut_value:
         if data.A is None:
@@ -346,7 +349,7 @@ def get_data_and_cuts(args):
     bipartitions_time = time.time() - start
 
     if args['verbose'] >= 2:
-        print(f'\tI found {len(bipartitions.values)} cuts\n')
+        print('\tI found {} cuts\n'.format(len(bipartitions.values)))
 
     print("Compute cost", flush=True)
     cost_function = get_cost_function(data, args)
@@ -358,12 +361,12 @@ def get_data_and_cuts(args):
                                  percentile=args['experiment']['percentile_orders'])
     if args['verbose'] >= 2:
         max_considered_order = cuts.costs[-1]
-        print(f"\tI will stop at order: {max_considered_order}")
-        print(f'\tI will use {len(cuts.values)} cuts\n', flush=True)
+        print("\tI will stop at order: {}".format(max_considered_order))
+        print('\tI will use {} cuts\n'.format(len(cuts.values)), flush=True)
 
     if args['plot']['cuts']:
         if args['verbose'] >= 2:
-            print(f"\tPlotting cuts")
+            print("\tPlotting cuts")
 
         plot_cuts(data, cuts,
                   nb_cuts_to_plot=args['plot']['nb_cuts'],
@@ -389,7 +392,7 @@ def tangle_computation(bipartitions, agreement, verbose):
     """
 
     if verbose >= 2:
-        print(f"Using agreement = {agreement} \n")
+        print("Using agreement = {} \n".format(agreement))
         print("Start tangle computation", flush=True)
 
     tangles_tree = TangleTree(agreement=agreement)
@@ -408,10 +411,10 @@ def tangle_computation(bipartitions, agreement, verbose):
         if len(idx_cuts_order_i) > 0:
 
             if verbose >= 2:
-                print(f"\tCompute tangles of order {order} with {len(idx_cuts_order_i)} new cuts", flush=True)
+                print("\tCompute tangles of order {} with {} new cuts".format(order, len(idx_cuts_order_i)), flush=True)
 
             cuts_order_i = bipartitions.values[idx_cuts_order_i]
-            new_tree = core_algorithm(tangles_tree=tangles_tree,
+            new_tree = core_algorithm(new_tree=tangles_tree,
                                       current_cuts=cuts_order_i,
                                       idx_current_cuts=idx_cuts_order_i)
 
@@ -419,13 +422,13 @@ def tangle_computation(bipartitions, agreement, verbose):
                 max_order = bipartitions.costs[-1]
                 if verbose >= 2:
                     print('\t\tI could not add all the new cuts')
-                    print(f'\n\tI stopped the computation at order {old_order} instead of {max_order}', flush=True)
+                    print('\n\tI stopped the computation at order {} instead of {}'.format(old_order, max_order), flush=True)
                 break
             else:
                 tangles_tree = new_tree
 
                 if verbose >= 2:
-                    print(f"\t\tI found {len(new_tree.active)} tangles of order less or equal {order}", flush=True)
+                    print("\t\tI found {} tangles of order less or equal {}".format(len(new_tree.active), order), flush=True)
 
         old_order = order
 
@@ -439,7 +442,7 @@ def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
     path.mkdir(parents=True, exist_ok=True)
 
     if verbose >= 2:
-        print(f'Printing answers', flush=True)
+        print('Printing answers', flush=True)
 
     for order, tangles in tangles_by_order.items():
 
@@ -459,7 +462,7 @@ def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
 
             answers.columns = questions_names
 
-            answers.to_csv(path / f'{order:.2f}.csv', index=False)
+            answers.to_csv(path / '{}.csv'.format(np.round(order, 2)), index=False)
             if order == order_best:
                 answers.to_csv(path / '..' / 'best.csv', index=False)
 
@@ -535,32 +538,219 @@ def compute_soft_predictions(contracted_tree, cuts, verbose=0):
     contracted_tree.processed_soft_prediction = True
 
 
+def clean_str(element):
+    string = str(element)
+    string = string.replace(" ", "")
+    return string
+
+
+def spectral_sbm_worker(n_clusters, A, seed, result):
+    start = time.time()
+    result["predicted"] = SpectralClustering(n_clusters=n_clusters, assign_labels='precomputed', random_state=seed).fit(A).labels_
+    result['time'] = time.time() - start
+
+
+def kmeans_gauss_worker(n_clusters, xs, seed, result):
+    start = time.time()
+    result["predicted"] = KMeans(n_clusters=n_clusters, random_state=seed).fit(xs).labels_
+    result['time'] = time.time() - start
+
+
+def spectral_gauss_worker(n_clusters, xs, seed, result):
+    start = time.time()
+    result["predicted"] = SpectralClustering(n_clusters=n_clusters, assign_labels='kmeans', affinity='nearest_neighbors',
+                                             n_neighbors=int(2*np.log(xs.shape[0])), random_state=seed).fit(xs).labels_
+    result['time'] = time.time() - start
+
+
+def compute_and_save_comparison_kmeans(data, hyperparameters, id_run, path, r=1):
+    field_names = [""]
+    results = {"": r}
+
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+
+    p = multiprocessing.Process(target=kmeans_gauss_worker, name="spectral_eval_gauss",
+                                    args=(len(np.unique(data.ys)), data.xs, hyperparameters['seed'], return_dict))
+
+    p.start()
+    p.join(MAX_TIME)
+
+    if p.is_alive():
+        print("process still alive after {} seconds.... kill it".format(MAX_TIME))
+        # Terminate foo
+        p.terminate()
+        p.join()
+        ARS = None
+        sc_time = None
+        print("kMeans took too long!")
+    else:
+        sc_time = return_dict['time']
+        ARS = adjusted_rand_score(data.ys, return_dict['predicted'])
+
+    field_names.append('Runtime kMeans')
+    field_names.append('Adjusted Rand Score kMeans')
+
+    results['Runtime kMeans'] = sc_time
+    results['Adjusted Rand Score kMeans'] = ARS
+
+    first = not os.path.isfile(str(path / 'comparison_{}.csv'.format(id_run)))
+
+    print(results)
+
+    with open(str(path / 'comparison_{}.csv'.format(id_run)), 'a') as file:
+        writer = csv.DictWriter(file, fieldnames=field_names)
+        if first:
+            writer.writeheader()
+        writer.writerows([results])
+
+
+def compute_and_save_comparison(data, hyperparameters, id_run, path, r=1):
+    field_names = [""]
+    results = {"": r}
+
+    if hyperparameters['dataset'] == Dataset.SBM:
+
+        manager = multiprocessing.Manager()
+        return_dict = manager.dict()
+
+        p = multiprocessing.Process(target=spectral_gauss_worker, name="spectral_eval_gauss",
+                                    args=(len(np.unique(data.ys)), data.A, hyperparameters['seed'], return_dict))
+        p.start()
+        p.join(MAX_TIME)
+
+        if p.is_alive():
+            print("process still alive after {} seconds.... kill it".format(MAX_TIME))
+            p.terminate()
+            p.join()
+            ARS = None
+            sc_time = None
+            NMI = None
+            print("Spectral clustering took too long!")
+        else:
+            sc_time = return_dict['time']
+            ARS = adjusted_rand_score(data.ys, return_dict['predicted'])
+            NMI = normalized_mutual_info_score(data.ys, return_dict['predicted'])
+
+        field_names.append('Runtime Spectral Clustering')
+        field_names.append('Adjusted Rand Score Spectral Clustering')
+        field_names.append('NMI Spectral Clustering')
+
+        results['Adjusted Rand Score Spectral Clustering'] = ARS
+        results['Runtime Spectral Clustering'] = sc_time
+        results['NMI Spectral Clustering'] = NMI
+
+        print('Spectral Adjusted Rand Score: {}'.format(ARS), flush=True)
+        print('Spectral Normalized Mutual Information: {}'.format(NMI), flush=True)
+
+    elif hyperparameters['dataset'] == Dataset.gaussian_mixture:
+        manager = multiprocessing.Manager()
+        return_dict = manager.dict()
+
+        p = multiprocessing.Process(target=kmeans_gauss_worker, name="spectral_eval_gauss",
+                                    args=(len(np.unique(data.ys)), data.xs, hyperparameters['seed'], return_dict))
+
+        p.start()
+        p.join(MAX_TIME)
+
+        if p.is_alive():
+            print("process still alive after {} seconds.... kill it".format(MAX_TIME))
+            # Terminate foo
+            p.terminate()
+            p.join()
+            ARS = None
+            NMI = None
+            sc_time = None
+            print("kMeans took too long!")
+        else:
+            sc_time = return_dict['time']
+            ARS = adjusted_rand_score(data.ys, return_dict['predicted'])
+            NMI = normalized_mutual_info_score(data.ys, return_dict['predicted'])
+
+        field_names.append('Runtime kMeans')
+        field_names.append('Adjusted Rand Score kMeans')
+        field_names.append('NMI kMeans')
+
+        results['Runtime kMeans'] = sc_time
+        results['Adjusted Rand Score kMeans'] = ARS
+        results['NMI kMeans'] = NMI
+
+        print('kMeans Adjusted Rand Score: {}'.format(ARS), flush=True)
+        print('kMeans Normalized Mutual Information: {}'.format(NMI), flush=True)
+
+        return_dict = manager.dict()
+        p = multiprocessing.Process(target=spectral_gauss_worker, name="spectral_eval_gauss", args=(len(np.unique(data.ys)), data.xs, hyperparameters['seed'], return_dict))
+
+        p.start()
+        p.join(MAX_TIME)
+
+        if p.is_alive():
+            print("process still alive after {} seconds.... kill it".format(MAX_TIME))
+            p.terminate()
+            p.join()
+            sc_time = None
+            ARS = None
+            NMI = None
+            print("Spectral clustering took too long!")
+        else:
+            sc_time = return_dict['time']
+            ARS = adjusted_rand_score(data.ys, return_dict['predicted'])
+            NMI = normalized_mutual_info_score(data.ys, return_dict['predicted'])
+
+        field_names.append('Runtime Spectral Clustering')
+        field_names.append('Adjusted Rand Score Spectral Clustering')
+        field_names.append('NMI Spectral Clustering')
+
+        results['Runtime Spectral Clustering'] = sc_time
+        results['Adjusted Rand Score Spectral Clustering'] = ARS
+        results['NMI Spectral Clustering'] = NMI
+
+        print('Spectral Adjusted Rand Score: {}'.format(ARS), flush=True)
+        print('Spectral Normalized Mutual Information: {}'.format(NMI), flush=True)
+    else:
+        Warning("No comparison method implemented.")
+        return
+
+    first = not os.path.isfile(str(path / 'comparison_{}.csv'.format(id_run)))
+
+    with open(str(path / 'comparison_{}.csv'.format(id_run)), 'a') as file:
+        writer = csv.DictWriter(file, fieldnames=field_names)
+        if first:
+            writer.writeheader()
+        writer.writerows([results])
+
+
 def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path, r=1):
     ARS = adjusted_rand_score(ys, ys_predicted)
+    NMI = normalized_mutual_info_score(ys, ys_predicted)
 
-    print(f'Adjusted Rand Score: {ARS}', flush=True)
+    print('Adjusted Rand Score: {}'.format(ARS), flush=True)
+    print('Normalized Mutual Information: {}'.format(NMI), flush=True)
 
     results = pd.Series({**hyperparameters}).to_frame().T
     results['Adjusted Rand Score'] = ARS
+    results['Normalized Mutual Information'] = NMI
 
     results.index = range(r, r+1)
 
-    if r == 1:
-        results.to_csv(path / f'evaluation_{id_run}.csv')
+    if os.path.isfile(str(path / 'evaluation_{}.csv'.format(id_run))):
+        results.to_csv(str(path / 'evaluation_{}.csv'.format(id_run)), mode='a', header=False)
     else:
-        results.to_csv(path / f'evaluation_{id_run}.csv', mode='a', header=False)
+        results.to_csv(str(path / 'evaluation_{}.csv'.format(id_run)))
 
 
-def save_time_evaluation(id_run, pre_time, cost_time, tst_time, post_time, path, verbose, r=1):
-    field_names = ["bipartitions", "calculate cost and order", "build tangle search tree", "soft clustering"]
-    results = [{"bipartitions": pre_time, "calculate cost and order": cost_time, "build tangle search tree": tst_time, "soft clustering": post_time}]
+def save_time_evaluation(id_run, pre_time, cost_time, tst_time, post_time, all_time, path, verbose, r):
+    field_names = ["", "all", "bipartitions", "calculate cost and order", "build tangle search tree", "soft clustering"]
+    results = [{"": r, "all": all_time, "bipartitions": pre_time, "calculate cost and order": cost_time, "build tangle search tree": tst_time, "soft clustering": post_time}]
 
     if verbose > 1:
-        print("runtimes: ", results[0])
+        print("runtimes: ", results[0]['all'])
 
-    with open(path / f'runtime_{id_run}.csv', 'a') as file:
+    first = not os.path.isfile(str(path / 'runtime_{}.csv'.format(id_run)))
+
+    with open(str(path / 'runtime_{}.csv'.format(id_run)), 'a') as file:
         writer = csv.DictWriter(file, fieldnames=field_names)
-        if r == 1:
+        if first:
             writer.writeheader()
         writer.writerows(results)
 

@@ -1,4 +1,5 @@
 import multiprocessing
+import time
 from functools import partial
 
 import numpy as np
@@ -45,7 +46,7 @@ def binning(xs, n_bins):
 
     nb_points, nb_features = xs.shape
 
-    colums_name = [f'q{i:02}' for i in range(1, nb_features + 1)]
+    colums_name = ['q{}'.format(np.round(i, 2)) for i in range(1, nb_features + 1)]
     df = pd.DataFrame(xs, columns=colums_name)
     cut_values = np.arange(n_bins-1) + 1
     cut_names = []
@@ -57,8 +58,8 @@ def binning(xs, n_bins):
             new_col[df[column] < cut_value] = 0
             new_col[df[column] >= cut_value] = 1
 
-            short_name = f'{column}_{b}-{bs[n_bins]}'
-            cut_names.append(f'{column} larger or equal than {b}')
+            short_name = '{}_{}-{}'.format(column, b, bs[n_bins])
+            cut_names.append('{} larger or equal than {}'.format(column, b))
 
             df_binarized[short_name] = new_col
 
@@ -216,7 +217,7 @@ def fid_mat(xs, nb_cuts, lb_f, seed, verbose, early_stopping):
 
     for i in range(nb_cuts):
         if verbose >= 3:
-            print(f'\tlooking for cut {i + 1}/{nb_cuts}')
+            print('\tlooking for cut {}/{}'.format(i+1, nb_cuts))
         cut = fid_mat_algorithm(xs, lb_f, verbose, early_stopping)
         cuts.append(cut)
 
@@ -278,7 +279,7 @@ def fid_mat_algorithm(xs, r, verbose, early_stopping):
             break
 
     if verbose >= 3:
-        print(f"\tfinal ratio: {sum(A) / nb_cells:.02}")
+        print("\tfinal ratio: {}".format(np.round(sum(A) / nb_cells, 2)))
 
     return A
 
@@ -400,16 +401,19 @@ def coarsening_cuts(A, nb_cuts, n_max):
 # ----------------------------------------------------------------------------------------------------------------------
 
 def random_projection_2means(xs, dimension, nb_cuts, seed):
-    cuts = []
+    cuts = np.empty([nb_cuts, xs.shape[0]], dtype=bool)
 
     np.random.seed(seed)
     for c in range(nb_cuts):
         seed = np.random.randint(100)
-        projection = GaussianRandomProjection(n_components=dimension, random_state=seed).fit_transform(xs)
-        cut = KMeans(n_clusters=2, random_state=seed).fit(projection).labels_
-        cuts.append(cut.astype(bool))
 
-    cuts = np.array(cuts)
+        projection = GaussianRandomProjection(n_components=dimension, random_state=seed).fit_transform(xs)
+
+        cut = KMeans(n_clusters=2, random_state=seed).fit(projection).labels_
+
+        cuts[c] = cut.astype(bool)
+
+
     return cuts
 
 # ----------------------------------------------------------------------------------------------------------------------

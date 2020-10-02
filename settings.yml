@@ -2,17 +2,15 @@ runs: 1
 
 # allowed types: single, batch
 experiment:
-  unique_id: 2
-  seed: 80
-  dataset: BCW
+  unique_id: 42
+  seed: 42
+  dataset: gau_mix
   preprocessing: none
-  cut_finding: bin
+  cut_finding: rand_proj
   cost_function: euclidean_mean
-  agreement: 25
-  percentile_orders: 80
-
-cost_function:
-  nb_points: -1
+  agreement: 50
+  percentile_orders: 20
+  nb_sample_points: 100
 
 preprocessing:
   knn:
@@ -22,14 +20,16 @@ preprocessing:
     radius: 0.3
 
   wknn:
-    k: 30
+    k: 50
 
 dataset:
 
   gau_mix:
-    sizes: [120, 60, 60]
-    centers: [[-2, -2, -2, -2], [2, 2, 2, -2], [2, -2, 2, 2]]
-    variances: [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]
+    sizes: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+    centers: [[4, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 4, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 4, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 4, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 4, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 4, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 4, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 4, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 4, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 4]]
+    variances: [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
   mind:
     mindset_sizes: [100, 50, 50]
@@ -46,9 +46,9 @@ dataset:
     max_idx: 75
 
   sbm:
-    block_sizes: [50, 75, 100, 100]
+    block_sizes: [100, 100, 100, 100, 100]
     p: 0.3
-    q: 0.1
+    q: 0.01
 
   qst_lkr:
     nb_samples: 1000
@@ -84,8 +84,8 @@ cut_finding:
                 [0, 1, 1]]
 
   rand_proj:
-    nb_cuts: 50
-    dimension: 1
+    nb_cuts: 800
+    dimension: 3
 
   kmeans:
     n_means: 2
@@ -115,8 +115,8 @@ plot:
   tangles: False
   cuts: False
   nb_cuts: 10
-  soft: True
-  hard: False
+  soft: False
+  hard: True
 
 # 0, 1, 2, 3 allowed
 # 0: Nothing

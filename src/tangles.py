@@ -94,8 +94,8 @@ class Tangle(dict):
         return Tangle(cuts, core, specification)
 
 
-def core_algorithm(tangles_tree, current_cuts, idx_current_cuts):
-    new_tree = deepcopy(tangles_tree)
+def core_algorithm(new_tree, current_cuts, idx_current_cuts):
+    #new_tree = deepcopy(tangles_tree)
 
     for idx_cut, cut in zip(idx_current_cuts, current_cuts):
         could_add = new_tree.add_cut(cut=cut, cut_id=idx_cut)

@@ -54,8 +54,6 @@ def main(args):
                                           agreement=args['experiment']['agreement'],
                                           verbose=args['verbose'])
 
-        tangles_tree
-
         tangle_search_tree_time = time.time() - start
 
         start = time.time()
@@ -105,13 +103,6 @@ def main(args):
                                         id_run=id_run,
                                         path=args['output_dir'],
                                         r=r)
-
-            compute_and_save_comparison(data=data,
-                                        hyperparameters=hyperparameters,
-                                        id_run=id_run,
-                                        path=args['output_dir'],
-                                        r=r)
-
 
 if __name__ == '__main__':
 
