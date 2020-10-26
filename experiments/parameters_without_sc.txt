@@ -1,2 +1,0 @@
--r 5 --id 1 -t gau_mix -b rand_proj -c euclidean_mean -o 80 --nb_cuts 50 --gauss_mean "[[0,-7],[0,0],[0,7],[7,5],[7,-6]]" --gauss_var "[[2,2],[3,1.2],[2,2],[1.6,2.6],[2.4,1.4]]" --sample_cost 100 -a 80000 --gauss_sizes 150000 200000 150000 350000 150000
--r 5 --id 1 -t gau_mix -b rand_proj -c euclidean_mean -o 80 --nb_cuts 50 --gauss_mean "[[0,-7],[0,0],[0,7],[7,5],[7,-6]]" --gauss_var "[[2,2],[3,1.2],[2,2],[1.6,2.6],[2.4,1.4]]" --sample_cost 100 -a 800000 --gauss_sizes 1500000 2000000 1500000 3500000 1500000
