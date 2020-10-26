@@ -2,19 +2,20 @@ runs: 1
 
 # allowed types: single, batch
 experiment:
-  unique_id: 42
-  seed: 42
-  dataset: gau_mix
-  preprocessing: none
-  cut_finding: rand_proj
-  cost_function: euclidean_mean
-  agreement: 50
-  percentile_orders: 20
-  nb_sample_points: 100
+  unique_id: 2
+  seed: 10
+  dataset: moons
+  preprocessing: wknn
+  cut_finding: KL
+  cost_function: cut_mean
+  agreement: 70
+  percentile_orders: 100
+  prune_depth: 1
+  nb_sample_points: 0
 
 preprocessing:
   knn:
-    k: 14
+    k: 10
 
   rng:
     radius: 0.3
@@ -25,30 +26,37 @@ preprocessing:
 dataset:
 
   gau_mix:
-    sizes: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
-    centers: [[4, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 4, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 4, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 4, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 4, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 4, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 4, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 4, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 4, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 4]]
-    variances: [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+    sizes: [2000, 1000, 2000, 1000]
+    centers: [[-3, -2], [-3, 3], [3, 3], [3, -2]]
+    variances: [[1,2],[1, 0.8], [1,2], [1, 0.8]]
+
+#  gau_mix:
+#    sizes: [150, 150, 150, 350, 200]
+#    centers: [[-2,-7],[-2,0],[-2,7],[8,5],[8,-6]]
+#    variances: [[2,2],[2.5,1.2],[2,2],[1.6,3],[1.5,2]]
 
   mind:
-    mindset_sizes: [100, 50, 50]
+    mindset_sizes: [200, 300, 200]
     nb_questions: 10
-    nb_useless: 50
+    nb_useless: 5
     noise: 0.1
 
   moons:
     n_samples: 300
     noise: 0.1
-    radius: 0.3
+
+  circles:
+    n_samples: 300
+    noise: 0.05
+    factor: 0.5
 
   retinal:
     max_idx: 75
 
   sbm:
-    block_sizes: [100, 100, 100, 100, 100]
+    block_sizes: [50, 50]
     p: 0.3
-    q: 0.01
+    q: 0.1
 
   qst_lkr:
     nb_samples: 1000
@@ -84,8 +92,8 @@ cut_finding:
                 [0, 1, 1]]
 
   rand_proj:
-    nb_cuts: 800
-    dimension: 3
+    nb_cuts: 25
+    dimension: 1
 
   kmeans:
     n_means: 2
@@ -98,25 +106,24 @@ cut_finding:
     n_max: 20
 
   KL:
-    nb_cuts: 40
-    lb_f: 0.0
-    early_stopping: 10
+    nb_cuts: 25
+    lb_f: 0.2
+    early_stopping: 5
 
   FM:
     nb_cuts: 30
     lb_f: 0.2
-    early_stopping: False
-
+    early_stopping: 10
 
 # -1 in nb_cuts means all
 plot:
   no_plots: False
   tree: True
   tangles: False
-  cuts: False
+  cuts: True
   nb_cuts: 10
-  soft: False
-  hard: True
+  soft: True
+  hard: False
 
 # 0, 1, 2, 3 allowed
 # 0: Nothing
