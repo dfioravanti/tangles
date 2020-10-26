@@ -120,19 +120,20 @@ def make_mindsets(mindset_sizes, nb_questions, nb_useless, noise, seed):
         xs_mindset = np.tile(mindsets[idx_mindset], (size_mindset, 1))
         ys_mindset = np.repeat(idx_mindset, repeats=size_mindset, axis=0)
 
-        # Add noise
-        noise_per_question = np.random.rand(size_mindset, nb_questions)
-        flip_question = noise_per_question <= noise
-        xs_mindset[flip_question] = np.logical_not(xs_mindset[flip_question])
-
         xs.append(xs_mindset)
         ys.append(ys_mindset)
 
     xs = np.vstack(xs)
     ys = np.concatenate(ys)
 
+    # Add noise
+    noise_per_question = np.random.rand(nb_points, nb_questions)
+    flip_question = noise_per_question < noise
+    xs[flip_question] = np.logical_not(xs[flip_question])
+
     # add noise question like gender etc.
     if nb_useless is not None:
+        mindsets = np.hstack((mindsets, np.full([nb_mindsets, nb_useless], 0.5)))
         useless = np.random.randint(2, size=[nb_points, nb_useless])
         xs = np.hstack((xs, useless))
 

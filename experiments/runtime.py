@@ -1,12 +1,8 @@
+from src.utils import dict_product
 import sys
 
+
 sys.path.append("../src")
-
-import datetime
-
-import numpy as np
-
-from src.utils import dict_product
 
 parameters = {}
 multi_parameters = {}
@@ -18,16 +14,25 @@ parameters['-t'] = 'gau_mix'
 parameters['-b'] = 'rand_proj'
 parameters['-c'] = 'euclidean_mean'
 parameters['-o'] = 100
-parameters['--nb_cuts'] = 20
-multi_parameters['--gauss_sizes'] = [[10, 5, 5], [100, 50, 50], [1000, 500, 500], [10000, 5000, 5000], [100000, 50000, 50000]]
-parameters['--gauss_mean'] = '"[[2,2],[2,-2],[-2,2]]"'
-parameters['--gauss_var'] = '"[[1,1],[1,1],[1,1]]"'
+parameters['--prune'] = 1
+parameters['--nb_cuts'] = 25
+parameters['-s'] = 10
+multi_parameters['--gauss_sizes'] = [[20, 10, 20, 10],
+                                     [200, 100, 200, 100],
+                                     [2000, 1000, 2000, 1000],
+                                     [20000, 10000, 20000, 10000],
+                                     [200000, 100000, 200000, 100000],
+                                     [2000000, 1000000, 2000000, 1000000]]
+
+parameters['--gauss_mean'] = '"[[-3,-2],[-3,3],[3,3],[3,-2]]"'
+parameters['--gauss_var'] = '"[[1,2],[1,0.8],[1,2],[1,0.8]]"'
+parameters['--sample_cost'] = 100
 
 
 with open('parameters.txt', 'w') as f:
     for current_parameters in dict_product(multi_parameters):
 
-        parameters['-a'] = int(sum(current_parameters['--gauss_sizes']) / 6)
+        parameters['-a'] = int( 6 * current_parameters['--gauss_sizes'][1] / 10)
 
         p = {**parameters, **current_parameters}
 
@@ -43,33 +48,3 @@ with open('parameters.txt', 'w') as f:
 
         line = ' '.join(line)
         print(line, file=f)
-
-
-# parameters['-t'] = 'sbm'
-# parameters['-b'] = 'KL'
-# parameters['-c'] = 'cut_sum'
-# multi_parameters['-o'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-# multi_parameters['-a'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-# multi_parameters['--nb_cuts'] = [20]
-# multi_parameters['--lb_f'] = [0.0]
-# multi_parameters['--sbm_sizes'] = [[100, 100]]
-# multi_parameters['--sbm_p'] = [0.3]
-# multi_parameters['--sbm_q'] = [0.1]
-#
-# with open('parameters.txt', 'a') as f:
-#     for current_parameters in dict_product(multi_parameters):
-#
-#         p = {**parameters, **current_parameters}
-#
-#         line = []
-#
-#         for k, v in p.items():
-#             if type(v) == list:
-#                 str_v = (' '.join(map(str, v)))
-#             else:
-#                 str_v = str(v)
-#
-#             line += [f'{k} {str_v}']
-#
-#         line = ' '.join(line)
-#         print(line, file=f)

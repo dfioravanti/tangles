@@ -28,8 +28,10 @@ def make_parser():
     parser.add_argument('-s', dest='seed', action='store', type=int, default=2)
     parser.add_argument('-c', dest='cost_function', action='store')
 
+    parser.add_argument('--prune', dest='prune_depth', action='store', type=int, default=0)
+
     # Cost Function
-    parser.add_argument('--sample_cost', dest='sample_cost', action='store', default=1000, type=int)
+    parser.add_argument('--sample_cost', dest='sample_cost', action='store', default=0, type=int)
 
     # Gaussian
     parser.add_argument('--gauss_sizes', dest='gauss_sizes', nargs='+', type=int)
@@ -44,8 +46,12 @@ def make_parser():
 
     # Moons
     parser.add_argument('--moon_n', dest='n_smaples', type=int)
-    parser.add_argument('--moon_rad', dest='moon_radius', action='store', type=float)
     parser.add_argument('--moon_noise', dest='moon_noise', action='store', type=float)
+
+    # Circle
+    parser.add_argument('--circle_n', dest='n_smaples', type=int)
+    parser.add_argument('--circle_factor', dest='circle_factor', action='store', type=float)
+    parser.add_argument('--circle_noise', dest='circle_noise', action='store', type=float)
 
     # SBM
     parser.add_argument('--sbm_sizes', dest='block_sizes', nargs='+', type=int)
@@ -77,7 +83,7 @@ def make_parser():
 
     # kl and fm
     parser.add_argument('--lb_f', dest='lb_f', action='store', type=float)
-    parser.add_argument('--early_stopping', dest='early_stopping', action='store_true', default=False)
+    parser.add_argument('--early_stopping', dest='early_stopping', action='store_true', default=10)
 
     # ID
     parser.add_argument('--id', dest='unique_id', action='store', type=int, default=0)
@@ -126,6 +132,7 @@ def get_arguments(cmd_args):
     args['experiment']['seed'] = cmd_args['seed']
     args['experiment']['agreement'] = cmd_args['agreement']
     args['experiment']['percentile_orders'] = cmd_args['percentile_orders']
+    args['experiment']['prune_depth'] = cmd_args['prune_depth']
 
     # preprocessing
     if cmd_args['preprocessing'] == 'knn' or cmd_args['preprocessing'] == 'wknn':
@@ -157,7 +164,11 @@ def get_arguments(cmd_args):
     elif cmd_args['dataset'] == 'moons':
         args['dataset']['n_samples'] = cmd_args['n_smaples']
         args['dataset']['noise'] = cmd_args['moon_noise']
-        args['dataset']['radius'] = cmd_args['moon_radius']
+
+    elif cmd_args['dataset'] == 'circles':
+        args['dataset']['n_samples'] = cmd_args['n_smaples']
+        args['dataset']['noise'] = cmd_args['moon_noise']
+        args['dataset']['factor'] = cmd_args['factor']
 
     elif cmd_args['dataset'] == 'sbm':
         args['dataset']['block_sizes'] = cmd_args['block_sizes']

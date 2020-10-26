@@ -6,12 +6,14 @@ from functools import partial
 import numpy as np
 import os
 import pandas as pd
-from sklearn.cluster import SpectralClustering, KMeans
-from sklearn.datasets import make_moons, make_blobs
+from sklearn.cluster import SpectralClustering, KMeans, AgglomerativeClustering
+from sklearn.datasets import make_moons, make_blobs, make_circles
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
+from sklearn.neighbors._dist_metrics import DistanceMetric
 
 from src.my_types import Dataset, CutFinding, Data, Bipartitions, Preprocessing, CostFunction
-from src.cut_finding import kernighan_lin, fid_mat, binning, linear_cuts, random_projection_2means
+from src.cut_finding import kernighan_lin, fid_mat, binning, linear_cuts, \
+    random_projection_mean
 from src.loading import make_mindsets, make_likert_questionnaire, load_RETINAL, load_CANCER, load_SBM, load_LFR
 from src.plotting import plot_cuts
 from src.preprocessing import calculate_knn_graph, calculate_radius_graph, calculate_weighted_knn_graph
@@ -22,7 +24,6 @@ from src.cost_functions import edges_cut_cost, mean_euclidean_distance, euclidea
     manhattan_distance, mean_manhattan_distance, mean_edges_cut_cost
 import time
 
-MAX_TIME = 60 * 30
 
 def get_dataset(args):
     """
@@ -77,6 +78,13 @@ def get_dataset(args):
         xs, ys = make_moons(n_samples=args['dataset']['n_samples'],
                             noise=args['dataset']['noise'],
                             random_state=args['experiment']['seed'])
+
+        return Data(xs=xs, ys=ys)
+
+    if args['experiment']['dataset'] == Dataset.circles:
+        xs, ys = make_circles(n_samples=args['dataset']['n_samples'],
+                              factor=args['dataset']['factor'],
+                              noise=args['dataset']['noise'])
 
         return Data(xs=xs, ys=ys)
 
@@ -145,26 +153,32 @@ def find_bipartitions(data, args, verbose):
     """
 
     if args['experiment']['cut_finding'] == CutFinding.features:
-
+        start = time.time()
         values = (data.xs == True).T
-        return Bipartitions(values=values)
+        end = time.time() - start
+
+        return Bipartitions(values=values), end
 
     if args['experiment']['cut_finding'] == CutFinding.binning:
-
+        start = time.time()
         values, names = binning(xs=data.xs,
                                 n_bins=args['cut_finding']['n_bins'])
-        return Bipartitions(values=values, names=names)
+        end = time.time() - start
+
+        return Bipartitions(values=values, names=names), end
 
     if args['experiment']['cut_finding'] == CutFinding.Kernighan_Lin:
-
+        start = time.time()
         values = kernighan_lin(A=data.A,
                                nb_cuts=args['cut_finding']['nb_cuts'],
                                lb_f=args['cut_finding']['lb_f'],
                                seed=args['experiment']['seed'],
                                verbose=verbose,
                                early_stopping=args['cut_finding']['early_stopping'])
+        end = time.time() - start
+
         values = np.unique(values, axis=0)
-        return Bipartitions(values=values)
+        return Bipartitions(values=values), end
 
     # if args['experiment']['cut_finding'] == CutFinding.kmodes:
     #
@@ -174,7 +188,7 @@ def find_bipartitions(data, args, verbose):
     #     return Cuts(values=values)
 
     if args['experiment']['cut_finding'] == CutFinding.Fiduccia_Mattheyses:
-
+        start = time.time()
         values = fid_mat(xs=data.A,
                          nb_cuts=args['cut_finding']['nb_cuts'],
                          lb_f=args['cut_finding']['lb_f'],
@@ -182,30 +196,30 @@ def find_bipartitions(data, args, verbose):
                          verbose=verbose,
                          early_stopping=args['cut_finding']['early_stopping'])
         values = np.unique(values, axis=0)
-        return Bipartitions(values=values)
+        end = time.time() - start
+        return Bipartitions(values=values), end
 
     if args['experiment']['cut_finding'] == CutFinding.linear:
-
+        start = time.time()
         values, equations = linear_cuts(xs=data.xs,
                                         equations=args['cut_finding']['equations'],
                                         verbose=verbose)
 
-        return Bipartitions(values=values, equations=equations)
+        end = time.time() - start
+        return Bipartitions(values=values, equations=equations), end
 
     if args['experiment']['cut_finding'] == CutFinding.random_projection:
-
-        values = random_projection_2means(xs=data.xs,
-                                          dimension=args['cut_finding']['dimension'],
-                                          nb_cuts=args['cut_finding']['nb_cuts'],
-                                          seed=args['experiment']['seed'])
-
-        return Bipartitions(values=values)
+        start = time.time()
+        values = random_projection_mean(xs=data.xs,
+                                        nb_cuts=args['cut_finding']['nb_cuts'],
+                                        seed=args['experiment']['seed'])
+        end = time.time() - start
+        return Bipartitions(values=values), end
 
     raise ValueError('Wrong name for a cut finding function')
 
 
 def apply_preprocess(data, args):
-
     if args['experiment']['preprocessing'] == Preprocessing.none:
         return data
 
@@ -222,7 +236,6 @@ def apply_preprocess(data, args):
 
 
 def get_cost_function(data, args):
-
     if args['experiment']['cost_function'] == CostFunction.euclidean:
         if data.xs is None:
             raise ValueError('You need xs to compute the euclidean cost function')
@@ -251,13 +264,13 @@ def get_cost_function(data, args):
         if data.A is None:
             raise ValueError('You need a graph to compute the edge cost')
 
-        return partial(edges_cut_cost, data.A)
+        return partial(edges_cut_cost, data.A, args['experiment']['nb_sample_points'])
 
     if args['experiment']['cost_function'] == CostFunction.mean_cut_value:
         if data.A is None:
             raise ValueError('You need a graph to compute the edge cost')
 
-        return partial(mean_edges_cut_cost, data.A)
+        return partial(mean_edges_cut_cost, data.A, args['experiment']['nb_sample_points'])
 
     raise ValueError('Wrong name for a cost function')
 
@@ -292,6 +305,8 @@ def compute_cost_and_order_cuts(bipartitions, cost_function):
     if bipartitions.equations is not None:
         bipartitions.equations = bipartitions.equations[idx]
 
+    bipartitions.order = np.argsort(idx)
+
     return bipartitions
 
 
@@ -307,8 +322,8 @@ def pick_cuts_up_to_order(bipartitions, percentile):
     Returns
     -------
     """
-
-    mask_orders_to_pick = bipartitions.costs <= np.percentile(bipartitions.costs, q=percentile)
+    mask_orders_to_pick = bipartitions.costs <= np.percentile(bipartitions.costs[~np.isnan(bipartitions.costs)],
+                                                              q=percentile)
     bipartitions.costs = bipartitions.costs[mask_orders_to_pick]
     bipartitions.values = bipartitions.values[mask_orders_to_pick, :]
     if bipartitions.names is not None:
@@ -319,7 +334,19 @@ def pick_cuts_up_to_order(bipartitions, percentile):
     return bipartitions
 
 
-def get_data_and_cuts(args):
+def get_data(args):
+    if args['verbose'] >= 2:
+        print("Load data\n", flush=True)
+    data = get_dataset(args)
+
+    if args['verbose'] >= 2:
+        print("Preprocessing data\n", flush=True)
+    data = apply_preprocess(data, args)
+
+    return data
+
+
+def get_cuts(args, data):
     """
     Function to load the datasets, compute the cuts and the costs.
 
@@ -335,18 +362,9 @@ def get_data_and_cuts(args):
     """
 
     if args['verbose'] >= 2:
-        print("Load data\n", flush=True)
-    data = get_dataset(args)
-
-    if args['verbose'] >= 2:
-        print("Preprocessing data\n", flush=True)
-    data = apply_preprocess(data, args)
-
-    if args['verbose'] >= 2:
         print("Find cuts", flush=True)
-    start = time.time()
-    bipartitions = find_bipartitions(data, args, verbose=args['verbose'])
-    bipartitions_time = time.time() - start
+
+    bipartitions, bipartitions_time = find_bipartitions(data, args, verbose=args['verbose'])
 
     if args['verbose'] >= 2:
         print('\tI found {} cuts\n'.format(len(bipartitions.values)))
@@ -354,25 +372,25 @@ def get_data_and_cuts(args):
     print("Compute cost", flush=True)
     cost_function = get_cost_function(data, args)
     start = time.time()
-    cuts = compute_cost_and_order_cuts(bipartitions, cost_function)
+    bipartitions = compute_cost_and_order_cuts(bipartitions, cost_function)
     cost_and_sort_time = time.time() - start
 
-    cuts = pick_cuts_up_to_order(cuts,
-                                 percentile=args['experiment']['percentile_orders'])
+    bipartitions = pick_cuts_up_to_order(bipartitions,
+                                         percentile=args['experiment']['percentile_orders'])
     if args['verbose'] >= 2:
-        max_considered_order = cuts.costs[-1]
+        max_considered_order = bipartitions.costs[-1]
         print("\tI will stop at order: {}".format(max_considered_order))
-        print('\tI will use {} cuts\n'.format(len(cuts.values)), flush=True)
+        print('\tI will use {} cuts\n'.format(len(bipartitions.values)), flush=True)
 
     if args['plot']['cuts']:
         if args['verbose'] >= 2:
             print("\tPlotting cuts")
 
-        plot_cuts(data, cuts,
+        plot_cuts(data, bipartitions,
                   nb_cuts_to_plot=args['plot']['nb_cuts'],
                   path=args['plot_dir'])
 
-    return data, bipartitions, bipartitions_time, cost_and_sort_time
+    return bipartitions, bipartitions_time, cost_and_sort_time
 
 
 def tangle_computation(bipartitions, agreement, verbose):
@@ -422,13 +440,15 @@ def tangle_computation(bipartitions, agreement, verbose):
                 max_order = bipartitions.costs[-1]
                 if verbose >= 2:
                     print('\t\tI could not add all the new cuts')
-                    print('\n\tI stopped the computation at order {} instead of {}'.format(old_order, max_order), flush=True)
+                    print('\n\tI stopped the computation at order {} instead of {}'.format(old_order, max_order),
+                          flush=True)
                 break
             else:
                 tangles_tree = new_tree
 
                 if verbose >= 2:
-                    print("\t\tI found {} tangles of order less or equal {}".format(len(new_tree.active), order), flush=True)
+                    print("\t\tI found {} tangles of order less or equal {}".format(len(new_tree.active), order),
+                          flush=True)
 
         old_order = order
 
@@ -506,6 +526,12 @@ def tangles_to_range_answers(tangles, cut_names, interval_values, path):
     return range_answers
 
 
+def clean_str(element):
+    string = str(element)
+    string = string.replace(" ", "")
+    return string
+
+
 def centers_in_range_answers(cs, range_answers):
     # name_questions = [f'{q']
 
@@ -523,11 +549,6 @@ def centers_in_range_answers(cs, range_answers):
 
 
 def compute_soft_predictions(contracted_tree, cuts, verbose=0):
-    #def sigmoid(cost):
-    #    return 1 / (1 + np.exp(10 * (cost - 0.4)))
-
-    #costs = sigmoid(normalize(cuts.costs))
-
     costs = np.exp(-normalize(cuts.costs))
 
     compute_soft_predictions_children(node=contracted_tree.root,
@@ -538,200 +559,32 @@ def compute_soft_predictions(contracted_tree, cuts, verbose=0):
     contracted_tree.processed_soft_prediction = True
 
 
-def clean_str(element):
-    string = str(element)
-    string = string.replace(" ", "")
-    return string
+def compute_mindset_prediciton(xs, cs):
+    metric = DistanceMetric.get_metric('manhattan')
 
+    distance = metric.pairwise(xs, cs)
+    predicted = np.empty(xs.shape[0])
 
-def spectral_sbm_worker(n_clusters, A, seed, result):
-    start = time.time()
-    result["predicted"] = SpectralClustering(n_clusters=n_clusters, assign_labels='precomputed', random_state=seed).fit(A).labels_
-    result['time'] = time.time() - start
+    for i, d in enumerate(distance):
+        predicted[i] = np.random.choice(np.flatnonzero(d == d.min()))
 
-
-def kmeans_gauss_worker(n_clusters, xs, seed, result):
-    start = time.time()
-    result["predicted"] = KMeans(n_clusters=n_clusters, random_state=seed).fit(xs).labels_
-    result['time'] = time.time() - start
-
-
-def spectral_gauss_worker(n_clusters, xs, seed, result):
-    start = time.time()
-    result["predicted"] = SpectralClustering(n_clusters=n_clusters, assign_labels='kmeans', affinity='nearest_neighbors',
-                                             n_neighbors=int(2*np.log(xs.shape[0])), random_state=seed).fit(xs).labels_
-    result['time'] = time.time() - start
-
-
-def compute_and_save_comparison_kmeans(data, hyperparameters, id_run, path, r=1):
-    field_names = [""]
-    results = {"": r}
-
-    manager = multiprocessing.Manager()
-    return_dict = manager.dict()
-
-    p = multiprocessing.Process(target=kmeans_gauss_worker, name="spectral_eval_gauss",
-                                    args=(len(np.unique(data.ys)), data.xs, hyperparameters['seed'], return_dict))
-
-    p.start()
-    p.join(MAX_TIME)
-
-    if p.is_alive():
-        print("process still alive after {} seconds.... kill it".format(MAX_TIME))
-        # Terminate foo
-        p.terminate()
-        p.join()
-        ARS = None
-        sc_time = None
-        print("kMeans took too long!")
-    else:
-        sc_time = return_dict['time']
-        ARS = adjusted_rand_score(data.ys, return_dict['predicted'])
-
-    field_names.append('Runtime kMeans')
-    field_names.append('Adjusted Rand Score kMeans')
-
-    results['Runtime kMeans'] = sc_time
-    results['Adjusted Rand Score kMeans'] = ARS
-
-    first = not os.path.isfile(str(path / 'comparison_{}.csv'.format(id_run)))
-
-    print(results)
-
-    with open(str(path / 'comparison_{}.csv'.format(id_run)), 'a') as file:
-        writer = csv.DictWriter(file, fieldnames=field_names)
-        if first:
-            writer.writeheader()
-        writer.writerows([results])
-
-
-def compute_and_save_comparison(data, hyperparameters, id_run, path, r=1):
-    field_names = [""]
-    results = {"": r}
-
-    if hyperparameters['dataset'] == Dataset.SBM:
-
-        manager = multiprocessing.Manager()
-        return_dict = manager.dict()
-
-        p = multiprocessing.Process(target=spectral_gauss_worker, name="spectral_eval_gauss",
-                                    args=(len(np.unique(data.ys)), data.A, hyperparameters['seed'], return_dict))
-        p.start()
-        p.join(MAX_TIME)
-
-        if p.is_alive():
-            print("process still alive after {} seconds.... kill it".format(MAX_TIME))
-            p.terminate()
-            p.join()
-            ARS = None
-            sc_time = None
-            NMI = None
-            print("Spectral clustering took too long!")
-        else:
-            sc_time = return_dict['time']
-            ARS = adjusted_rand_score(data.ys, return_dict['predicted'])
-            NMI = normalized_mutual_info_score(data.ys, return_dict['predicted'])
-
-        field_names.append('Runtime Spectral Clustering')
-        field_names.append('Adjusted Rand Score Spectral Clustering')
-        field_names.append('NMI Spectral Clustering')
-
-        results['Adjusted Rand Score Spectral Clustering'] = ARS
-        results['Runtime Spectral Clustering'] = sc_time
-        results['NMI Spectral Clustering'] = NMI
-
-        print('Spectral Adjusted Rand Score: {}'.format(ARS), flush=True)
-        print('Spectral Normalized Mutual Information: {}'.format(NMI), flush=True)
-
-    elif hyperparameters['dataset'] == Dataset.gaussian_mixture:
-        manager = multiprocessing.Manager()
-        return_dict = manager.dict()
-
-        p = multiprocessing.Process(target=kmeans_gauss_worker, name="spectral_eval_gauss",
-                                    args=(len(np.unique(data.ys)), data.xs, hyperparameters['seed'], return_dict))
-
-        p.start()
-        p.join(MAX_TIME)
-
-        if p.is_alive():
-            print("process still alive after {} seconds.... kill it".format(MAX_TIME))
-            # Terminate foo
-            p.terminate()
-            p.join()
-            ARS = None
-            NMI = None
-            sc_time = None
-            print("kMeans took too long!")
-        else:
-            sc_time = return_dict['time']
-            ARS = adjusted_rand_score(data.ys, return_dict['predicted'])
-            NMI = normalized_mutual_info_score(data.ys, return_dict['predicted'])
-
-        field_names.append('Runtime kMeans')
-        field_names.append('Adjusted Rand Score kMeans')
-        field_names.append('NMI kMeans')
-
-        results['Runtime kMeans'] = sc_time
-        results['Adjusted Rand Score kMeans'] = ARS
-        results['NMI kMeans'] = NMI
-
-        print('kMeans Adjusted Rand Score: {}'.format(ARS), flush=True)
-        print('kMeans Normalized Mutual Information: {}'.format(NMI), flush=True)
-
-        return_dict = manager.dict()
-        p = multiprocessing.Process(target=spectral_gauss_worker, name="spectral_eval_gauss", args=(len(np.unique(data.ys)), data.xs, hyperparameters['seed'], return_dict))
-
-        p.start()
-        p.join(MAX_TIME)
-
-        if p.is_alive():
-            print("process still alive after {} seconds.... kill it".format(MAX_TIME))
-            p.terminate()
-            p.join()
-            sc_time = None
-            ARS = None
-            NMI = None
-            print("Spectral clustering took too long!")
-        else:
-            sc_time = return_dict['time']
-            ARS = adjusted_rand_score(data.ys, return_dict['predicted'])
-            NMI = normalized_mutual_info_score(data.ys, return_dict['predicted'])
-
-        field_names.append('Runtime Spectral Clustering')
-        field_names.append('Adjusted Rand Score Spectral Clustering')
-        field_names.append('NMI Spectral Clustering')
-
-        results['Runtime Spectral Clustering'] = sc_time
-        results['Adjusted Rand Score Spectral Clustering'] = ARS
-        results['NMI Spectral Clustering'] = NMI
-
-        print('Spectral Adjusted Rand Score: {}'.format(ARS), flush=True)
-        print('Spectral Normalized Mutual Information: {}'.format(NMI), flush=True)
-    else:
-        Warning("No comparison method implemented.")
-        return
-
-    first = not os.path.isfile(str(path / 'comparison_{}.csv'.format(id_run)))
-
-    with open(str(path / 'comparison_{}.csv'.format(id_run)), 'a') as file:
-        writer = csv.DictWriter(file, fieldnames=field_names)
-        if first:
-            writer.writeheader()
-        writer.writerows([results])
+    return predicted
 
 
 def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path, r=1):
     ARS = adjusted_rand_score(ys, ys_predicted)
     NMI = normalized_mutual_info_score(ys, ys_predicted)
 
+    print('Found {} clusters.'.format(len(np.unique(ys_predicted))))
     print('Adjusted Rand Score: {}'.format(ARS), flush=True)
     print('Normalized Mutual Information: {}'.format(NMI), flush=True)
 
     results = pd.Series({**hyperparameters}).to_frame().T
     results['Adjusted Rand Score'] = ARS
     results['Normalized Mutual Information'] = NMI
+    results['number found clusters'] = len(np.unique(ys_predicted))
 
-    results.index = range(r, r+1)
+    results.index = range(r, r + 1)
 
     if os.path.isfile(str(path / 'evaluation_{}.csv'.format(id_run))):
         results.to_csv(str(path / 'evaluation_{}.csv'.format(id_run)), mode='a', header=False)
@@ -741,7 +594,8 @@ def compute_and_save_evaluation(ys, ys_predicted, hyperparameters, id_run, path,
 
 def save_time_evaluation(id_run, pre_time, cost_time, tst_time, post_time, all_time, path, verbose, r):
     field_names = ["", "all", "bipartitions", "calculate cost and order", "build tangle search tree", "soft clustering"]
-    results = [{"": r, "all": all_time, "bipartitions": pre_time, "calculate cost and order": cost_time, "build tangle search tree": tst_time, "soft clustering": post_time}]
+    results = [{"": r, "all": all_time, "bipartitions": pre_time, "calculate cost and order": cost_time,
+                "build tangle search tree": tst_time, "soft clustering": post_time}]
 
     if verbose > 1:
         print("runtimes: ", results[0]['all'])
@@ -755,16 +609,30 @@ def save_time_evaluation(id_run, pre_time, cost_time, tst_time, post_time, all_t
         writer.writerows(results)
 
 
-def compute_hard_preditions(condensed_tree, cuts):
-    if not condensed_tree.processed_soft_prediction:
-        print("No probabilities given yet. Calculating soft predictions first!")
-        compute_soft_predictions(condensed_tree, cuts)
+def compute_hard_predictions(condensed_tree, cuts, xs=None):
+    if xs is not None:
+        cs = []
+        nb_cuts = len(cuts.values)
 
-    probabilities = []
-    for node in condensed_tree.maximals:
-        probabilities.append(node.p)
+        for leaf in condensed_tree.maximals:
+            c = np.full(nb_cuts, 0.5)
+            tangle = leaf.tangle
+            c[list(tangle.specification.keys())] = np.array(list(tangle.specification.values()), dtype=int)
+            cs.append(c[cuts.order])
 
-    ys_predicted = np.argmax(probabilities, axis=0)
+        cs = np.array(cs)
 
-    return ys_predicted
+        return compute_mindset_prediciton(xs, cs), cs
 
+    else:
+        if not condensed_tree.processed_soft_prediction:
+            print("No probabilities given yet. Calculating soft predictions first!")
+            compute_soft_predictions(condensed_tree, cuts)
+
+        probabilities = []
+        for node in condensed_tree.maximals:
+            probabilities.append(node.p)
+
+        ys_predicted = np.argmax(probabilities, axis=0)
+
+        return ys_predicted, None

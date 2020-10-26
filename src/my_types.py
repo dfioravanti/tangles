@@ -16,6 +16,7 @@ class Dataset(ExtendedEnum):
     microbiome = 'micro'
     mindsets = 'mind'
     moons = 'moons'
+    circles = 'circles'
     SBM = 'sbm'
     questionnaire_likert = 'q_likert'
     retinal = 'retinal'
@@ -59,8 +60,8 @@ class CostFunction(ExtendedEnum):
     mean_euclidean = 'euclidean_mean'
     manhattan = 'manhattan_sum'
     mean_manhattan = 'manhattan_mean'
-    mean_cut_value = 'cut_sum'
-    cut_value = 'cut_mean'
+    mean_cut_value = 'cut_mean'
+    cut_value = 'cut_sum'
 
     def __str__(self):
         return self.value
@@ -88,3 +89,4 @@ class Bipartitions(object):
         self.names = names
         self.equations = equations
         self.costs = costs
+        self.order = None

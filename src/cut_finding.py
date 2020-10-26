@@ -357,17 +357,17 @@ def move_and_update(base_cell, F, T, gain_list, not_locked, cell_array, xs):
         Fn = F[other_cell] + 1
         if not_locked[other_cell]:
             if Tn == 0:
-                gain_list = adjust_gain(gain_list, other_cell, +xs[base_cell, other_cell])
+                gain_list = adjust_gain(gain_list, other_cell, +1 * xs[base_cell, other_cell])
             elif Tn == 1:
-                gain_list = adjust_gain(gain_list, other_cell, -xs[base_cell, other_cell])
+                gain_list = adjust_gain(gain_list, other_cell, -1 * xs[base_cell, other_cell])
 
             # # chance net distribution to reflect the move
             Tn += 1
             Fn -= 1
             if Fn == 0:
-                gain_list = adjust_gain(gain_list, other_cell, -xs[base_cell, other_cell])
+                gain_list = adjust_gain(gain_list, other_cell, -1 * xs[base_cell, other_cell])
             elif Fn == 1:
-                gain_list = adjust_gain(gain_list, other_cell, +xs[base_cell, other_cell])
+                gain_list = adjust_gain(gain_list, other_cell, +1 * xs[base_cell, other_cell])
 
     return F, T, gain_list, not_locked
 
@@ -400,21 +400,48 @@ def coarsening_cuts(A, nb_cuts, n_max):
 # random projection and 2 means
 # ----------------------------------------------------------------------------------------------------------------------
 
-def random_projection_2means(xs, dimension, nb_cuts, seed):
+def random_projection_mean(xs, nb_cuts, seed):
     cuts = np.empty([nb_cuts, xs.shape[0]], dtype=bool)
 
     np.random.seed(seed)
+
     for c in range(nb_cuts):
+
         seed = np.random.randint(100)
 
-        projection = GaussianRandomProjection(n_components=dimension, random_state=seed).fit_transform(xs)
+        projection = GaussianRandomProjection(n_components=1, random_state=seed).fit_transform(xs).reshape(-1)
 
-        cut = KMeans(n_clusters=2, random_state=seed).fit(projection).labels_
+        #cut = KMeans(n_clusters=2, random_state=seed).fit(projection).labels_
+        cut_value = np.mean(projection)
+
+        #cut_value = find_optimum(projection)
+
+        cut = projection < cut_value
 
         cuts[c] = cut.astype(bool)
 
-
     return cuts
+
+
+def find_optimum(projection):
+    last_cost = np.inf
+    sorted_values = np.sort(projection)
+
+    for mean in sorted_values[2:]:
+        booleans = sorted_values <= mean
+        values_lower = sorted_values[booleans]
+        values_upper = sorted_values[~booleans]
+        lower = np.mean(values_lower)
+        upper = np.mean(values_upper)
+        cost = sum(np.abs(values_lower - lower)) + sum(np.abs(values_upper - upper))
+        if cost <= last_cost:
+            last_cost = cost
+        else:
+            return mean
+
+
+
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Discrete approach

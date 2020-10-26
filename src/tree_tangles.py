@@ -48,6 +48,9 @@ class TangleNode(object):
 
         return string
 
+    def is_leaf(self):
+        return self.left_child is None and self.right_child is None
+
 
 class ContractedTangleNode(TangleNode):
 
@@ -64,8 +67,8 @@ class ContractedTangleNode(TangleNode):
         self.characterizing_cuts_left = None
         self.characterizing_cuts_right = None
 
-        self.is_left_child_processed = False
-        self.is_right_child_processed = False
+        self.is_left_child_deleted = False
+        self.is_right_child_deleted = False
 
         self.p = None
 
@@ -121,8 +124,8 @@ class TangleTree(object):
                                left_child=None,
                                splitting=None,
                                is_left_child=None,
-                               did_split=None,
-                               last_cut_added_id=None,
+                               did_split=True,
+                               last_cut_added_id=-1,
                                last_cut_added_orientation=None,
                                tangle=Tangle())
         self.active = [self.root]
@@ -241,22 +244,103 @@ class TangleTree(object):
 
 class ContractedTangleTree(TangleTree):
 
-    def __init__(self, tree):
+    def __init__(self, tree, prune_depth=1):
 
         self.is_empty = tree.is_empty
         self.processed_soft_prediction = False
         self.maximals = []
         self.splitting = []
         self.root = self._contract_subtree(parent=None, node=tree.root)
+        print("{} clusters before cutting out short paths.".format(len(self.maximals)))
+        #self.plot_tree(path="before.svg")
+        self._delete_noise_clusters(self.root, depth=prune_depth)
+        print("{} clusters after cutting out short paths.".format(len(self.maximals)))
+        #self.plot_tree(path="after.svg")
+        self._calculate_characterizing_cuts(self.root)
+
 
     def __str__(self):
         return str(self.root)
+
+    def _delete_noise_clusters(self, node, depth):
+        if depth == 0:
+            return
+
+        if node is None:
+            ValueError("this should not happen")
+            return
+
+        if node.is_leaf():
+            if node.parent is None:
+                Warning("This node is a leaf and the root at the same time. This tree is empty!")
+            else:
+                node_id = node.last_cut_added_id
+                parent_id = node.parent.last_cut_added_id
+
+                diff = node_id - parent_id
+
+                if diff <= depth:
+                    self.maximals.remove(node)
+                    node.parent.splitting = False
+                    if node.is_left_child:
+                        node.parent.left_child = None
+                        node.parent.is_left_child_deleted = True
+                    else:
+                        node.parent.right_child = None
+                        if node.parent.is_left_child_deleted:
+                            self.maximals.append(node.parent)
+                            self._delete_noise_clusters(node.parent, depth)
+
+        else:
+            self._delete_noise_clusters(node.left_child, depth)
+            if not node.splitting:
+                self.splitting.remove(node)
+
+            self._delete_noise_clusters(node.right_child, depth)
+
+            if not node.splitting:
+                if node.parent is None:
+                    if node.right_child is not None:
+                        self.root = node.right_child
+                        self.root.parent = None
+                    elif node.left_child is not None:
+                        self.root = node.left_child
+                        self.root.parent = None
+                else:
+                    if node in self.splitting:
+                        self.splitting.remove(node)
+                        if node.is_left_child:
+                            node.parent.left_child = node.left_child
+                        else:
+                            node.parent.right_child = node.left_child
+                    else:
+                        if node.right_child is not None:
+                            if node.is_left_child:
+                                node.parent.left_child = node.right_child
+                            else:
+                                node.parent.right_child = node.right_child
+
+    def _calculate_characterizing_cuts(self, node):
+        if node is None:
+            ValueError('wait a minute')
+
+        if node.left_child is None and node.right_child is None:
+            node.characterizing_cuts = dict()
+            return
+        else:
+            if node.left_child is not None and node.right_child is not None:
+                self._calculate_characterizing_cuts(node.left_child)
+                self._calculate_characterizing_cuts(node.right_child)
+
+                process_split(node)
+                return
+            else:
+                ValueError('This should not be happening. Tree is a full binary tree! ID: {}'.format(node.last_cut_added_id))
 
     def _contract_subtree(self, parent, node):
         if node.left_child is None and node.right_child is None:
             # is leaf so create new node
             contracted_node = ContractedTangleNode(parent=parent, node=node)
-            contracted_node.characterizing_cuts = dict()
             self.maximals.append(contracted_node)
             return contracted_node
         elif node.left_child is not None and node.right_child is not None:
@@ -265,11 +349,13 @@ class ContractedTangleTree(TangleTree):
 
             contracted_left_child = self._contract_subtree(parent=contracted_node, node=node.left_child)
             contracted_node.left_child = contracted_left_child
+            # let it know that it is a left child!
+            contracted_node.left_child.is_left_child = True
 
             contracted_right_child = self._contract_subtree(parent=contracted_node, node=node.right_child)
             contracted_node.right_child = contracted_right_child
-
-            process_split(contracted_node)
+            # let it know that it is a right child!
+            contracted_node.right_child.is_left_child = False
 
             self.splitting.append(contracted_node)
 

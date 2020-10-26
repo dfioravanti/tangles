@@ -29,7 +29,7 @@ def euclidean_distance(xs, n_samples, cut):
     if np.all(cut) or np.all(~cut):
         return 0
 
-    if not(n_samples):
+    if not n_samples:
 
         in_cut = xs[cut, :]
         out_cut = xs[~cut, :]
@@ -56,7 +56,7 @@ def euclidean_distance(xs, n_samples, cut):
     similarity = 1. / (distance / np.max(distance))
     expected_similarity = np.sum(similarity)
 
-    return np.round(expected_similarity, 2)
+    return expected_similarity
 
 
 def mean_euclidean_distance(xs, n_samples, cut):
@@ -85,7 +85,7 @@ def mean_euclidean_distance(xs, n_samples, cut):
     if np.all(cut) or np.all(~cut):
         return 0
 
-    if not(n_samples):
+    if not n_samples:
 
         in_cut = xs[cut, :]
         out_cut = xs[~cut, :]
@@ -112,7 +112,7 @@ def mean_euclidean_distance(xs, n_samples, cut):
     similarity = 1. / (distance / np.max(distance))
     expected_similarity = np.mean(similarity)
 
-    return np.round(expected_similarity, 2)
+    return expected_similarity
 
 
 def manhattan_distance(xs, n_samples, cut):
@@ -141,7 +141,7 @@ def manhattan_distance(xs, n_samples, cut):
     if np.all(cut) or np.all(~cut):
         return 0
 
-    if not(n_samples):
+    if not n_samples:
 
         in_cut = xs[cut, :]
         out_cut = xs[~cut, :]
@@ -168,7 +168,7 @@ def manhattan_distance(xs, n_samples, cut):
     similarity = 1. / (distance / np.max(distance))
     expected_similarity = np.sum(similarity)
 
-    return np.round(expected_similarity, 2)
+    return expected_similarity
 
 
 def mean_manhattan_distance(xs, n_samples, cut):
@@ -197,7 +197,7 @@ def mean_manhattan_distance(xs, n_samples, cut):
     if np.all(cut) or np.all(~cut):
         return 0
 
-    if not(n_samples):
+    if not n_samples:
 
         in_cut = xs[cut, :]
         out_cut = xs[~cut, :]
@@ -224,16 +224,16 @@ def mean_manhattan_distance(xs, n_samples, cut):
     similarity = 1. / (distance / np.max(distance))
     expected_similarity = np.mean(similarity)
 
-    return np.round(expected_similarity, 2)
+    return expected_similarity
 
 
-def edges_cut_cost(A, cut):
-
+def edges_cut_cost(A, n_samples, cut):
     """
     Compute the value of a graph cut, i.e. the number of vertex that are cut by the bipartition
 
     Parameters
     ----------
+    n_samples
     A: array of shape [nb_vertices, nb_vertices]
         Adjacency matrix for our graph
     cut: array of shape [n_points]
@@ -248,18 +248,25 @@ def edges_cut_cost(A, cut):
     partition = np.where(cut == True)[0]
     comp = np.where(cut == False)[0]
 
-    order = np.sum(A[np.ix_(partition, comp)])
+    values = A[np.ix_(partition, comp)].reshape(-1)
+
+    if not n_samples:
+        order = np.sum(values)
+    else:
+        if len(values) > int(n_samples):
+            values = np.random.choice(values, n_samples)
+        order = np.sum(values)
 
     return order
 
 
-def mean_edges_cut_cost(A, cut):
-
+def mean_edges_cut_cost(A, n_samples, cut):
     """
     Compute the value of a graph cut, i.e. the number of vertex that are cut by the bipartition
 
     Parameters
     ----------
+    n_samples
     A: array of shape [nb_vertices, nb_vertices]
         Adjacency matrix for our graph
     cut: array of shape [n_points]
@@ -274,6 +281,13 @@ def mean_edges_cut_cost(A, cut):
     partition = np.where(cut == True)[0]
     comp = np.where(cut == False)[0]
 
-    order = np.mean(A[np.ix_(partition, comp)])
+    values = A[np.ix_(partition, comp)].reshape(-1)
+
+    if not n_samples:
+        order = np.mean(values)
+    else:
+        if len(values) > int(n_samples):
+            values = np.random.choice(values, n_samples)
+        order = np.mean(values)
 
     return order
