@@ -11,7 +11,7 @@ from sklearn.datasets import make_moons, make_blobs, make_circles
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 from sklearn.neighbors._dist_metrics import DistanceMetric
 
-from src.my_types import Dataset, CutFinding, Data, Bipartitions, Preprocessing, CostFunction
+from src.my_types import Dataset, CutFinding, Data, Cuts, Preprocessing, CostFunction
 from src.cut_finding import kernighan_lin, fid_mat, binning, linear_cuts, \
     random_projection_mean
 from src.loading import make_mindsets, make_likert_questionnaire, load_RETINAL, load_CANCER, load_SBM, load_LFR
@@ -19,7 +19,7 @@ from src.plotting import plot_cuts
 from src.preprocessing import calculate_knn_graph, calculate_radius_graph, calculate_weighted_knn_graph
 from src.tangles import core_algorithm
 from src.tree_tangles import TangleTree, compute_soft_predictions_children
-from src.utils import change_lower, change_upper, normalize
+from src.utils import normalize
 from src.cost_functions import edges_cut_cost, mean_euclidean_distance, euclidean_distance, \
     manhattan_distance, mean_manhattan_distance, mean_edges_cut_cost
 import time
@@ -148,7 +148,7 @@ def find_bipartitions(data, args, verbose):
 
     Returns
     -------
-    cuts: Bipartitions
+    cuts: Cuts
         the cuts that we will use
     """
 
@@ -157,7 +157,7 @@ def find_bipartitions(data, args, verbose):
         values = (data.xs == True).T
         end = time.time() - start
 
-        return Bipartitions(values=values), end
+        return Cuts(values=values), end
 
     if args['experiment']['cut_finding'] == CutFinding.binning:
         start = time.time()
@@ -165,7 +165,7 @@ def find_bipartitions(data, args, verbose):
                                 n_bins=args['cut_finding']['n_bins'])
         end = time.time() - start
 
-        return Bipartitions(values=values, names=names), end
+        return Cuts(values=values, names=names), end
 
     if args['experiment']['cut_finding'] == CutFinding.Kernighan_Lin:
         start = time.time()
@@ -178,7 +178,7 @@ def find_bipartitions(data, args, verbose):
         end = time.time() - start
 
         values = np.unique(values, axis=0)
-        return Bipartitions(values=values), end
+        return Cuts(values=values), end
 
     # if args['experiment']['cut_finding'] == CutFinding.kmodes:
     #
@@ -197,7 +197,7 @@ def find_bipartitions(data, args, verbose):
                          early_stopping=args['cut_finding']['early_stopping'])
         values = np.unique(values, axis=0)
         end = time.time() - start
-        return Bipartitions(values=values), end
+        return Cuts(values=values), end
 
     if args['experiment']['cut_finding'] == CutFinding.linear:
         start = time.time()
@@ -206,7 +206,7 @@ def find_bipartitions(data, args, verbose):
                                         verbose=verbose)
 
         end = time.time() - start
-        return Bipartitions(values=values, equations=equations), end
+        return Cuts(values=values, equations=equations), end
 
     if args['experiment']['cut_finding'] == CutFinding.random_projection:
         start = time.time()
@@ -214,7 +214,7 @@ def find_bipartitions(data, args, verbose):
                                         nb_cuts=args['cut_finding']['nb_cuts'],
                                         seed=args['experiment']['seed'])
         end = time.time() - start
-        return Bipartitions(values=values), end
+        return Cuts(values=values), end
 
     raise ValueError('Wrong name for a cut finding function')
 
@@ -281,14 +281,14 @@ def compute_cost_and_order_cuts(bipartitions, cost_function):
 
     Parameters
     ----------
-    cuts: Bipartitions
+    cuts: Cuts
         the cuts that we will consider
     cost_function: function
         The order function
 
     Returns
     -------
-    cuts: Bipartitions
+    cuts: Cuts
         the cuts ordered by costs
     """
 
@@ -316,7 +316,7 @@ def pick_cuts_up_to_order(bipartitions, percentile):
 
     Parameters
     ----------
-    cuts: Bipartitions
+    cuts: Cuts
     percentile
 
     Returns
@@ -358,7 +358,7 @@ def get_cuts(args, data):
     Returns
     -------
     data: Data
-    cuts: Bipartitions
+    cuts: Cuts
     """
 
     if args['verbose'] >= 2:
@@ -393,7 +393,7 @@ def get_cuts(args, data):
     return bipartitions, bipartitions_time, cost_and_sort_time
 
 
-def tangle_computation(bipartitions, agreement, verbose):
+def tangle_computation(cuts, agreement, verbose):
     """
 
     Parameters
@@ -416,28 +416,28 @@ def tangle_computation(bipartitions, agreement, verbose):
     tangles_tree = TangleTree(agreement=agreement)
     old_order = None
 
-    unique_orders = np.unique(bipartitions.costs)
+    unique_orders = np.unique(cuts.costs)
 
     for order in unique_orders:
 
         if old_order is None:
-            idx_cuts_order_i = np.where(bipartitions.costs <= order)[0]
+            idx_cuts_order_i = np.where(cuts.costs <= order)[0]
         else:
-            idx_cuts_order_i = np.where(np.all([bipartitions.costs > old_order,
-                                                bipartitions.costs <= order], axis=0))[0]
+            idx_cuts_order_i = np.where(np.all([cuts.costs > old_order,
+                                                cuts.costs <= order], axis=0))[0]
 
         if len(idx_cuts_order_i) > 0:
 
             if verbose >= 2:
                 print("\tCompute tangles of order {} with {} new cuts".format(order, len(idx_cuts_order_i)), flush=True)
 
-            cuts_order_i = bipartitions.values[idx_cuts_order_i]
-            new_tree = core_algorithm(new_tree=tangles_tree,
+            cuts_order_i = cuts.values[idx_cuts_order_i]
+            new_tree = core_algorithm(tree=tangles_tree,
                                       current_cuts=cuts_order_i,
                                       idx_current_cuts=idx_cuts_order_i)
 
             if new_tree is None:
-                max_order = bipartitions.costs[-1]
+                max_order = cuts.costs[-1]
                 if verbose >= 2:
                     print('\t\tI could not add all the new cuts')
                     print('\n\tI stopped the computation at order {} instead of {}'.format(old_order, max_order),
@@ -447,7 +447,7 @@ def tangle_computation(bipartitions, agreement, verbose):
                 tangles_tree = new_tree
 
                 if verbose >= 2:
-                    print("\t\tI found {} tangles of order less or equal {}".format(len(new_tree.active), order),
+                    print("\t\tI found {} tangles of order less or equal {}".format(len(new.active), order),
                           flush=True)
 
         old_order = order
@@ -487,43 +487,43 @@ def print_tangles_names(name_cuts, tangles_by_order, order_best, verbose, path):
                 answers.to_csv(path / '..' / 'best.csv', index=False)
 
 
-def tangles_to_range_answers(tangles, cut_names, interval_values, path):
-    # the questions are of the form 'name greater or equal than value'
-    # this regex gets the name and the value
-    template = re.compile(r"(\w+) .+ (\d+)")
-
-    range_answers = pd.DataFrame()
-    for tangle in tangles:
-
-        results = {}
-        for cut, orientation in tangle.specification.items():
-
-            name, value = template.findall(cut_names[cut])[0]
-            value = int(value)
-
-            old = results.get(name, None)
-            if old is None:
-                new = interval_values
-            else:
-                new = old
-
-            if orientation:
-                new = change_lower(new, value)
-            else:
-                new = change_upper(new, value - 1)
-            results[name] = new
-
-        range_answers = range_answers.append(pd.DataFrame([results]))
-
-    prettification = lambda i: i if i.left != i.right else i.left
-    convert_to_interval = lambda i: pd.Interval(left=i[0], right=i[1], closed='both')
-
-    range_answers = range_answers.applymap(convert_to_interval)
-    range_answers = range_answers.reindex(sorted(range_answers.columns), axis=1)
-
-    range_answers.applymap(prettification).to_csv(path / 'range_answers.csv', index=False)
-
-    return range_answers
+# def tangles_to_range_answers(tangles, cut_names, interval_values, path):
+#     # the questions are of the form 'name greater or equal than value'
+#     # this regex gets the name and the value
+#     template = re.compile(r"(\w+) .+ (\d+)")
+#
+#     range_answers = pd.DataFrame()
+#     for tangle in tangles:
+#
+#         results = {}
+#         for cut, orientation in tangle.specification.items():
+#
+#             name, value = template.findall(cut_names[cut])[0]
+#             value = int(value)
+#
+#             old = results.get(name, None)
+#             if old is None:
+#                 new = interval_values
+#             else:
+#                 new = old
+#
+#             if orientation:
+#                 new = change_lower(new, value)
+#             else:
+#                 new = change_upper(new, value - 1)
+#             results[name] = new
+#
+#         range_answers = range_answers.append(pd.DataFrame([results]))
+#
+#     prettification = lambda i: i if i.left != i.right else i.left
+#     convert_to_interval = lambda i: pd.Interval(left=i[0], right=i[1], closed='both')
+#
+#     range_answers = range_answers.applymap(convert_to_interval)
+#     range_answers = range_answers.reindex(sorted(range_answers.columns), axis=1)
+#
+#     range_answers.applymap(prettification).to_csv(path / 'range_answers.csv', index=False)
+#
+#     return range_answers
 
 
 def clean_str(element):

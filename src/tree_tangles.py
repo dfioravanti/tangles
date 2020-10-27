@@ -13,6 +13,7 @@ from src.utils import matching_items, Orientation
 
 MAX_CLUSTERS = 50
 
+
 class TangleNode(object):
 
     def __init__(self, parent, right_child, left_child, is_left_child, splitting,
