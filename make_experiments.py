@@ -2,7 +2,7 @@ import datetime
 
 import numpy as np
 
-from src.config import DATASET_SBM, DATASET_MINDSETS, PREPROCESSING_FID_MAT, PREPROCESSING_USE_FEATURES
+from src.my_types import Dataset, CutFinding
 from src.utils import dict_product
 
 ts = int(datetime.datetime.now().timestamp())
@@ -11,14 +11,14 @@ parameters = {}
 multi_parameters = {}
 
 parameters['--id'] = ts
-parameters['-t'] = DATASET_MINDSETS
+parameters['-t'] = Dataset.mindsets
 
 multi_parameters['-s'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-if parameters['-t'] == DATASET_SBM:
+if parameters['-t'] == Dataset.sbm:
 
     sizes = np.linspace(5, 60, 10).astype(int)
 
-    parameters['-p'] = PREPROCESSING_FID_MAT
+    parameters['-p'] = CutFinding.Fiduccia_Mattheyses
     multi_parameters['-o'] = [100]
     multi_parameters['-a'] = [50]
     multi_parameters['--nb_cuts'] = [50]
@@ -28,11 +28,11 @@ if parameters['-t'] == DATASET_SBM:
     multi_parameters['--sbm_q'] = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
 
 
-elif parameters['-t'] == DATASET_MINDSETS:
+elif parameters['-t'] == Dataset.mindsets:
 
     sizes = np.linspace(5, 55, 9).astype(int)
 
-    parameters['-p'] = PREPROCESSING_USE_FEATURES
+    parameters['-p'] = CutFinding.features
     multi_parameters['-o'] = [100]
     multi_parameters['--mind_sizes'] = [[size, size] for size in sizes]
     multi_parameters['--mind_questions'] = [40]
@@ -42,7 +42,7 @@ elif parameters['-t'] == DATASET_MINDSETS:
 with open('parameters.txt', 'w') as f:
     for current_parameters in dict_product(multi_parameters):
 
-        if parameters['-t'] == DATASET_MINDSETS:
+        if parameters['-t'] == Dataset.mindsets:
             parameters['-a'] = current_parameters['--mind_sizes'][0] // 3
 
         p = {**parameters, **current_parameters}

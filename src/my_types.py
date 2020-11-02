@@ -81,7 +81,7 @@ class Data(object):
             self.original_xs = xs.copy()
 
 
-class Bipartitions(object):
+class Cuts(object):
 
     def __init__(self, values, names=None, equations=None, costs=None):
 

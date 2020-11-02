@@ -1,5 +1,4 @@
 import multiprocessing
-import time
 from functools import partial
 
 import numpy as np
@@ -7,8 +6,6 @@ import pandas as pd
 from kmodes.kmodes import KModes
 from sklearn.cluster import KMeans
 from sklearn.random_projection import GaussianRandomProjection
-
-import src.coarsening as coarsening
 
 
 def linear_cuts(xs, equations, verbose=0):
@@ -378,25 +375,6 @@ def adjust_gain(g_list, cell, value):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Coarsening approach
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def coarsening_cuts(A, nb_cuts, n_max):
-    find_cuts = coarsening.FindCuts(A=A,
-                                    merge_fn=coarsening.max_cut_merging,
-                                    partition_fn=coarsening.compute_spectral_wcut)
-
-    cuts = []
-
-    for _ in np.arange(nb_cuts):
-        cuts.append(find_cuts(N_max=n_max, verbose=False))
-
-    cuts = np.array(cuts).astype(bool)
-    return cuts
-
-
-# ----------------------------------------------------------------------------------------------------------------------
 # random projection and 2 means
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -411,10 +389,7 @@ def random_projection_mean(xs, nb_cuts, seed):
 
         projection = GaussianRandomProjection(n_components=1, random_state=seed).fit_transform(xs).reshape(-1)
 
-        #cut = KMeans(n_clusters=2, random_state=seed).fit(projection).labels_
         cut_value = np.mean(projection)
-
-        #cut_value = find_optimum(projection)
 
         cut = projection < cut_value
 

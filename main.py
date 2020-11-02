@@ -56,7 +56,7 @@ def main(args):
 
     seed = args['experiment']['seed']
 
-    for r in range(1, args['runs']+1):
+    for r in range(1, args['runs'] + 1):
         start_all = time.time()
         args['experiment']['seed'] = r + seed
         hyperparameters['seed'] = args['experiment']['seed']
@@ -105,7 +105,7 @@ def main(args):
 
         if args['experiment']['dataset'] == Dataset.mindsets:
             ys_predicted, cs = compute_hard_predictions(contracted_tree,
-                                               cuts=bipartitions, xs=data.xs)
+                                                        cuts=bipartitions, xs=data.xs)
 
             metric = DistanceMetric.get_metric('manhattan')
 
@@ -115,14 +115,10 @@ def main(args):
 
             ys_predicted_gt = compute_mindset_prediciton(data.xs, data.cs)
 
-
             print("ground truth: ", normalized_mutual_info_score(data.ys, ys_predicted_gt))
         else:
             ys_predicted, _ = compute_hard_predictions(contracted_tree,
-                                                   cuts=bipartitions)
-
-
-
+                                                       cuts=bipartitions)
 
         if args['plot']['hard']:
             path = args['output_dir'] / 'clustering'

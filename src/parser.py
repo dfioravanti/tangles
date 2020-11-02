@@ -25,7 +25,7 @@ def make_parser():
     parser.add_argument('-b', dest='cut_finding', action='store')
     parser.add_argument('-a', dest='agreement', action='store', type=int)
     parser.add_argument('-o', dest='percentile_orders', action='store', type=int)
-    parser.add_argument('-s', dest='seed', action='store', type=int, default=2)
+    parser.add_argument('-s', dest='seed', action='store', type=int, default=10)
     parser.add_argument('-c', dest='cost_function', action='store')
 
     parser.add_argument('--prune', dest='prune_depth', action='store', type=int, default=0)
