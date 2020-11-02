@@ -1,0 +1,36 @@
+id, Type of experiment
+0, Local experiments
+1589802894, SBM full tree
+1590579968, SBM
+1590672352, SBM test nb cuts
+1590679038, SBM 20 cuts keep 80%
+
+1590585263, Mindsets (old)
+1590663805, Mindsets
+
+1590676940, Mindsets 100-50% 20 questions
+1590906539, Mindsets 100-50% 40 questions
+
+1590686580, Mindsets 0->40 questions
+1590905834, Mindsets a vs size 0 and 0.1 noise 20 cuts
+1590906222, Mindsets a vs size 0 and 0.1 noise 40 cuts
+1591017278, Mindsets a vs size 0.2 noise 40 cuts
+1590928392, Mindsets o vs p with 0.1 noise 40 cuts 0 10 20 30 40 noisy
+1590919210, Unbalanced
+
+1590925112, SBM a vs size 0.2 and 0.4 lb 20 cuts
+1590928658, SBM o vs p with 0.2 and 0.4 lb 20 cuts
+1590935943, SBM nb questions 100 points
+1590934402, SBM Unbalanced
+
+1591014530, SMB true a vs of
+1591003606, Mindsets true a vs of
+
+1591037064, SMB true a vs of better resolution
+1591042648, Mindsets true a vs of
+1591046047, less questions Mindsets true a vs of
+1591047201,  smaller Mindsets true a vs of
+
+
+1591102901, new main plot sbm
+1591166117, new main plot mindset

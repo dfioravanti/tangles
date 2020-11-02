@@ -1,7 +1,7 @@
 from copy import deepcopy
 from itertools import combinations
-from src.utils import subset
-from bitarray import bitarray
+
+from bitarray.util import subset
 
 
 class Tangle(dict):
@@ -20,7 +20,7 @@ class Tangle(dict):
     def __str__(self):
         return str(self.specification)
 
-    def __init__(self, cuts=None, core=None, specification=None):
+    def __init__(self, cuts=[], core=[], specification={}):
 
         """
         Initialise a new specification
@@ -36,14 +36,6 @@ class Tangle(dict):
             the value is which orientation of that specification we need to take
         """
 
-        super().__init__()
-        if core is None:
-            core = []
-        if cuts is None:
-            cuts = []
-        if specification is None:
-            specification = {}
-
         self.cuts = cuts
         self.core = core
         self.specification = specification
@@ -56,7 +48,7 @@ class Tangle(dict):
         Parameters
         ----------
         new_cut: bitarray
-            The cut that we need to add as bitarray
+            The bipartition that we need to add as bitarray
         new_cut_specification: dict of bool
             The specification of new_cut
         min_size:
@@ -85,7 +77,6 @@ class Tangle(dict):
             del core[i]
 
         if len(core) == 0:
-            # noinspection PyArgumentList
             if new_cut.count() < min_size:
                 return None
         elif len(core) == 1:
@@ -103,28 +94,12 @@ class Tangle(dict):
         return Tangle(cuts, core, specification)
 
 
-def core_algorithm(tree, current_cuts, idx_current_cuts):
-    """
-    Algorithm iteratively adding cuts to the tree
-
-    Parameters
-    ----------
-    tree: TangleTree
-        The binary tree the cut should be added to
-    current_cuts: list
-        Current cuts to add
-    idx_current_cuts: list
-        Indices of the cuts giving their layer in the tree (based on the order induced by the cost)
-
-    Returns
-    -------
-    tree: TangleTree
-        We return the new tree with added cuts if it is possible
-    """
+def core_algorithm(new_tree, current_cuts, idx_current_cuts):
+    #new_tree = deepcopy(tangles_tree)
 
     for idx_cut, cut in zip(idx_current_cuts, current_cuts):
-        could_add = tree.add_cut(cut=cut, cut_id=idx_cut)
-        if could_add is False:
+        could_add = new_tree.add_cut(cut=cut, cut_id=idx_cut)
+        if could_add == False:
             return None
 
-    return tree
+    return new_tree

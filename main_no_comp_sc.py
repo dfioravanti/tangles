@@ -7,7 +7,7 @@ from src.config import load_validate_parser, set_up_dirs, load_validate_config_f
 from src.execution import compute_and_save_evaluation, tangle_computation, \
     compute_soft_predictions, compute_hard_predictions, save_time_evaluation, get_data, get_cuts, \
     compute_mindset_prediciton
-from src.baselines import compute_and_save_comparison
+from src.baselines import compute_and_save_comparison, compute_and_save_comparison_no_sc
 from src.my_types import Dataset
 from src.parser import make_parser
 from src.plotting import plot_soft_predictions, plot_hard_predictions
@@ -16,7 +16,6 @@ import time
 import numpy as np
 
 from src.tree_tangles import ContractedTangleTree
-import matplotlib.pyplot as plt
 
 
 def main(args):
@@ -96,6 +95,7 @@ def main(args):
         if args['plot']['tree']:
             contracted_tree.plot_tree(path=args['output_dir'] / 'contracted.svg')
 
+
         if args['plot']['soft']:
             path = args['output_dir'] / 'clustering'
             plot_soft_predictions(data=data,
@@ -106,23 +106,9 @@ def main(args):
         if args['experiment']['dataset'] == Dataset.mindsets:
             ys_predicted, cs = compute_hard_predictions(contracted_tree,
                                                cuts=bipartitions, xs=data.xs)
-
-            metric = DistanceMetric.get_metric('manhattan')
-
-            distance = metric.pairwise(cs, data.cs)
-
-            print([np.min(d) for d in distance])
-
-            ys_predicted_gt = compute_mindset_prediciton(data.xs, data.cs)
-
-
-            print("ground truth: ", normalized_mutual_info_score(data.ys, ys_predicted_gt))
         else:
-            ys_predicted, _ = compute_hard_predictions(contracted_tree,
+            ys_predicted, cs = compute_hard_predictions(contracted_tree,
                                                    cuts=bipartitions)
-
-
-
 
         if args['plot']['hard']:
             path = args['output_dir'] / 'clustering'
@@ -136,7 +122,7 @@ def main(args):
                                         path=args['output_dir'],
                                         r=r)
 
-    compute_and_save_comparison(data=data,
+    compute_and_save_comparison_no_sc(data=data,
                                 hyperparameters=hyperparameters,
                                 id_run=id_run,
                                 path=args['output_dir'],

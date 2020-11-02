@@ -13,7 +13,6 @@ from src.utils import matching_items, Orientation
 
 MAX_CLUSTERS = 50
 
-
 class TangleNode(object):
 
     def __init__(self, parent, right_child, left_child, is_left_child, splitting,
@@ -118,7 +117,7 @@ def _add_new_child(current_node, tangle, last_cut_added_id, last_cut_added_orien
 
 class TangleTree(object):
 
-    def __init__(self, agreement, max_clusters=None):
+    def __init__(self, agreement):
 
         self.root = TangleNode(parent=None,
                                right_child=None,
@@ -129,7 +128,6 @@ class TangleTree(object):
                                last_cut_added_id=-1,
                                last_cut_added_orientation=None,
                                tangle=Tangle())
-        self.max_clusters = max_clusters
         self.active = [self.root]
         self.maximals = []
         self.will_split = []
@@ -143,7 +141,7 @@ class TangleTree(object):
     # function checks if tree is empty
     # --- stops if number of active leaves gets too large ! ---
     def add_cut(self, cut, cut_id):
-        if self.max_clusters and len(self.active) > self.max_clusters:
+        if len(self.active) > MAX_CLUSTERS:
             return False
 
         current_active = self.active
@@ -167,10 +165,6 @@ class TangleTree(object):
 
     def _add_children_to_node(self, current_node, cut, cut_id):
         old_tangle = current_node.tangle
-
-        if cut.dtype is not bool:
-            cut = cut.astype(bool)
-
         new_tangle_true = old_tangle.add(new_cut=ba.bitarray(cut.tolist()),
                                          new_cut_specification={cut_id: True},
                                          min_size=self.agreement)
@@ -263,6 +257,7 @@ class ContractedTangleTree(TangleTree):
         print("{} clusters after cutting out short paths.".format(len(self.maximals)))
         #self.plot_tree(path="after.svg")
         self._calculate_characterizing_cuts(self.root)
+
 
     def __str__(self):
         return str(self.root)

@@ -1,0 +1,19 @@
+name: tangles
+channels:
+  - defaults
+dependencies:
+  - pip
+  - python=3.7
+  - scikit-learn
+  - numpy
+  - matplotlib
+  - pytest
+  - bitarray
+  - networkx
+  - jupyter
+  - pandas
+  - pyyaml
+  - pip:
+     - kmodes
+prefix: /home/dfioravanti/anaconda3/envs/tangles
+

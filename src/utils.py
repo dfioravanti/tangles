@@ -1,4 +1,5 @@
 import hashlib
+import itertools
 import json
 
 import numpy as np
@@ -11,9 +12,9 @@ class Orientation(object):
         self.orientation_bool = direction
         if direction == 'both':
             self.direction = direction
-        elif direction is True:
+        elif direction == True:
             self.direction = 'left'
-        elif direction is False:
+        elif direction == False:
             self.direction = 'right'
 
     def __eq__(self, value):
@@ -35,6 +36,9 @@ class Orientation(object):
 def get_hash(d):
     """
     Get the hash of a dictionary
+    
+    TODO: Check if it is better to change from MD5 to SHA1
+    
     Parameters
     ----------
     d: dict
@@ -92,28 +96,28 @@ def merge_dictionaries_with_disagreements(d1, d2):
     return merge
 
 
+def get_positions_from_labels(ys):
+    positions = np.zeros([len(ys), 2])
+    classes = np.unique(ys)
+
+    num_pts = len(classes)
+    indices = np.arange(0, num_pts, dtype=float) + 0.5
+
+    r = np.sqrt(indices / num_pts)
+    theta = np.pi * (1 + 5 ** 0.5) * indices
+
+    means = np.transpose([r * np.cos(theta), r * np.sin(theta)]) * 20
+
+    for i, c in enumerate(classes):
+        number = sum(ys == c)
+        pos = np.random.normal(means[i], [2, 2], [number, 2])
+        positions[ys == c, :] = pos
+
+    return positions
+
+
 def get_points_to_plot(xs, cs):
-    """
-    Calculate embedding of points for visualization
-
-    Parameters
-    ----------
-    xs: ndarray
-        the datapoints
-    cs: ndarray
-        the centers of the clusters if method supports
-
-    Returns
-    -------
-    xs_embedded:
-         embedding of points in two dimensions
-    cs_embedded:
-         embedding of centers if method supports
-    """
     _, nb_features = xs.shape
-
-    nb_centers = None
-    cs_embedded = None
     if cs is not None:
         nb_centers, _ = cs.shape
 
@@ -126,36 +130,33 @@ def get_points_to_plot(xs, cs):
             xs_embedded = TSNE(n_components=2, random_state=42).fit_transform(xs)
     else:
         xs_embedded = xs
-        cs_embedded = cs
 
     if cs is not None:
         return xs_embedded, cs_embedded
     else:
         return xs_embedded, None
 
-# def dict_product(dicts):
-#     """
-#      list(dict_product(dict(number=[1,2], character='ab')))
-#     [{'character': 'a', 'number': 1},
-#      {'character': 'a', 'number': 2},
-#      {'character': 'b', 'number': 1},
-#      {'character': 'b', 'number': 2}]
-#     """
-#     return (dict(zip(dicts.keys(), x)) for x in itertools.product(*dicts.values()))
+
+def dict_product(dicts):
+    """
+     list(dict_product(dict(number=[1,2], character='ab')))
+    [{'character': 'a', 'number': 1},
+     {'character': 'a', 'number': 2},
+     {'character': 'b', 'number': 1},
+     {'character': 'b', 'number': 2}]
+    """
+    return (dict(zip(dicts.keys(), x)) for x in itertools.product(*dicts.values()))
 
 
-# def change_lower(interval, new_value):
-#     if new_value > interval[0]:
-#         return new_value, interval[1]
-#
-#     return interval
-#
-#
-# def change_upper(interval, new_value):
-#     if new_value < interval[1]:
-#         return interval[0], new_value
-#
-#     return interval
+def change_lower(interval, new_value):
+    if new_value > interval[0]:
+        return new_value, interval[1]
 
-def subset(a, b):
-    return (a & b).count() == a.count()
+    return interval
+
+
+def change_upper(interval, new_value):
+    if new_value < interval[1]:
+        return interval[0], new_value
+
+    return interval

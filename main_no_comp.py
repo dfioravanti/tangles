@@ -16,7 +16,6 @@ import time
 import numpy as np
 
 from src.tree_tangles import ContractedTangleTree
-import matplotlib.pyplot as plt
 
 
 def main(args):
@@ -75,7 +74,6 @@ def main(args):
         compute_soft_predictions(contracted_tree=contracted_tree,
                                  cuts=bipartitions,
                                  verbose=args['verbose'])
-
         soft_clustering_time = time.time() - start
 
         time_all = time.time() - start_all
@@ -106,23 +104,9 @@ def main(args):
         if args['experiment']['dataset'] == Dataset.mindsets:
             ys_predicted, cs = compute_hard_predictions(contracted_tree,
                                                cuts=bipartitions, xs=data.xs)
-
-            metric = DistanceMetric.get_metric('manhattan')
-
-            distance = metric.pairwise(cs, data.cs)
-
-            print([np.min(d) for d in distance])
-
-            ys_predicted_gt = compute_mindset_prediciton(data.xs, data.cs)
-
-
-            print("ground truth: ", normalized_mutual_info_score(data.ys, ys_predicted_gt))
         else:
-            ys_predicted, _ = compute_hard_predictions(contracted_tree,
+            ys_predicted, cs = compute_hard_predictions(contracted_tree,
                                                    cuts=bipartitions)
-
-
-
 
         if args['plot']['hard']:
             path = args['output_dir'] / 'clustering'
@@ -135,12 +119,6 @@ def main(args):
                                         id_run=id_run,
                                         path=args['output_dir'],
                                         r=r)
-
-    compute_and_save_comparison(data=data,
-                                hyperparameters=hyperparameters,
-                                id_run=id_run,
-                                path=args['output_dir'],
-                                r=1)
 
 
 if __name__ == '__main__':
