@@ -447,7 +447,7 @@ def tangle_computation(cuts, agreement, verbose):
                 tangles_tree = new_tree
 
                 if verbose >= 2:
-                    print("\t\tI found {} tangles of order less or equal {}".format(len(new.active), order),
+                    print("\t\tI found {} tangles of order less or equal {}".format(len(new_tree.active), order),
                           flush=True)
 
         old_order = order
